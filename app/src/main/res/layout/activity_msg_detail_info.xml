@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="200dp"
+    android:layout_height="match_parent"
+    android:background="@color/light_gray_bg"
+    android:fitsSystemWindows="true">
+
+
+    <com.android.crypt.chatapp.widget.RoundImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginTop="60dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/cts_user_d_avatar"
+        app:borderRadius="10dp"
+        app:isCircle="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:text="xxx"
+        android:textAlignment="center"
+        android:textColor="@color/black_text"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:theme="@style/MyEditText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_avatar" />
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/once_msg"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="110dp"
+        android:background="@color/light_gray_line"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="0dp"
+            android:background="@color/clear"
+            android:gravity="center"
+            android:text="🔥"
+            android:textAlignment="center"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/once_msg_title"
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:background="@color/clear"
+            android:gravity="center"
+            android:text="一次性消息"
+            android:textStyle="bold"
+            android:textAlignment="textStart"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/once_msg_help"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:text="?"
+            android:layout_marginLeft="0dp"
+            android:background="@drawable/btn_help_shape"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/friend_card"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="60dp"
+        android:background="@color/light_gray_line"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="0dp"
+            android:background="@color/clear"
+            android:gravity="center"
+            android:text="🌟"
+            android:textAlignment="center"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:background="@color/clear"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="好友名片"
+            android:textAlignment="textStart"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/change_name"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="0dp"
+        android:background="@color/light_gray_line"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="0dp"
+            android:background="@color/clear"
+            android:gravity="center"
+            android:text="💡"
+            android:textAlignment="center"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="100dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
+            android:background="@color/clear"
+            android:gravity="center"
+            android:text="修改备注"
+            android:textStyle="bold"
+            android:textAlignment="textStart"
+            android:textColor="@color/black_text"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/cover_view"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#AA0F0F0F"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        app:layout_constraintBottom_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <TextView
+            android:layout_width="180dp"
+            android:layout_height="55dp"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/dialog_app_corner"
+            android:layout_marginTop="160dp"
+            android:layout_marginStart="10dp"
+            android:gravity="center"
+            android:text=" 一次性消息(点击后变黑色)\n 退出聊天页面, 消息自动删除"
+            android:textStyle="normal"
+            android:textAlignment="textStart"
+            android:textColor="@color/black_text"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+
+</android.support.constraint.ConstraintLayout>

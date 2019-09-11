@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_item_with_line"/>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white_bg"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white_bg"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/finda_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="80dp"
+                android:textSize="14sp"
+                android:hint="手机号"
+                android:inputType="phone"
+                android:textAlignment="center"
+                android:theme="@style/MyEditText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="parent" />
+
+            <Button
+                android:id="@+id/send_sms"
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:layout_gravity="right"
+                android:layout_marginRight="40dp"
+                android:background="@drawable/btn_login_shape"
+                android:text="发送验证码"
+                android:textColor="@color/white_bg"
+                android:textSize="13dp" />
+
+            <EditText
+                android:id="@+id/sms_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="30dp"
+                android:textSize="14sp"
+                android:hint="验证码"
+                android:inputType="phone"
+                android:textAlignment="center"
+                android:theme="@style/MyEditText"/>
+
+            <EditText
+                android:id="@+id/new_pword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="20dp"
+                android:textSize="14sp"
+                android:hint="新的密码"
+                android:inputType="text"
+                android:textAlignment="center"
+                android:theme="@style/MyEditText" />
+
+            <Button
+                android:id="@+id/reset_pword"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginEnd="40dp"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/btn_login_shape"
+                android:text="重置密码"
+                android:textColor="@color/white_bg"
+                android:textSize="14dp" />
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
+
+
+
+
+
+
+
+
+
+
+</android.support.design.widget.CoordinatorLayout>

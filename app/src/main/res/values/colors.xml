@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FFFFFFFF</color>
+    <color name="colorPrimaryDark">#FF429056</color>
+    <color name="colorAccent">#68b92e</color>
+    <color name="black_p50">#7f000000</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="black_transparent">#B2000000</color>
+    <color name="sagacity_red">#AC1F25</color>
+    <color name="sagacity_orange">#ed6700</color>
+    <color name="sagacity_blue">#3096df</color>
+    <color name="sagacity_yellow">#f5e900</color>
+    <color name="sagacity_white">#ffffff</color>
+    <color name="sagacity_blank">#303537</color>
+    <color name="sagacity_light_blank">#6c6c6c</color>
+    <color name="sagacity_gray">#cfcfcf</color>
+    <color name="sagacity_dark_gray">#b0b0b0</color>
+    <color name="sagacity_light_gray">#f2f2f2</color>
+    <color name="sagacity_green">#2dbe60</color>
+
+    <!--文字相关-->
+    <color name="text_blank_dark">#494949</color>
+    <color name="text_blank_normal">#6c6c6c</color>
+    <color name="text_blank_light">#b0b0b0</color>
+
+    <!-- tab切换相关颜色 -->
+    <color name="background_tab_pressed">#6633B5E5</color>
+
+    <!-- dialog的相关颜色 -->
+    <color name="detail_color">#7D7D7D</color>
+    <color name="dialog_item_choose_color">#d6d6d6</color>
+    <color name="dialog_item_text_red">#fd472b</color>
+    <color name="dialog_item_text_color">#007aff</color>
+
+    <!-- 列表相关 -->
+    <color name="list_divider">#B6B6B6</color>
+    <color name="list_bg">#f7f7f7</color>
+
+    <color name="coor_tab_normal">#808080</color>
+    <color name="coor_tab_select">#87a5cd</color>
+
+    <color name="form_tab_normal">#808080</color>
+    <color name="form_tab_select">#ed6700</color>
+
+    <!--文字相关-->
+    <color name="black_text">#FF0F0F0F</color>
+    <color name="blue_text">#FF1F3A80</color>
+    <color name="tips_text_h">#850F0F0F</color>
+    <color name="tips_text_l">#330F0F0F</color>
+
+
+    <color name="black_line">#220F0F0F</color>
+    <color name="black_line_light">#100F0F0F</color>
+
+    <color name="blue_bg">#FF1b8fe9</color>
+    <color name="blue_bg_light">#4C1b8fe9</color>
+    <color name="blue_text_Tips">#AA1b8fe9</color>
+    <color name="blue_bg_dark">#C08533be</color>
+    <color name="light_gray_bg">#fffafafa</color>
+    <color name="msg_text_bg">#fAfafafa</color>
+
+    <color name="white_bg">#FFFFFFFF</color>
+    <color name="clear_white">#AAFFFFFF</color>
+
+    <color name="clear">#00FFFFFF</color>
+
+
+    <color name="gray_line">#55999999</color>
+    <color name="light_gray_line">#fffbfbfb</color>
+
+
+    <color name="gray_bg">#FFF9F9F9</color>
+    <color name="green_bg">#FF3CC6AA</color>
+    <color name="green_tips">#FF0cdd07</color>
+    <color name="green_text">#FF17A813</color>
+
+    <drawable name="charIndexColor">#00FFFFFF</drawable>
+    <color name="charIndexColor">#CC0F0F0F</color>
+    <color name="multiple_image_select_primaryDark">#C08533be</color>
+
+</resources>
+

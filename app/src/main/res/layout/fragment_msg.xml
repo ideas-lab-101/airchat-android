@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            app:expandedTitleTextAppearance="@style/toolbarLayoutTitleBig"
+            app:collapsedTitleTextAppearance="@style/toolbarLayoutTitleSmall"
+            app:expandedTitleMarginStart="10dp"
+            app:expandedTitleMarginBottom="20dp"
+            app:expandedTitleGravity="bottom|left"
+            app:contentScrim="@color/white_bg"
+            app:collapsedTitleGravity="center"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/msg_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:titleTextAppearance="@style/Toolbar.TitleText"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+                app:popupTheme="@style/AppTheme.PopupOverlay" >
+
+                <com.wang.avi.AVLoadingIndicatorView
+                    android:id="@+id/connect_tips"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="10dp"
+                    android:visibility="visible"
+                    android:layout_marginRight="10dp"
+                    android:layout_gravity="right"
+                    app:indicatorColor="@color/blue_bg_dark"
+                    app:indicatorName="BallSpinFadeLoaderIndicator" />
+
+            </android.support.v7.widget.Toolbar>
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
+        android:id="@+id/list_bg_relative"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/white_bg"
+        android:visibility="visible"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:gravity="center">
+
+        <com.android.crypt.chatapp.widget.swipexlistview.SwipeXListView
+            android:id="@+id/message_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white_bg"
+            android:cacheColorHint="#00000000"
+            android:divider="@color/list_divider"
+            android:dividerHeight="0dp"
+            android:fadingEdgeLength="0dip"
+            android:listSelector="#00000000"
+            android:overScrollMode="never"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_scrollFlags="scroll|enterAlways"
+            android:scrollbars="none" />
+
+        <TextView
+            android:id="@+id/empty_view"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:padding="20dp"
+            android:text="你好，欢迎使用AirChat。你可以添加/选择好友，开始你的安全私密对话\n\n"
+            android:textStyle="italic"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:textAlignment="textStart"
+            android:textColor="@color/black_text"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            />
+
+    </RelativeLayout>
+    <!--<android.support.v4.widget.NestedScrollView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
+
+
+
+    <!--</android.support.v4.widget.NestedScrollView>-->
+
+
+</android.support.design.widget.CoordinatorLayout>
+
+
+

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_item_with_line"/>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_bg"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/white_bg"
+        android:orientation="vertical" >
+
+        <EditText
+            android:id="@+id/input_account"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:inputType="text"
+            android:hint="@string/prompt_phone"
+            android:theme="@style/MyEditText"
+            android:textAlignment="center"
+            android:textSize="14sp"
+            android:maxLines="1" />
+
+
+        <Button
+            android:id="@+id/start_search"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_height"
+            android:layout_gravity="center"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:background="@drawable/btn_login_shape"
+            android:text="查找好友"
+            android:textColor="@color/white_bg"
+            android:textSize="19sp" />
+
+    </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white_bg"
+        android:layout_gravity="bottom"
+        android:gravity="bottom"
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/my_apply_list"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="30dp"
+            android:layout_weight="0.5"
+            android:background="@color/clear"
+            android:gravity="bottom"
+            android:textAlignment="textEnd"
+            android:paddingRight="20dp"
+            android:text="@string/title_bar_apply_friend"
+            android:textColor="@color/blue_text"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+
+
+
+
+
+
+</android.support.design.widget.CoordinatorLayout>

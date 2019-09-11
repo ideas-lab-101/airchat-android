@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_item_with_line"/>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/blue_bg_dark"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/show_bg"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white_bg"
+                android:orientation="vertical" >
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/pri_key_save_bg"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/white_bg"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/load_tips"
+                            android:layout_width="match_parent"
+                            android:layout_height="20dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="20dp"
+                            android:text=" ▾我的私钥"
+                            android:textColor="@color/tips_text_h"
+                            android:textSize="12sp"/>
+
+                        <LinearLayout
+                            android:id="@+id/pri_key_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/white_bg"
+                            android:orientation="vertical" >
+                            <RelativeLayout
+                                android:id="@+id/code_bg"
+                                android:layout_width="match_parent"
+                                android:layout_height="200dp"
+                                android:background="@color/light_gray_line">
+                                <ImageView
+                                    android:id="@+id/contentIvWithLogo"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentTop="true"
+                                    android:layout_gravity="center"
+                                    android:layout_marginTop="0dp"
+                                    android:background="@color/white_bg" />
+                            </RelativeLayout>
+                            <TextView
+                                android:id="@+id/code_tips"
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="10dp"
+                                android:text=" 标记(助记):"
+                                android:textColor="@color/black_text"
+                                android:textSize="14sp"/>
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginBottom="20dp"
+                            android:layout_marginTop="5dp"
+                            android:text=" ▾ 长按保存(建议妥善保存)\n ▾ 新设备登录需要密钥解密消息"
+                            android:textColor="@color/black_text"
+                            android:textSize="12sp"/>
+                    </LinearLayout>
+                </RelativeLayout>
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="0dp"
+                    android:text=" ▾私钥字符串, 禁用摄像头时可以复制字符串导入私钥"
+                    android:textColor="@color/tips_text_h"
+                    android:textSize="12sp"/>
+
+                <EditText
+                    android:id="@+id/pri_key_string"
+                    android:layout_width="match_parent"
+                    android:layout_height="120dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="20dp"
+
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:textColor="@color/black_text"
+                    android:textIsSelectable="true"
+                    android:background="@color/white_bg" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/check_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white_bg"
+                android:orientation="vertical" >
+                <EditText
+                    android:id="@+id/txt_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="200dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:inputType="textPassword"
+                    android:hint="@string/prompt_password"
+                    android:textSize="14sp"
+                    android:theme="@style/MyEditText"
+                    android:textAlignment="center"
+                    android:imeActionLabel="@string/action_sign_in"
+                    android:imeOptions="actionUnspecified"
+                    android:maxLines="1" />
+
+                <Button
+                    android:id="@+id/tv_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+
+                    android:layout_marginTop="40dp"
+                    android:gravity="center"
+                    android:background="@drawable/btn_login_shape"
+                    android:text="查看"
+                    android:textColor="@color/white_bg"
+                    android:textSize="19sp" />
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+
+
+
+
+    </ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

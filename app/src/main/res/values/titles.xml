@@ -1,0 +1,66 @@
+<resources>
+
+    <string name="title_bar_main">首页</string>
+    <string name="title_bar_help">帮助</string>
+
+
+    <string name="title_bar_userInfo">个人信息</string>
+    <string name="title_bar_password">修改密码</string>
+    <string name="title_bar_change_name">修改用户名</string>
+    <string name="title_bar_change_intro">修改职务</string>
+    <string name="title_bar_change_label">修改备注</string>
+
+    <string name="title_private_key">导入私钥</string>
+    <string name="title_bar_find_pwd">找回密码</string>
+    <string name="title_bar_qrCode">二维码</string>
+    <string name="title_bar_setting">设置</string>
+    <string name="title_bar_search_friend">查找好友</string>
+    <string name="title_bar_search_friend_result">查询结果</string>
+    <string name="title_bar_apply_friend">申请列表</string>
+    <string name="title_bar_code_other_result">二维码结果</string>
+    <string name="title_bar_keys_op">密钥</string>
+    <string name="title_bar_keys_watch">我的密钥</string>
+    <string name="title_bar_keys_re_cal">重新计算密钥</string>
+    <string name="title_bar_push_voice">推送声音</string>
+
+    <string name="title_bar_resend_msg">转发给联系人</string>
+    <string name="title_bar_text_size">聊天消息大小</string>
+    <string name="title_bar_position">位置</string>
+    <string name="title_bar_emoji">动画表情</string>
+
+    <string name="title_bar_reg">注册</string>
+
+    <string name="title_bar_map">地图位置</string>
+    <string name="title_bar_cal">日历选择</string>
+
+
+
+    <string name="title_bar_contact">通讯录</string>
+    <string name="title_bar_contact_select">选择联系人</string>
+    <string name="title_bar_group">自定义分组</string>
+    <string name="title_bar_friend">新的朋友</string>
+
+    <string name="title_bar_address_select">位置选择</string>
+    <string name="title_bar_message">消息列表</string>
+
+
+    <string name="tab_contact_la">通讯录</string>
+    <string name="tab_app_la">首页</string>
+    <string name="tab_application">应用</string>
+
+    <string name="tab_live">平台消息</string>
+    <string name="tab_forum">讨论组</string>
+    <string name="tab_msg_loading">获取离线消息...</string>
+    <string name="tab_msg">对话</string>
+    <string name="tab_contact">联系人</string>
+    <string name="tab_user">设置</string>
+
+
+    <string name="crypt_error_tips">解密错误，具体查看帮助</string>
+
+    <string name="title_province">省份选择</string>
+    <string name="title_city">城市选择</string>
+
+
+
+</resources>

@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:blurkit="http://schemas.android.com/tools"
+    android:id="@+id/all_con_bg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:clipChildren="false"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/im_time_bg"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:background="@color/clear"
+        android:orientation="vertical" >
+
+        <!--时间-->
+        <TextView
+            android:id="@+id/im_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/tips_text_h"
+            android:alpha="0.8"
+            android:background="@drawable/rig_tips_text_view"
+            android:textSize="12sp"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:text="今天 18:02"/>
+
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:clipChildren="false"
+        android:orientation="horizontal" >
+        <View
+            android:id="@+id/gap_line"
+            android:layout_width="5dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/msg_left_shape" />
+
+        <!--仅仅在debug模式下展示，最后的空白表格cell-->
+        <TextView
+            android:id="@+id/debug_show"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:visibility="gone"
+            android:text="debug提示，最后还有一行高度0的空白行"
+            android:textAlignment="center"
+            android:textColor="@color/black_text"
+            android:textSize="12sp"
+            android:background="@color/blue_bg" />
+        <!--底部布局 -->
+        <LinearLayout
+            android:id="@+id/bottom_bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical">
+            <!-- 文字-->
+            <LinearLayout
+                android:id="@+id/im_text_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <com.android.crypt.chatapp.msgDetail.IMTools.HttpTextView
+                    android:id="@+id/im_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="230dp"
+                    android:textColor="@color/black_text"
+                    android:textSize="15sp"
+                    android:layout_marginStart="10dp"
+                    android:textAlignment="textStart"
+                    android:textStyle="normal"
+                    android:background="@drawable/msg_text_left_shape"
+                    android:text=""/>
+            </LinearLayout>
+            <!-- 默认表情 -->
+            <LinearLayout
+                android:id="@+id/im_default_image_bg"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+                <RelativeLayout
+                    android:layout_width="100dp"
+                    android:layout_height="100dp">
+                    <com.wang.avi.AVLoadingIndicatorView
+                        android:id="@+id/default_image_tips"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:visibility="visible"
+                        android:layout_centerInParent="true"
+                        app:indicatorColor="@color/black_text"
+                        android:alpha="0.2"
+                        app:indicatorName="BallSpinFadeLoaderIndicator" />
+                    <ImageView
+                        android:id="@+id/im_default_image"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_centerInParent="true"
+                        android:visibility="visible"
+                        android:background="@color/clear"
+                        android:scaleType="centerInside" />
+                </RelativeLayout>
+
+            </LinearLayout>
+            <!-- 照片 表情包 -->
+            <LinearLayout
+                android:id="@+id/im_photo_image_bg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <com.wang.avi.AVLoadingIndicatorView
+                        android:id="@+id/image_loading"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:visibility="visible"
+                        android:layout_centerInParent="true"
+                        app:indicatorColor="@color/black_text"
+                        android:alpha="0.2"
+                        app:indicatorName="BallSpinFadeLoaderIndicator" />
+
+                    <ImageView
+                        android:id="@+id/im_photo_image"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:layout_margin="8dp"
+                        android:background="@color/clear_white"
+                        android:scaleType="fitXY" />
+                </RelativeLayout>
+            </LinearLayout>
+            <!-- 加密照片 -->
+            <LinearLayout
+                android:id="@+id/im_encode_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:id="@+id/im_en_photo_image"
+                        android:layout_width="100dp"
+                        android:layout_height="150dp"
+                        android:layout_margin="8dp"
+                        android:scaleType="fitXY" />
+
+                    <io.alterac.blurkit.BlurLayout
+                        android:layout_width="100dp"
+                        android:layout_height="150dp"
+                        app:blk_blurRadius="12"
+                        android:layout_margin="8dp"
+                        app:blk_downscaleFactor="0.12"/>
+
+                    <ImageView
+                        android:layout_width="100dp"
+                        android:layout_height="150dp"
+                        android:layout_margin="8dp"
+                        android:src="@mipmap/encode_image"
+                        android:background="@color/black_line_light"
+                        android:scaleType="centerInside" />
+
+                </RelativeLayout>
+            </LinearLayout>
+            <!-- 音频-->
+            <LinearLayout
+                android:id="@+id/im_voice_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="0dp"
+                    android:visibility="visible"
+                    android:orientation="vertical">
+                    <RelativeLayout
+                        android:id="@+id/voice_bg_color_view"
+                        android:layout_width="120dp"
+                        android:layout_height="35dp"
+                        android:layout_marginLeft="2dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/msg_left_shape" >
+                        <ImageView
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:src="@mipmap/im_voice_l"
+                            android:scaleType="fitXY"/>
+                        <TextView
+                            android:id="@+id/voice_length"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textColor="@color/white_bg"
+                            android:textSize="12sp"
+                            android:textAlignment="textStart"
+                            android:textStyle="normal"
+                            android:background="@color/clear"
+                            android:gravity="center"
+                            android:layout_alignParentRight="true"
+                            android:paddingRight="5dp"
+                            android:text="30s"/>
+
+                        <com.wang.avi.AVLoadingIndicatorView
+                            android:id="@+id/void_playing_tips"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            app:indicatorColor="@color/white_bg"
+                            android:visibility="gone"
+                            app:indicatorName="LineScalePulseOutIndicator" />
+                        <com.wang.avi.AVLoadingIndicatorView
+                            android:id="@+id/void_loading_tips"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            app:indicatorColor="@color/white_bg"
+                            android:visibility="gone"
+                            app:indicatorName="BallClipRotatePulseIndicator" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:id="@+id/im_voice_text"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:maxWidth="200dp"
+                        android:textColor="@color/black_text"
+                        android:textSize="14sp"
+                        android:layout_marginStart="2dp"
+                        android:textAlignment="textStart"
+                        android:textStyle="normal"
+                        android:background="#AAFAFAFA"
+                        android:padding="5dp"
+                        android:text=""/>
+                </LinearLayout>
+
+
+            </LinearLayout>
+            <!-- 位置-->
+            <LinearLayout
+                android:id="@+id/im_position_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/im_position_main"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black_text"
+                        android:layout_marginLeft="10dp"
+                        android:textSize="13sp"
+                        android:paddingLeft="5dp"
+                        android:paddingEnd="5dp"
+                        android:textAlignment="textStart"
+                        android:textStyle="bold"
+                        android:background="@color/white_bg"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:text="" />
+                    <TextView
+                        android:id="@+id/im_position_detail"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black_text"
+                        android:textSize="11sp"
+                        android:paddingLeft="5dp"
+                        android:layout_marginLeft="10dp"
+                        android:textAlignment="textStart"
+                        android:textStyle="normal"
+                        android:background="@color/white_bg"
+                        android:text="" />
+
+                    <ImageView
+                        android:layout_width="200dp"
+                        android:layout_height="110dp"
+                        android:layout_marginLeft="10dp"
+                        android:scaleType="fitXY"
+                        android:src="@mipmap/pos_cellimage" />
+                </LinearLayout>
+            </LinearLayout>
+            <!-- 联系人 -->
+            <LinearLayout
+                android:id="@+id/im_friend_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:visibility="gone"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/im_friend_head"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:scaleType="fitXY"
+                    android:src="@mipmap/default_head" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="0dp"
+                    android:background="@color/light_gray_line"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="160dp"
+                        android:layout_height="25dp"
+                        android:textColor="@color/tips_text_h"
+                        android:textSize="14sp"
+                        android:paddingLeft="10dp"
+                        android:textAlignment="textStart"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="给你推荐了联系人：" />
+                    <TextView
+                        android:id="@+id/im_friend_detail"
+                        android:layout_width="160dp"
+                        android:layout_height="35dp"
+                        android:textColor="@color/black_text"
+                        android:textSize="14sp"
+                        android:paddingLeft="10dp"
+                        android:textAlignment="textStart"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:text="野草" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>

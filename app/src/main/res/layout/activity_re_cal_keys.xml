@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_item_with_line"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white_bg"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/re_cal_tips"
+                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/black_line_light"
+                android:layout_marginTop="100dp"
+                android:orientation="vertical" >
+
+                <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:padding="5dp"
+                android:text="我们不建议频繁更改密钥"
+                android:textColor="@color/black_text"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="0dp"
+                    android:padding="5dp"
+                    android:text="‣ 为了保障消息安全，本地的消息均保存加密后的文本，加密密钥与你的私钥相关\n‣ 这意味着你一旦更改密钥，历史聊天记录将无法解密\n\n▹ 另一个方面，更改了密钥，会让你的历史聊天记录从此消失并无法破解\n▹ 新的密钥会提供新的安全性。在旧密钥泄漏时无法影响新消息的安全\n\n☑︎如果你的私钥没有泄漏，就不用经常修改密钥"
+                    android:textColor="@color/black_text"
+                    android:textStyle="bold"
+                    android:textSize="12sp"/>
+
+                <Button
+                    android:id="@+id/show_recal"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginBottom="20dp"
+                    android:gravity="center"
+                    android:background="@drawable/btn_login_shape"
+                    android:text="确定"
+                    android:textColor="@color/white_bg"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/recal_contant"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white_bg"
+                android:layout_marginTop="0dp"
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/start_re_cal"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="40dp"
+                    android:gravity="center"
+                    android:background="@drawable/btn_login_shape"
+                    android:text="开始计算密钥"
+                    android:textColor="@color/white_bg"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:id="@+id/keys_contant"
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white_bg"
+                    android:layout_marginTop="0dp"
+                    android:orientation="vertical" >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="20dp"
+                        android:text=" ▾当前公钥(不用管，自动上传服务器)"
+                        android:textColor="@color/tips_text_h"
+                        android:textSize="12sp"/>
+
+                    <EditText
+                        android:id="@+id/pub_key"
+                        android:layout_width="match_parent"
+                        android:maxHeight="120dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="2dp"
+                        android:textSize="14sp"
+                        android:textAlignment="textStart"
+                        android:textColor="@color/black_text"
+                        android:textIsSelectable="true"
+                        android:background="@drawable/edit_bg" />
+
+
+                    <View
+                        android:id="@+id/gap_line"
+                        android:layout_width="match_parent"
+                        android:layout_height="10dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@color/black_line_light" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:text=" ▾当前私钥(私钥字符串和二维码请至少保存一个)"
+                        android:textColor="@color/tips_text_h"
+                        android:textSize="12sp"/>
+
+                    <EditText
+                        android:id="@+id/pri_key"
+                        android:layout_width="match_parent"
+                        android:maxHeight="120dp"
+                        android:layout_height="120dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="2dp"
+                        android:textIsSelectable="true"
+                        android:textSize="14sp"
+                        android:textAlignment="textStart"
+                        android:textColor="@color/black_text"
+                        android:background="@drawable/edit_bg" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:id="@+id/pri_key_save_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@color/white_bg"
+                            android:orientation="vertical" >
+
+                            <TextView
+                                android:id="@+id/load_tips"
+                                android:layout_width="match_parent"
+                                android:layout_height="20dp"
+                                android:layout_marginEnd="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginTop="20dp"
+                                android:text=" ▾私钥二维码"
+                                android:textColor="@color/tips_text_h"
+                                android:textSize="12sp"/>
+
+                            <LinearLayout
+                                android:id="@+id/pri_key_bg"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/white_bg"
+                                android:orientation="vertical" >
+                                <RelativeLayout
+                                    android:id="@+id/code_bg"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="200dp"
+                                    android:background="@color/light_gray_line">
+                                    <ImageView
+                                        android:id="@+id/contentIvWithLogo"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_alignParentStart="true"
+                                        android:layout_alignParentTop="true"
+                                        android:layout_gravity="center"
+                                        android:layout_marginTop="0dp"
+                                        android:background="@color/white_bg" />
+                                </RelativeLayout>
+                                <TextView
+                                    android:id="@+id/code_tips"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="20dp"
+                                    android:layout_marginEnd="10dp"
+                                    android:layout_marginStart="10dp"
+                                    android:layout_marginTop="10dp"
+                                    android:layout_marginBottom="10dp"
+                                    android:text=" 标记(助记):"
+                                    android:textColor="@color/black_text"
+                                    android:textSize="14sp"/>
+
+                            </LinearLayout>
+
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="40dp"
+                                android:layout_marginEnd="10dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_marginBottom="20dp"
+                                android:layout_marginTop="5dp"
+                                android:text=" ▾ 长按保存(建议妥善保存)\n ▾ 新设备登录需要密钥解密消息"
+                                android:textColor="@color/black_text"
+                                android:textSize="12sp"/>
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+                    <Button
+                        android:id="@+id/upload_keys"
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="30dp"
+                        android:layout_marginTop="40dp"
+                        android:layout_marginBottom="50dp"
+                        android:gravity="center"
+                        android:background="@drawable/btn_login_shape"
+                        android:text="更新密钥"
+                        android:textColor="@color/white_bg"
+                        android:textSize="14sp" />
+
+
+                    <Button
+                        android:id="@+id/start_reg"
+                        android:layout_width="match_parent"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="30dp"
+                        android:layout_marginTop="40dp"
+                        android:layout_marginBottom="50dp"
+                        android:gravity="center"
+                        android:background="@drawable/btn_login_shape"
+                        android:text="继续"
+                        android:textColor="@color/white_bg"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
+</android.support.design.widget.CoordinatorLayout>

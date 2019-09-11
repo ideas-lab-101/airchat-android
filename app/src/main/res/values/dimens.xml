@@ -1,0 +1,53 @@
+<resources>
+    <!-- 系统相关 -->
+    <dimen name="toolbar_action_menu_text">16dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="nav_header_vertical_spacing">10dp</dimen>
+    <dimen name="nav_header_height">160dp</dimen>
+    <dimen name="btn_height">40dp</dimen>
+    <dimen name="btn_height_mini">30dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
+    <dimen name="app_bar_height">240dp</dimen>
+    <dimen name="page_margin_top">10dp</dimen>
+    <dimen name="page_margin_left">12dp</dimen>
+    <dimen name="page_margin_right">12dp</dimen>
+
+    <dimen name="swipe_menu_2width">160dp</dimen>
+    <dimen name="swipe_menu_width">80dp</dimen>
+
+    <!-- 弹出菜单 -->
+    <dimen name="dialog_item_height">45dp</dimen>
+    <dimen name="dialog_item_text_size">18sp</dimen>
+    <dimen name="dialog_item_canel_text_size">20sp</dimen>
+    <dimen name="dialog_item_line">1dp</dimen>
+    <dimen name="dialog_item_topmargin">10dp</dimen>
+
+    <dimen name="set_list_height">55dp</dimen>
+    <dimen name="set_user_list_height">60dp</dimen>
+    <dimen name="set_label_size">18sp</dimen>
+    <dimen name="set_text_size">16sp</dimen>
+
+    <dimen name="label_padding_v">2px</dimen>
+    <dimen name="label_padding_h">6px</dimen>
+    <dimen name="label_padding_2h">12px</dimen>
+
+    <dimen name="text_padding_v">3dp</dimen>
+    <dimen name="text_padding_h">5dp</dimen>
+    <dimen name="text_padding_2h">10dp</dimen>
+    <!--
+    Because the window insets on round devices are larger than 15dp, this padding only applies
+    to square screens.
+    -->
+    <dimen name="box_inset_layout_padding">0dp</dimen>
+
+    <!--
+    This padding applies to both square and round screens. The total padding between the buttons
+    and the window insets is box_inset_layout_padding (above variable) on square screens and
+    inner_frame_layout_padding (below variable) on round screens.
+    -->
+    <dimen name="inner_frame_layout_padding">5dp</dimen>
+</resources>

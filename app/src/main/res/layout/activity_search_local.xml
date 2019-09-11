@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/all_bg_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:fitsSystemWindows="true">
+
+
+    <ImageButton
+        android:id="@+id/quit_search"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@mipmap/navi_quit_b"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <EditText
+        android:id="@+id/input_value"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/rig_tips_text_view"
+        android:hint="目前支持手机号/用户名搜索"
+        android:singleLine="true"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:textAlignment="textStart"
+        android:textColor="@color/black_text"
+        android:textSize="14sp"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/quit_search"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/start_search"
+        android:layout_width="40dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/web_search_btn_shape"
+        android:gravity="center"
+        android:text="搜索"
+        android:visibility="gone"
+        android:textColor="@color/white_bg"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/clear_text"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        android:src="@mipmap/clear_text"
+        android:background="#FFF0F0F0"
+        android:scaleType="fitXY"
+        app:layout_constraintEnd_toStartOf="@+id/start_search"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/gap_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/black_line_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/quit_search" />
+
+
+    <com.android.crypt.chatapp.widget.swipexlistview.XListView
+        android:id="@+id/contactList_lv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:background="@color/white_bg"
+        android:cacheColorHint="#00000000"
+        android:divider="@color/list_divider"
+        android:dividerHeight="0dp"
+        android:fadingEdgeLength="0dip"
+        android:listSelector="#00000000"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+
+
+
+</android.support.constraint.ConstraintLayout>

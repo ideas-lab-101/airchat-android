@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_gray_bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_bg"
+        android:layout_weight="1">
+
+        <GridView
+            android:id="@+id/emoji_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnWidth="80dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"></GridView>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/gap_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_line_light" />
+
+    <RelativeLayout
+        android:id="@+id/bottom_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/light_gray_line"
+            android:layout_marginTop="1dp"
+            android:orientation="horizontal"
+            android:gravity="center|left">
+
+            <ImageView
+                android:id="@+id/camera_f"
+                android:layout_width="match_parent"
+                android:layout_weight="0.2"
+                android:layout_height="match_parent"
+                android:gravity="left"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="centerInside"
+                android:src="@mipmap/emoji_image"
+                android:padding="6dp"
+                android:visibility="gone"/>
+
+            <ImageView
+                android:id="@+id/collect_f"
+                android:layout_width="match_parent"
+                android:layout_weight="0.2"
+                android:layout_height="match_parent"
+                android:gravity="left"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:scaleType="centerInside"
+                android:src="@mipmap/emoji_collect"
+                android:padding="6dp"
+                android:visibility="visible"/>
+
+            <ImageView
+                android:id="@+id/cat_f"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:gravity="left"
+                android:scaleType="centerInside"
+                android:src="@mipmap/emoji_cat"
+                android:padding="6dp"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/dog_f"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:gravity="left"
+                android:scaleType="centerInside"
+                android:src="@mipmap/emoji_dog"
+                android:padding="6dp"
+                android:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/default_f"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:gravity="left"
+                android:scaleType="centerInside"
+                android:src="@mipmap/emoji_default"
+                android:padding="6dp"
+                android:visibility="visible" />
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+</LinearLayout>

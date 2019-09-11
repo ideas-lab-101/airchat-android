@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_collapseMode="pin"
+            app:titleTextAppearance="@style/Toolbar.TitleText"
+            app:popupTheme="@style/AppTheme.PopupOverlay" >
+
+            <Button
+                android:id="@+id/m_bt_send"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/map_button_blue"
+                android:gravity="center"
+                android:text="发送"
+                android:textColor="@android:color/white"
+                android:layout_gravity="right"
+                android:layout_marginRight="10dp"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/m_iv_search"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="12dp"
+                android:scaleType="centerCrop"
+                android:layout_gravity="right"
+                android:src="@mipmap/tag_search"/>
+
+        </android.support.v7.widget.Toolbar>
+
+        <View
+            android:id="@+id/gap_line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/black_line_light" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:background="@color/white_bg">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white_bg"
+            android:orientation="vertical" >
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="300dp">
+
+                <com.amap.api.maps2d.MapView
+                    android:id="@+id/m_map_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </com.amap.api.maps2d.MapView>
+
+                <ImageView
+                    android:id="@+id/m_iv_center_location"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    app:srcCompat="@mipmap/location_on_map"/>
+
+                <ImageView
+                    android:id="@+id/m_iv_location"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:padding="5dp"
+                    android:layout_marginStart="20dp"
+
+                    android:background="@drawable/shape_cricle_white"
+                    android:src="@mipmap/location_gps_black"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"/>
+
+
+            </RelativeLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/m_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>
+

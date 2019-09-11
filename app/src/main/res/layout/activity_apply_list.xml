@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:gravity="center_vertical" >
+        <include layout="@layout/toolbar_item_with_line"/>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@color/clear"
+            android:fillViewport="true"
+
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/clear"
+                android:orientation="vertical" >
+
+
+                <com.android.crypt.chatapp.widget.swipexlistview.XListView
+                    android:id="@+id/apply_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white_bg"
+                    android:cacheColorHint="#00000000"
+                    android:divider="@color/list_divider"
+                    android:dividerHeight="0dp"
+                    android:fadingEdgeLength="0dip"
+                    android:listSelector="#00000000"
+                    android:overScrollMode="never"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    app:layout_scrollFlags="scroll|enterAlways"
+                    android:scrollbars="none" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <RelativeLayout
+            android:id="@+id/bg_choose"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/clear_white"
+            android:visibility="gone"
+            android:orientation="vertical" >
+
+            <com.android.crypt.chatapp.widget.RoundImageView
+                android:id="@+id/iv_avatar"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="100dp"
+                android:src="@mipmap/default_head"
+                android:layout_centerHorizontal="true"
+                app:isCircle="false"
+                app:borderRadius="4dp"/>
+
+            <Button
+                android:id="@+id/cancel_apply"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:text="偷偷拒绝"
+                android:background="@drawable/apply_cancel_shape"
+                android:textColor="@color/white_bg"
+                android:layout_marginTop="400dp"
+                android:layout_marginLeft="30dp"
+                android:textSize="17sp" />
+
+            <Button
+                android:id="@+id/confirm_apply"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:text="添加好友"
+                android:background="@drawable/apply_confirm_shape"
+                android:textColor="@color/white_bg"
+                android:layout_marginTop="400dp"
+                android:layout_marginEnd="30dp"
+                android:layout_alignParentRight="true"
+                android:textSize="17sp" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>
