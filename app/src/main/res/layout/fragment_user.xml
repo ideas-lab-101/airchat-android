@@ -9,9 +9,10 @@
     app:refreshColor="@color/clear"
     app:refreshType="smartisan">
 
-    <ScrollView
+    <com.android.crypt.chatapp.widget.MyScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:scrollbars="none"
         android:background="@color/white_bg">
 
         <LinearLayout
@@ -192,7 +193,7 @@
                     android:layout_marginLeft="12dp"
                     android:textColor="@color/sagacity_blank"
                     android:textSize="14sp"
-                    android:text="通讯秘钥"/>
+                    android:text="我的密钥"/>
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -265,7 +266,7 @@
                     android:layout_marginLeft="12dp"
                     android:textColor="@color/sagacity_blank"
                     android:textSize="14sp"
-                    android:text="分享"/>
+                    android:text="邀请好友"/>
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -308,7 +309,17 @@
 
 
 
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:id="@+id/blank_view"-->
+                <!--android:layout_height="10dp"-->
+                <!--android:orientation="vertical"-->
+                <!--android:background="@color/sagacity_red"-->
+                <!--android:layout_marginTop="0dp">-->
+
+            <!--</LinearLayout>-->
+
         </LinearLayout>
-    </ScrollView>
+    </com.android.crypt.chatapp.widget.MyScrollView>
 
 </com.baoyz.widget.PullRefreshLayout>

@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.Gravity;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.android.crypt.chatapp.contact.cn.CNPinyin;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.BaseActivity;
@@ -65,23 +67,22 @@ public class SearchLocalActivity extends BaseActivity  implements View.OnClickLi
         if (mListContact == null){
             mListContact = RunningData.getInstance().getContactList();
         }
-        adapterFavor = new ContactListAdapter(this, resultList);
+        int heightLlistView = RunningData.getInstance().getAppShowHeight() - RunningData.getInstance().getActionBarHeight() - DensityUtil.dip2px(this, 50);
+        adapterFavor = new ContactListAdapter(this, resultList, heightLlistView, DensityUtil.dip2px(this, 80), false);
         contactListLv.setAdapter(adapterFavor);
         inputValue.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    // 获得焦点
-                    changeInputFrame(hasFocus);
-                } else {
-                    changeInputFrame(hasFocus);
-                }
+                changeInputFrame(hasFocus);
             }
         });
     }
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (v.getId()) {
             case R.id.quit_search:
                 finish();
@@ -109,6 +110,9 @@ public class SearchLocalActivity extends BaseActivity  implements View.OnClickLi
             clearText.setVisibility(View.VISIBLE);
             startSearch.setVisibility(View.VISIBLE);
             inputValue.setSelection(inputValue.getText().length());
+
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(0, InputMethodManager.RESULT_SHOWN);
         } else {
             int left = DensityUtil.dip2px(this, 15);
             int right = DensityUtil.dip2px(this, 15);
@@ -118,19 +122,24 @@ public class SearchLocalActivity extends BaseActivity  implements View.OnClickLi
             inputValue.setText(inputValue.getText().toString());
             clearText.setVisibility(View.GONE);
             startSearch.setVisibility(View.GONE);
+
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
     }
 
     private void startSearch() {
         inputValue.clearFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         String value = inputValue.getText().toString();
         if (value.equals("")){
             return;
         }
         try{
             resultList.clear();
-            for (int i = 0; i < mListContact.size(); i++){
+            for (int i = 0; i < mListContact.size() - 1; i++){
                 String account = mListContact.get(i).data.account;
                 String label = mListContact.get(i).data.label;
                 String username = mListContact.get(i).data.username;
@@ -139,11 +148,12 @@ public class SearchLocalActivity extends BaseActivity  implements View.OnClickLi
                     resultList.add(mListContact.get(i));
                 }
             }
+            resultList.add(mListContact.get(mListContact.size() - 1));
+
             adapterFavor.notifyDataSetChanged();
         }catch (Exception e){}
-
         Logger.d("结束 resultList = " + resultList);
-        if (resultList.size() == 0){
+        if (resultList.size() <= 1){
             makeSnake(contactListLv, "没有结果", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
         }
 
@@ -151,6 +161,11 @@ public class SearchLocalActivity extends BaseActivity  implements View.OnClickLi
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//        Logger.d("position" + position + " resultList.size()" + resultList.size());
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        position--;
         if (position >= 0 && position < resultList.size()) {
             ContactModel mMap = resultList.get(position).data;
             Intent intent = new Intent(this, FriendCardActivity.class);

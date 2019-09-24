@@ -90,7 +90,7 @@
                         android:layout_height="fill_parent"
                         android:layout_marginLeft="20dp"
                         android:gravity="center"
-                        android:text="手机号"
+                        android:text="Air号"
                         android:textStyle="bold"
                         android:textColor="@color/black_text"
                         android:textSize="16sp" />

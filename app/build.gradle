@@ -1,11 +1,47 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
+apply plugin: 'com.mob.sdk'
+
+MobSDK {
+    appKey "2c68c5944f2d0"
+    appSecret "0d42f4293c910c69943551e6bf00765a"
+
+    MobPush {
+        bradge true//设置是否开启角标开关
+
+        //集成其他推送通道（可选）
+        devInfo {
+            //华为推送配置信息
+            HUAWEI {
+                appId "101116933"
+            }
+            //魅族推送配置信息
+            MEIZU {
+                appId "124040"
+                appKey "6b5e0ca09ab14003af60b0c69077ecc9"
+            }
+            //小米推送配置信息
+            XIAOMI {
+                appId "2882303761518053280"
+                appKey "5761805391280"
+            }
+            //FCM推送通道配置
+            FCM{
+                //设置默认推送通知显示图标
+                iconRes "@mipmap/default_head"
+            }
+        }
+    }
+}
+
 
 android {
     compileSdkVersion rootProject.ext.compileSdk
     defaultConfig {
         packagingOptions {
             exclude 'META-INF/rxjava.properties'
+            exclude 'META-INF/proguard/androidx-annotations.pro'
+
         }
         applicationId "com.android.crypt.chatapp"
         minSdkVersion rootProject.ext.minSdk
@@ -13,9 +49,31 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        versionCode 1
+        versionName "1.6"
+    }
+    signingConfigs {
+        release {
+            keyAlias 'airchat'
+            keyPassword '123011'
+            storeFile file('/Users/a123/Documents/安卓/密钥文件/airchat.jks')
+            storePassword '123011'
+        }
+    }
+
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                // 此处指定生成的apk文件名
+                outputFileName = "AirChat.apk"
+            }
     }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -27,13 +85,9 @@ android {
         }
     }
     buildToolsVersion '28.0.3'
-
-    repositories {
-        flatDir {
-            dirs project(':push').file('libs')
-        }
-    }
 }
+
+
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -51,7 +105,6 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     implementation 'com.github.bumptech.glide:glide:4.6.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
-    implementation 'com.github.chrisbanes.photoview:library:1.2.4'
     implementation 'com.google.code.gson:gson:2.8.0'
     implementation 'com.squareup.okhttp3:okhttp:3.8.1'
     implementation 'com.readystatesoftware.chuck:library:1.1.0'
@@ -61,19 +114,30 @@ dependencies {
     implementation 'com.lzy.net:okserver:2.0.5'
     implementation 'com.kyleduo.switchbutton:library:1.4.4'
     implementation 'com.github.guilhe:circular-progress-view:1.3.2'
-    implementation 'org.greenrobot:greendao:3.2.2'
-//    implementation "me.leolin:ShortcutBadger:1.1.22@aar"  //没有起作用
-    // add library
     implementation 'com.orhanobut:logger:2.2.0'
     implementation 'io.alterac.blurkit:blurkit:1.1.0'
-    implementation 'com.github.yuzhiqiang1993:zxing:2.2.5'
-    implementation 'org.devio.takephoto:takephoto_library:4.1.0'
     compile 'com.neovisionaries:nv-websocket-client:2.8'
     compile 'io.reactivex:rxandroid:1.2.1'
     compile 'com.github.promeg:tinypinyin:2.0.1'
     compile 'com.baoyz.actionsheet:library:1.1.7'
     compile 'com.wang.avi:library:2.1.3'
     compile 'com.qiniu:qiniu-android-sdk:7.3.15'
+
+    //***相册
+    implementation 'org.devio.takephoto:takephoto_library:4.1.0'
+    compile 'com.github.githubwing:DragPhotoView:1.0.1'
+//    implementation 'com.github.chrisbanes.photoview:library:1.2.4'
+
+//    //*** FCM
+//    implementation 'com.google.firebase:firebase-analytics:17.2.0'
+
+    //***数据库
+    implementation 'org.greenrobot:greendao:3.2.2'
+    implementation 'net.zetetic:android-database-sqlcipher:3.5.4@aar'    //必须加，不然会报错
+
+    //二维码
+    implementation 'com.github.yuzhiqiang1993:zxing:2.2.5'  //生成二维码
+    implementation 'cn.bingoogolapple:bga-qrcode-zbar:1.3.6' //扫描二维码
 
     //**高德地图
     compile 'com.amap.api:map2d:latest.integration'
@@ -85,7 +149,8 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    compile project(':push')
-    //    implementation 'org.litepal.android:core:1.4.1'
-    //    compile 'com.android.support:recyclerview-v7:25.3.1'
+    //***微信分享
+    compile 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
 }
+
+apply plugin: 'com.google.gms.google-services'

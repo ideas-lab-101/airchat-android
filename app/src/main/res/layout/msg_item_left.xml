@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/tips_text_h"
             android:alpha="0.8"
-            android:background="@drawable/rig_tips_text_view"
+            android:background="@drawable/edit_text_view"
             android:textSize="12sp"
             android:textAlignment="center"
             android:textStyle="bold"
@@ -58,13 +58,13 @@
         <TextView
             android:id="@+id/debug_show"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="10dp"
             android:visibility="gone"
             android:text="debug提示，最后还有一行高度0的空白行"
             android:textAlignment="center"
-            android:textColor="@color/black_text"
-            android:textSize="12sp"
-            android:background="@color/blue_bg" />
+            android:textColor="@color/clear"
+            android:textSize="5sp"
+            android:background="@color/clear" />
         <!--底部布局 -->
         <LinearLayout
             android:id="@+id/bottom_bg"
@@ -113,7 +113,6 @@
                         android:visibility="visible"
                         android:layout_centerInParent="true"
                         app:indicatorColor="@color/black_text"
-                        android:alpha="0.2"
                         app:indicatorName="BallSpinFadeLoaderIndicator" />
                     <ImageView
                         android:id="@+id/im_default_image"
@@ -241,7 +240,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             app:indicatorColor="@color/white_bg"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             app:indicatorName="LineScalePulseOutIndicator" />
                         <com.wang.avi.AVLoadingIndicatorView
                             android:id="@+id/void_loading_tips"
@@ -250,7 +249,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             app:indicatorColor="@color/white_bg"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             app:indicatorName="BallClipRotatePulseIndicator" />
                     </RelativeLayout>
 

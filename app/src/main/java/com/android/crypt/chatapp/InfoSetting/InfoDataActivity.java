@@ -15,6 +15,7 @@ import com.android.crypt.chatapp.contact.Model.ContactModel;
 import com.android.crypt.chatapp.qrResult.MyQRCodeActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
@@ -60,8 +61,8 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
     TextView userName;
     @BindView(R.id.introduction)
     TextView introduction;
-    @BindView(R.id.phone_number)
-    TextView phoneNumber;
+    @BindView(R.id.ac_number)
+    TextView acNumber;
     @BindView(R.id.head_icon_change_f)
     LinearLayout headIconChangeF;
     @BindView(R.id.user_name_change_f)
@@ -115,13 +116,16 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
 
         userName.setText(userInfo.username);
         introduction.setText(userInfo.introduction);
-        phoneNumber.setText(userInfo.login_name);
+        acNumber.setText(userInfo.login_name);
 
     }
 
 
     @OnClick({R.id.head_icon_change_f, R.id.user_name_change_f, R.id.introduction_change_f, R.id.iv_qrCode_change})
     public void onViewClicked(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent = null;
         switch (view.getId()) {
             case R.id.head_icon_change_f:
@@ -156,6 +160,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
         ContactModel mMap = new ContactModel(userInfo.avatar_url, userInfo.username, "", userInfo.login_name, userInfo.introduction, "", "");
         Intent intent  = new Intent(this, MyQRCodeActivity.class);
         intent.putExtra("friendInfo", mMap);
+        intent.putExtra("isMine", true);
         startActivity(intent);
         overridePendingTransition(R.anim.in_from_right,
                 R.anim.out_to_left);
@@ -194,7 +199,6 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
         if (null == takePhoto){
 //            takePhoto = new TakePhotoImpl(this,this);
             takePhoto = (TakePhoto) TakePhotoInvocationHandler.of(this).bind(new TakePhotoImpl(this, this));
-
         }
         configCompress(takePhoto);
         configTakePhotoOption(takePhoto);
@@ -279,7 +283,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
 
     /////////**** 上传
     private void getUploadToken(){
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/getUploadToken")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/v2/getUploadToken")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -301,7 +305,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
     }
 
     private String getQiniuKey(){
-        String phoneNum = RunningData.getInstance().getCurrentAccount();
+        String acNum = RunningData.getInstance().getCurrentAccount();
 
         int randNumber = (int) (Math.random() * 1000);
         long time = System.currentTimeMillis();
@@ -318,7 +322,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
             surNmae = surNmaeArray[surNmaeArray.length - 1];
         }
 
-        String key = "userHeadIcon/" + phoneNum + "/" + dateString + "/"+ timeNumberList + randNumber + "." + surNmae;
+        String key = "userHeadIcon/" + acNum + "/" + dateString + "/"+ timeNumberList + randNumber + "." + surNmae;
         return key;
     }
 
@@ -352,7 +356,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
 
     private void freshServer(final String key){
         createDialog("修改中...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/updateAvatar")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/v2/updateAvatar")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)

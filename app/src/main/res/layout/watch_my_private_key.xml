@@ -39,22 +39,12 @@
                         android:background="@color/white_bg"
                         android:orientation="vertical" >
 
-                        <TextView
-                            android:id="@+id/load_tips"
-                            android:layout_width="match_parent"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginTop="20dp"
-                            android:text=" ▾我的私钥"
-                            android:textColor="@color/tips_text_h"
-                            android:textSize="12sp"/>
-
                         <LinearLayout
                             android:id="@+id/pri_key_bg"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@color/white_bg"
+                            android:layout_marginTop="5dp"
                             android:orientation="vertical" >
                             <RelativeLayout
                                 android:id="@+id/code_bg"
@@ -79,49 +69,27 @@
                                 android:layout_marginStart="10dp"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginBottom="10dp"
-                                android:text=" 标记(助记):"
-                                android:textColor="@color/black_text"
+                                android:text=""
+                                android:textColor="@color/text_tips_key"
                                 android:textSize="14sp"/>
                         </LinearLayout>
 
+
                         <TextView
+                            android:id="@+id/load_tips"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
                             android:layout_marginStart="10dp"
-                            android:layout_marginBottom="20dp"
-                            android:layout_marginTop="5dp"
-                            android:text=" ▾ 长按保存(建议妥善保存)\n ▾ 新设备登录需要密钥解密消息"
-                            android:textColor="@color/black_text"
+                            android:layout_marginTop="10dp"
+                            android:padding="5dp"
+                            android:text="▾ 你的私钥二维码（用于解密消息），长按保存 \n账号没有私钥时，可以扫描二维码导入私钥\n\n注意：\n1.在安卓设备中，直接识别相册私钥图片可能无法准确识别，请用摄像头扫描二维码\n2.因为二维码长度较长，个别机型（如小米改了安卓底层）扫码失败率高甚至扫描不出，请复制私钥串\n"
+                            android:textColor="@color/text_tips_key"
                             android:textSize="12sp"/>
+
                     </LinearLayout>
                 </RelativeLayout>
 
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="0dp"
-                    android:text=" ▾私钥字符串, 禁用摄像头时可以复制字符串导入私钥"
-                    android:textColor="@color/tips_text_h"
-                    android:textSize="12sp"/>
-
-                <EditText
-                    android:id="@+id/pri_key_string"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="20dp"
-
-                    android:textSize="14sp"
-                    android:textAlignment="center"
-                    android:textColor="@color/black_text"
-                    android:textIsSelectable="true"
-                    android:background="@color/white_bg" />
             </LinearLayout>
 
             <LinearLayout
@@ -165,7 +133,6 @@
 
 
         </LinearLayout>
-
 
 
 

@@ -56,12 +56,12 @@
     <string name="account_other">其他操作</string>
 
     <string name="server_setting">服务器设置</string>
-    <string name="account_find_pwd">找回密码</string>
+    <string name="account_find_pwd">登录遇到困难</string>
 
 
     <string name="prompt_userInfo">请输入用户名称</string>
-    <string name="prompt_phone">请输入手机号码</string>
-    <string name="prompt_account">请输入账号</string>
+    <string name="prompt_phone">请输入手机号</string>
+    <string name="prompt_account">请输入Air号</string>
     <string name="prompt_password">请输入用户密码</string>
     <string name="prompt_caption">请输入您的尊称</string>
     <string name="prompt_smsCode">请输入短信验证码</string>
@@ -170,4 +170,5 @@
     <string name="title_activity_web">WebActivity</string>
     <string name="title_activity_change_push_voice">ChangePushVoiceActivity</string>
     <string name="title_activity_search_local">SearchLocalActivity</string>
+    <string name="title_activity_log_or_reg">LogOrRegActivity</string>
 </resources>

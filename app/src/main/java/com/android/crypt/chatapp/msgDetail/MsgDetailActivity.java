@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -40,6 +41,9 @@ import com.android.crypt.chatapp.msgDetail.IMTools.ChatUiHelper;
 import com.android.crypt.chatapp.msgDetail.IMTools.ChoosePhotoActivity;
 import com.android.crypt.chatapp.msgDetail.IMTools.StateButton;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.DensityUtil;
+import com.android.crypt.chatapp.utility.Common.ParameterUtil;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.Websocket.MessageCallbacks;
@@ -121,6 +125,10 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private int _messageSecretType = 0;
     private String qiniuToken = null;
     private MediaPlayer mp = new MediaPlayer();
+
+    private SendMessageBody curVoiceBody = null;
+    private int curPosition = -1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,19 +151,35 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
             showAlert();
         }
         mListContact = new ArrayList<>();
+        this.adapterFavor = new MessageDetailAdapter(this, mListContact);
+        this.adapterFavor.setItemContentClickListener(this);
+
+        Logger.d("this.adapterFavor = " + this.adapterFavor);
     }
 
     private void initView() {
         LayoutInflater inflater = LayoutInflater.from(this);
-        ConstraintLayout viewL = (ConstraintLayout) inflater.inflate(R.layout.activity_msg_detail_list, null);
+        RelativeLayout viewL = (RelativeLayout) inflater.inflate(R.layout.activity_msg_detail_list, null);
         msgBgView.addPage(viewL);
         freshListView(viewL);
         ConstraintLayout viewR = (ConstraintLayout) inflater.inflate(R.layout.activity_msg_detail_info, null);
         msgBgView.addPage(viewR);
         freshInfoView(viewR);
-        onLoadMore();
+        getCacheData();
         initChatUi();
         freshPriKey();
+        changeTabItemView();
+    }
+
+
+    private void changeTabItemView(){
+        String tabbar_height = getPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "tabbar_height", null);// 0未登录,1已登录
+        int height = string2int(tabbar_height);
+        int heigthAll = DensityUtil.dip2px(this, height);
+        ViewGroup.LayoutParams lp;
+        lp = holder_list.bottomView.getLayoutParams();
+        lp.height = heigthAll;
+        holder_list.bottomView.setLayoutParams(lp);
     }
 
     @Override
@@ -166,8 +190,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
 
     //***更新私钥
     private void freshPriKey(){
-        Logger.d("login_name = " + this.messageReceiver);
-        OkGo.<CodeResponse>get(RunningData.getInstance().server_url() + "contact/getUserPublicKey")
+        OkGo.<CodeResponse>get(RunningData.getInstance().server_url() + "contact/v2/getUserPublicKey")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("login_name", this.messageReceiver)
@@ -177,7 +200,6 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
                         if(response.body().data != null){
                             String cur_pubKey = response.body().data.toString();
                             pubKey = cur_pubKey;
-                            Logger.d("cur_pubKey= " + cur_pubKey);
                         }
                     }
                     @Override
@@ -197,6 +219,11 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle("无法给 " + this.mMap.label + " 发消息")
                 .setMessage("未获取必要的通讯数据")
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    public void onDismiss(final DialogInterface dialog) {
+                        finish();
+                    }
+                })
                 .setNegativeButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -246,7 +273,6 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
                 if (bottom < oldBottom) {
                     holder_list.messageList.setSelection(holder_list.messageList.getBottom());
-                    mUiHelper.isShowKb = true;
                 }
             }
         });
@@ -254,13 +280,14 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         holder_list.messageList.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                mUiHelper.hideBottomLayout(false);
+                mUiHelper.hideBottomLayout();
                 mUiHelper.hideSoftInput();
                 holder_list.mEtContent.clearFocus();
                 holder_list.mIvEmo.setImageResource(R.mipmap.emojikb);
                 return false;
             }
         });
+
         ((RecordButton) holder_list.mBtnAudio).setOnFinishedRecordListener(new RecordButton.OnFinishedRecordListener() {
             @Override
             public void onFinishedRecord(String audioPath, int time) {
@@ -273,9 +300,10 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
                 }
             }
         });
+//        registerForContextMenu(holder_list.messageList);
     }
 
-    private void freshListView(ConstraintLayout view) {
+    private void freshListView(RelativeLayout view) {
         holder_list = new ViewHolderList(view);
         holder_list.toolbar.setTitle("");
         holder_list.cosTextTitle.setText(this.mMap.label);
@@ -288,15 +316,11 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         holder_list.defaultF.setOnClickListener(this);
         holder_list.mBtnSend.setOnClickListener(this);
         holder_list.messageList.setRListViewListener(this);
-        holder_list.messageList.setPullLoadEnable(true);
-
         holder_list.messageList.setOnCreateContextMenuListener(this);
 
-        adapterFavor = new MessageDetailAdapter(this, mListContact);
-        adapterFavor.setItemContentClickListener(this);
-        holder_list.messageList.setAdapter(adapterFavor);
-
+        holder_list.messageList.setAdapter(this.adapterFavor);
     }
+
 
     private void freshInfoView(ConstraintLayout view) {
         holder_info = new ViewHolderInfo(view);
@@ -316,24 +340,26 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void innerItemClick(int position) {
-        if (mUiHelper.isShowKb == false){
-            if (position >= 0 && position < mListContact.size()){
-                SendMessageBody itemBody = mListContact.get(position);
-                //***图片点击时间
-                if(itemBody.getMsgType() == 8){
-                    encodeImageItemClick(itemBody);
-                }else if (itemBody.getMsgType() == 3 || itemBody.getMsgType() == 5){
-                    imageItemClick(itemBody);
-                }else if(itemBody.getMsgType() == 4){
-                    voiceItemClick(itemBody, position);
-                }else if(itemBody.getMsgType() == 6){
-                    positionItemClick(itemBody);
-                }else if(itemBody.getMsgType() == 7){
-                    friendCardItemClick(itemBody);
-                }
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        if (position >= 0 && position < mListContact.size()){
+            SendMessageBody itemBody = mListContact.get(position);
+            if(itemBody == null){
+                return;
             }
-        }else{
-            mUiHelper.isShowKb = true;
+            //***图片点击时间
+            if(itemBody.getMsgType() == 8){
+                encodeImageItemClick(itemBody);
+            }else if (itemBody.getMsgType() == 3 || itemBody.getMsgType() == 5){
+                imageItemClick(itemBody);
+            }else if(itemBody.getMsgType() == 4){
+                voiceItemClick(itemBody, position);
+            }else if(itemBody.getMsgType() == 6){
+                positionItemClick(itemBody);
+            }else if(itemBody.getMsgType() == 7){
+                friendCardItemClick(itemBody);
+            }
         }
     }
 
@@ -380,7 +406,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
             intent.putExtra("cur_index", index);
             intent.putExtra("is_encode", true);
             startActivity(intent);
-            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+            overridePendingTransition(0,0);
         }
     }
     private void imageItemClick(SendMessageBody itemBody){
@@ -407,21 +433,22 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
             intent.putExtra("cur_index", index);
             intent.putExtra("is_encode", false);
             startActivity(intent);
-            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+            overridePendingTransition(0,0);
         }
     }
 
-    private SendMessageBody curVoiceBody = null;
     private void voiceItemClick(SendMessageBody itemBody, int position){
         curVoiceBody = itemBody;
-        DownLoadVoice loadVoice = DownLoadVoice.getInstance(this, this);
+        curPosition = position;
+        DownLoadVoice loadVoice = DownLoadVoice.getInstance();
+        loadVoice.addListener(this, this);
         loadVoice.loadFile(itemBody, 0);
     }
 
     @Override
     public void downLoadStart() {
         if (curVoiceBody != null){
-            adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 1);
+            adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 1, curPosition);
         }
     }
 
@@ -429,7 +456,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     public void downLoadEnd(boolean haserror) {
         if (haserror == true){
             if (curVoiceBody != null){
-                adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 0);
+                adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 0, curPosition);
             }
             makeSnake(holder_list.messageList,"录音文件被删除", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
         }
@@ -438,22 +465,24 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     @Override
     public void playStart() {
         if (curVoiceBody != null){
-            adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 2);
+            this.adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 2, curPosition);
+            Logger.d("this.adapterFavor = " + this.adapterFavor);
+
         }
     }
 
     @Override
     public void playFinish() {
         if (curVoiceBody != null){
-            adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 0);
+            Logger.d("结束播放 " + curVoiceBody);
+            this.adapterFavor.updateItem(holder_list.messageList, curVoiceBody, 0, curPosition);
         }
     }
 
     @Override
     public void transStart(SendMessageBody file) {
         String msgId = file.getMessageIdClient();
-        Logger.d("正在转化");
-        adapterFavor.updateVoiceItem(holder_list.messageList, msgId, "正在转化...");
+        this.adapterFavor.updateVoiceItem(holder_list.messageList, msgId, "正在转化...");
     }
 
     @Override
@@ -463,26 +492,29 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
             result = "没有识别到语音";
         }
         if (has_error  == 0){
-            adapterFavor.updateVoiceItem(holder_list.messageList, msgId, result);
+            this.adapterFavor.updateVoiceItem(holder_list.messageList, msgId, result);
             CacheTool.getInstance().uploadTranslate(this.messageCreator, msgId, result);
             for (int i = 0; i < mListContact.size(); i++){
                 SendMessageBody body = mListContact.get(i);
                 String msgIdInner = body.getMessageIdClient();
-                if (msgIdInner.equalsIgnoreCase(msgId)){
-                    body.message_other_process_info = result;
-                    break;
+                if (msgIdInner != null){
+                    if (msgIdInner.equalsIgnoreCase(msgId)){
+                        body.message_other_process_info = result;
+                        break;
+                    }
                 }
             }
         }else if (has_error  == 1){
             makeSnake(holder_list.messageList, "转化中, 请稍后", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
         }else if (has_error  == 3){
-            adapterFavor.updateVoiceItem(holder_list.messageList, msgId, result);
+            this.adapterFavor.updateVoiceItem(holder_list.messageList, msgId, result);
             CacheTool.getInstance().uploadTranslate(this.messageCreator, msgId, result);
         }else{
-            adapterFavor.updateVoiceItem(holder_list.messageList, msgId, result);
+            this.adapterFavor.updateVoiceItem(holder_list.messageList, msgId, result);
             makeSnake(holder_list.messageList, result, R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
         }
     }
+
 
     @Override
     public void onLoadMore() {
@@ -495,6 +527,9 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     }
 
     public void onClick(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent;
         switch (view.getId()) {
             case R.id.iv_avatar:
@@ -507,7 +542,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
                 intent.putExtra("cur_index", 0);
                 intent.putExtra("is_encode", false);
                 startActivity(intent);
-                overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+                overridePendingTransition(0,0);
                 break;
             case R.id.quit_msg_ac:
                 finish();
@@ -582,7 +617,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         } else {
             holder_list.inputNg.setBackground(new ColorDrawable(0xffffffff));
             holder_info.onceMsg.setBackground(new ColorDrawable(0xfffbfbfb));
-            holder_info.onceMsgTitle.setText("一次性消息");
+            holder_info.onceMsgTitle.setText("阅后即焚");
             onceMsg = false;
             _messageSecretType = 0;
         }
@@ -594,12 +629,15 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         pressBodyPosition = position;
         holder_list.messageList.showContextMenu();
     }
+
     private int pressBodyPosition = -1;
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        Logger.d(" onCreateContextMenu onCreateContextMenu onCreateContextMenu");
         if (pressBodyPosition >= 0 && pressBodyPosition < mListContact.size()){
             SendMessageBody pressBody = mListContact.get(pressBodyPosition);
+            if (pressBody == null){
+                return;
+            }
             if (pressBody.has_send_error == true){
                 getMenuInflater().inflate(R.menu.msg_error_op,menu);
                 return;
@@ -612,7 +650,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
                     if (pressBody.getMessageTag() == true){
                         getMenuInflater().inflate(R.menu.msg_voice_op,menu);
                     }else{
-                        getMenuInflater().inflate(R.menu.msg_default_emoji_op,menu);
+                        getMenuInflater().inflate(R.menu.msg_voice_delete,menu);
                     }
                     break;
                 case 2:
@@ -659,8 +697,12 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private void voiceToString(){
         if (pressBodyPosition >= 0 && pressBodyPosition < mListContact.size()){
             SendMessageBody resendBody = mListContact.get(pressBodyPosition);
+            if (resendBody == null){
+                return;
+            }
             if (resendBody.getMessageTag() == true && resendBody.message_other_process_info.equals("")){
-                DownLoadVoice loadVoice = DownLoadVoice.getInstance(this, this);
+                DownLoadVoice loadVoice = DownLoadVoice.getInstance();
+                loadVoice.addListener(this, this);
                 loadVoice.loadFile(resendBody, 1);
             }
         }
@@ -669,6 +711,9 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private void resendMsg(){
         if (pressBodyPosition >= 0 && pressBodyPosition < mListContact.size()){
             SendMessageBody resendBody = mListContact.get(pressBodyPosition);
+            if (resendBody == null){
+                return;
+            }
             Intent intent = new Intent(MsgDetailActivity.this, ResendMsgActivity.class);
             intent.putExtra("resend_body", resendBody);
             intent.putExtra("kind",1);
@@ -680,6 +725,9 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private void addEmojiMethod(){
         if (pressBodyPosition >= 0 && pressBodyPosition < mListContact.size()){
             SendMessageBody resendBody = mListContact.get(pressBodyPosition);
+            if (resendBody == null){
+                return;
+            }
             mUiHelper.addEmoji(resendBody.getFileUrl());
         }
     }
@@ -687,15 +735,21 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private void deleteMethod(){
         if (pressBodyPosition >= 0 && pressBodyPosition < mListContact.size()){
             SendMessageBody pressBody = mListContact.get(pressBodyPosition);
+            if (pressBody == null){
+                return;
+            }
             String messageId = pressBody.getMessageIdClient();
             mListContact.remove(pressBodyPosition);
-            adapterFavor.notifyDataSetChanged();
+            this.adapterFavor.notifyDataSetChanged();
             CacheTool.getInstance().deleteOneSpeMsg(this.messageReceiver ,messageId);
         }
     }
     private void copyMethod(){
         if (pressBodyPosition >= 0 && pressBodyPosition < mListContact.size()){
             SendMessageBody pressBody = mListContact.get(pressBodyPosition);
+            if (pressBody == null){
+                return;
+            }
             String str = pressBody.getContent();
             //获取剪贴板管理器：
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
@@ -706,6 +760,9 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
 
     @Override
     public void urlClickMethod(String text) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent = new Intent(this, WebActivity.class);
         intent.putExtra("url_value", text);
         overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
@@ -746,6 +803,8 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         LinearLayout mLlEmotion;//表情布局
         @BindView(R.id.input_bg)
         LinearLayout inputNg;//表情布局
+        @BindView(R.id.bottom_view)
+        View bottomView;//表情布局
         @BindView(R.id.emoji_content)
         GridView emojiContent;
         @BindView(R.id.camera_f)
@@ -892,7 +951,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     //*****语音 照片的 发送处理
     private void getUploadToken(final String fileUrl, final String key, final String excessInfo, final int uploadType){
         String token = RunningData.getInstance().getToken();
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/getUploadToken")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/v2/getUploadToken")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -985,13 +1044,14 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
      **/
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         deleteSecretMsg();
         unbindWsService();
-        super.onDestroy();
         if (mp != null) {
             mp.stop();
             mp.release();
         }
+        Logger.d("onDestroy");
     }
 
     @Override
@@ -1069,6 +1129,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private void sendVoiceMethod(String fileUrl , String key, String excessInfo){
         mp = MediaPlayer.create(this, R.raw.send_voice);
         mp.start();
+        mp.setVolume((float) 0.5, (float)0.5);
         String content = "[语音]";
         SendMessageBody body = getSendModel(4, content, key, excessInfo, fileUrl);
         SendMessageEnBody body_en = new SendMessageEnBody(body, this.pubKey);
@@ -1134,10 +1195,6 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         //来了一个私信
         //1.0 更改消息列表
         //如果是我的消息就渲染UI
-        Logger.d("body.getMessageReceiver() = " + body.getMessageReceiver());
-        Logger.d("body.getMessageCreator() = " + body.getMessageCreator());
-        Logger.d("this.messageCreator = " + this.messageCreator);
-        Logger.d("this.messageReceiver = " + this.messageReceiver);
 
         if (body.getMessageCreator().equals(this.messageReceiver)) {
             CryTool tool = new CryTool();
@@ -1175,8 +1232,10 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
 
             mListContact.add(index, sendBody);
             freshListMsthod();
+            mUiHelper.listViewToBottom();
         }else{
             otherMsgTipsShow(true);
+
         }
         //2.0 缓存消息到本地，（缓存一律到service做）
     }
@@ -1186,9 +1245,13 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                adapterFavor.notifyDataSetChanged();
+                freshList();
             }
         });
+    }
+
+    private void freshList(){
+        this.adapterFavor.notifyDataSetChanged();
     }
 
     @Override
@@ -1199,7 +1262,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         String messageSendTime = body.getMessageSendTime();
         for (int i = 0; i < mListContact.size(); i++) {
             SendMessageBody bodyInner = mListContact.get(i);
-            if (bodyInner.getMessageIdClient() != null) {
+            if (bodyInner != null && bodyInner.getMessageIdClient() != null) {
                 if (bodyInner.getMessageIdClient().equals(messageIdClient)) {
                     bodyInner.setIsSendSuccess(true);
                     bodyInner.setMessageSendTime(messageSendTime);
@@ -1259,7 +1322,32 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     @Override
     public void allowMeASFriend(ReceiveSpecialInfo body) {}//不实现
     @Override
-    public void someOneDeleteMe(ReceiveSpecialInfo body) {}//不实现
+    public void someOneDeleteMe(ReceiveSpecialInfo body) {
+        if (this.messageReceiver.equalsIgnoreCase(body.MessageReceive)){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MsgDetailActivity.this)
+                            .setTitle("对方拒绝授予你通信密钥")
+                            .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                public void onDismiss(final DialogInterface dialog) {
+                                    dialog.dismiss();
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                    finish();
+                                }
+                            });
+                    builder.create().show();
+                }
+            });
+
+        }
+    }
     @Override
     public void freshMsgListView() {}//不实现
 
@@ -1360,7 +1448,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     private void freshList(SendMessageBody body) {
         int index = (mListContact.size() - 1) <= 0 ? 0 : (mListContact.size() - 1);
         mListContact.add(index, body);
-        adapterFavor.notifyDataSetChanged();
+        this.adapterFavor.notifyDataSetChanged();
     }
 
 
@@ -1388,7 +1476,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
                     secretMsgIdList.add(body.getMessageIdClient());
                 }
             }
-            adapterFavor.notifyDataSetChanged();
+            this.adapterFavor.notifyDataSetChanged();
         }
         stopFresh();
     }
@@ -1406,7 +1494,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         if (mListContact.size() - 2 > 0) {
             for (int i = mListContact.size() - 2; i >= endIndex; i--) {
                 SendMessageBody bodyInnder = mListContact.get(i);
-                if (bodyInnder.getMessageIdClient() != null) {
+                if (bodyInnder != null && bodyInnder.getMessageIdClient() != null) {
                     if (bodyInnder.getMessageIdClient().equals(body.getMessageIdClient())) {
                         exist = true;
                         break;
@@ -1445,7 +1533,7 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
     //***上传key
     private String getQiniuKey(String file_url, int type, int length, int index){
         CryTool tool = new CryTool();
-        String phoneNum = tool.shaEncrypt(RunningData.getInstance().getCurrentAccount()).substring(0, 24);
+        String curAccount = tool.shaEncrypt(RunningData.getInstance().getCurrentAccount()).substring(0, 24);
 
         int randNumber = (int) (Math.random() * 1000);
         long time = System.currentTimeMillis();
@@ -1465,11 +1553,11 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         String key = "";
 
         if (type == 0){ // 照片
-            key = "imModelImages/" + phoneNum + "/" + dateString + "/"+ timeNumberList + randNumber + index + "." + surNmae;
+            key = "imModelImages/" + curAccount + "/" + dateString + "/"+ timeNumberList + randNumber + index + "." + surNmae;
         }else if (type == 1){  //语音
-            key = "imModelImages/" + phoneNum + "/" + dateString + "/"+ timeNumberList + randNumber + index + "_" + length + "_" + "." + surNmae;
+            key = "imModelImages/" + curAccount + "/" + dateString + "/"+ timeNumberList + randNumber + index + "_" + length + "_" + "." + surNmae;
         }else if (type == 2){  //语音
-            key = "imModelImages/" + phoneNum + "/" + dateString + "/"+ timeNumberList + randNumber + index + "." + surNmae + ".crypt";
+            key = "imModelImages/" + curAccount + "/" + dateString + "/"+ timeNumberList + randNumber + index + "." + surNmae + ".crypt";
         }
 
         return key;
@@ -1514,5 +1602,48 @@ public class MsgDetailActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+//            View v = getCurrentFocus();
+//            if (isShouldHideKeyboard(v, ev)) {
+//                hideKeyboard(v.getWindowToken());
+//            }
+//        }
+//        return super.dispatchTouchEvent(ev);
+//    }
+//
+//    /**
+//     * 根据EditText所在坐标和用户点击的坐标相对比，来判断是否隐藏键盘，因为当用户点击EditText时则不能隐藏
+//     *
+//     * @param v
+//     * @param event
+//     * @return
+//     */
+//    private boolean isShouldHideKeyboard(View v, MotionEvent event) {
+//        if (v != null && (v instanceof EditText)) {
+//            int[] l = {0, 0};
+//            v.getLocationInWindow(l);
+//            int left = l[0],
+//                    top = l[1],
+//                    bottom = top + v.getHeight(),
+//                    right = left + v.getWidth();
+//            if (event.getX() > left && event.getX() < right
+//                    && event.getY() > top && event.getY() < bottom) {
+//                // 点击EditText的事件，忽略它。
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        }
+//        // 如果焦点不是EditText则忽略，这个发生在视图刚绘制完，第一个焦点不在EditText上，和用户用轨迹球选择其他的焦点
+//        return false;
+//    }
+//    private void hideKeyboard(IBinder token) {
+//        if (token != null) {
+//            InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//            im.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+//        }
+//    }
 
 }

@@ -1,13 +1,16 @@
 package com.android.crypt.chatapp.msgDetail.IMTools;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 
+import com.android.crypt.chatapp.ChatAppApplication;
 import com.android.crypt.chatapp.msgDetail.Interface.MsgTouchEvent;
 import com.android.crypt.chatapp.utility.Common.DensityUtil;
 
@@ -19,7 +22,6 @@ public class MsgBgView extends HorizontalScrollView {
     public MsgTouchEvent callback;
     private int mBaseScrollX;//滑动基线。也就是点击并滑动之前的x值，以此值计算相对滑动距离。
     private int mScreenWidth;
-    private int mScreenHeight;
 
     private LinearLayout mContainer;
     private boolean flag;
@@ -29,18 +31,20 @@ public class MsgBgView extends HorizontalScrollView {
     private int gapValue = 500;
     public boolean pageFlag = false;
 
+    private GestureDetector mGestureDetector;
+    View.OnTouchListener mGestureListener;
+
     public MsgBgView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         DisplayMetrics dm = context.getApplicationContext().getResources()
                 .getDisplayMetrics();
         mScreenWidth = dm.widthPixels;
-        mScreenHeight = dm.heightPixels;
-
 
         gapValue = DensityUtil.dip2px(context, 200);
+        mGestureDetector = new GestureDetector(context, new YScrollDetector());
+        setFadingEdgeLength(0);
     }
-
 
 
     /**
@@ -60,7 +64,8 @@ public class MsgBgView extends HorizontalScrollView {
             mContainer = (LinearLayout) getChildAt(0);
             flag = true;
         }
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mScreenWidth, mScreenHeight);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(mScreenWidth, LinearLayout.LayoutParams.MATCH_PARENT);
         if(index == -1) {
             mContainer.addView(page, params);
         } else {
@@ -118,20 +123,33 @@ public class MsgBgView extends HorizontalScrollView {
     }
 
     public void toFirstPage(){
-//        callback.hideBlurView();
         smoothScrollTo(0, 0);
         pageFlag = false;
     }
 
     public void toSecondPage(){
-//        callback.hideBlurView();
         smoothScrollTo(gapValue, 0);
         pageFlag = true;
     }
 
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return super.onInterceptTouchEvent(ev) && mGestureDetector.onTouchEvent(ev);
+    }
 
-
+    /**
+     * 如果竖向滑动距离<横向距离，执行横向滑动，否则竖向。如果是ScrollView，则'<'换成'>'
+     */
+    class YScrollDetector extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (Math.abs(distanceY) < Math.abs(distanceX)) {
+                return true;
+            }
+            return false;
+        }
+    }
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
@@ -143,33 +161,15 @@ public class MsgBgView extends HorizontalScrollView {
                     baseSmoothScrollTo(gapValue);
                     mBaseScrollX = 0;
                     pageFlag = true;
-//                    callback.showBlurView();
-                }
-                //左滑，不到一半，返回原位
-                else if (scrollX >= 0) {
+                } else {
                     baseSmoothScrollTo(0);
                     pageFlag = false;
-//                    callback.hideBlurView();
                 }
-//                //右滑，大于一半，移到下一页
-//                else if(scrollX < -mScrollX){
-//                    Logger.d("右");
-//                    baseSmoothScrollTo(-gapValue);
-//                    mBaseScrollX = 0;
-//                    pageFlag = false;
-////                    callback.showBlurView();
-//                }
-//                //右滑，不到一半，返回原位
-//                else  {
-//                    Logger.d("右");
-//                    baseSmoothScrollTo(0);
-//                    pageFlag = true;
-////                    callback.hideBlurView();
-//                }
                 return true;
         }
         return super.onTouchEvent(ev);
     }
+
 
 }
 

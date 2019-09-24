@@ -17,43 +17,36 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/white_bg" >
+            android:layout_height="wrap_content"
+            android:background="@color/white_bg">
 
-            <EditText
-                android:id="@+id/input_account"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="-100dp"
-                android:layout_alignParentStart="true"
-                android:hint="手机号"
-                android:inputType="phone"
-                android:textAlignment="center"
-                android:layout_centerVertical="true"
-                android:textSize="14sp"
-                android:theme="@style/MyEditText" />
 
             <Button
                 android:id="@+id/send_sms"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_margin="30dp"
-                android:background="@drawable/btn_login_shape"
-                android:text="继续"
-                android:textColor="@color/white_bg"
+                android:layout_height="40dp"
                 android:layout_below="@+id/input_account"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/btn_login_shape"
+                android:text="申请注册"
+                android:textColor="@color/white_bg"
                 android:textSize="13dp" />
 
-
-
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_below="@+id/send_sms"
+                android:layout_marginTop="10dp"
+                android:background="@color/clear"
+                android:gravity="right"
+                android:paddingRight="40dp"
+                android:text="不需要邮箱/手机号"
+                android:textColor="@color/tips_text_l"
+                android:textSize="12sp" />
 
         </RelativeLayout>
-
 
 
     </ScrollView>

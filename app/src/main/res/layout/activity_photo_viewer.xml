@@ -8,7 +8,7 @@
     android:fitsSystemWindows="true">
 
 
-    <uk.co.senab.photoview.PhotoView
+    <com.wingsofts.dragphotoview.DragPhotoView
         android:id="@+id/big_image_viewer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -26,12 +26,12 @@
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
         android:text="密"
-        android:textColor="@color/blue_bg_dark"
+        android:textColor="@color/white_bg"
         android:gravity="center"
         android:textAlignment="center"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@drawable/rig_tips_text_view"
+        android:background="@color/clear"
         app:layout_constraintBottom_toBottomOf= "parent" />
 
 

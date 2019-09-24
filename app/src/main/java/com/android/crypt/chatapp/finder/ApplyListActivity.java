@@ -12,9 +12,11 @@ import android.widget.RelativeLayout;
 
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.finder.adaptor.Model.ApplyModel;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
+import com.android.crypt.chatapp.utility.okgo.utils.Convert;
 import com.android.crypt.chatapp.widget.RoundImageView;
 import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 import com.bumptech.glide.Glide;
@@ -23,12 +25,12 @@ import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.Response;
-import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.finder.adaptor.ApplyListAdapter;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -101,7 +103,7 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
 
     @Override
     public void onRefresh() {
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/getFriendApplyList")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/getFriendApplyList")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -110,17 +112,21 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
                     public void onSuccess(Response<CodeResponse> response) {
                         applyList.stopRefresh();
                         if (response.body().code == 1) {
-                            if (response.body().list.size() > 0) {
-                                initView(response.body().list);
-                            } else {
-                                makeSnake(applyList, "没有申请", R.mipmap.toast_alarm
-                                        , Snackbar.LENGTH_LONG);
+                            try {
+                                JSONArray mList = Convert.formatToJson(response.body().data).getJSONArray("list");
+                                if (mList.length() > 0){
+                                    initView(mList);
+                                }else{
+                                    makeSnake(applyList, "没有结果", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+                                }
+
+                            } catch (Exception ex) {
+                                makeSnake(applyList, "搜索出错", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
                             }
                         } else if (response.body().code == -1) {
                             RunningData.getInstance().reLogInMethod();
                         } else {
-                            makeSnake(applyList, response.body().msg, R.mipmap.toast_alarm
-                                    , Snackbar.LENGTH_LONG);
+                            makeSnake(applyList, response.body().msg, R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
                         }
                     }
 
@@ -138,22 +144,23 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
         applyList.stopLoadMore();
     }
 
-    private void initView(List list) {
+    private void initView(JSONArray list) {
         Gson gson = new Gson();
         ArrayList<ApplyModel> tempArr = new ArrayList();
-        for (int i = 0; i < list.size(); i++) {
-            String valueString = gson.toJson(list.get(i));
-            ApplyModel applyModel = gson.fromJson(valueString, ApplyModel.class);
-            tempArr.add(applyModel);
+        try {
+            for (int i = 0; i < list.length(); i++) {
+                String valueString = list.getJSONObject(i).toString();//gson.toJson(list.get(i));
+                ApplyModel applyModel = gson.fromJson(valueString, ApplyModel.class);
+                tempArr.add(applyModel);
+            }
+            if (tempArr.size() > 0) {
+                applyArr.clear();
+                applyArr.addAll(tempArr);
+                freshListMsthod();
+            }
+        } catch (Exception ex) {
+            makeSnake(applyList, "搜索出错", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
         }
-
-        if (tempArr.size() > 0) {
-            applyArr.clear();
-            applyArr.addAll(tempArr);
-            freshListMsthod();
-        }
-
-
     }
 
     private void freshListMsthod() {
@@ -168,6 +175,9 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (v.getId()) {
             case R.id.bg_choose:
                 bgChoose.setVisibility(View.GONE);
@@ -186,6 +196,9 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
     private ApplyModel modelCur = null;
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         modelCur = applyArr.get(position - 1);
         if (modelCur != null){
             bgChoose.setVisibility(View.VISIBLE);
@@ -206,7 +219,7 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
 
     private void startServer(int op_type){
         createDialog("正在处理..");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/confirmFriend")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/confirmFriend")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -219,7 +232,6 @@ public class ApplyListActivity extends BaseActivity implements XListView.IXListV
                         if (dialog != null) {
                             dialog.dismiss();
                         }
-                        Logger.d("response.body()" + response.body());
                         if (response.body().code == 1){
                             overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                             finish();

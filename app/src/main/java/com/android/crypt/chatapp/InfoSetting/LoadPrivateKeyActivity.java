@@ -14,15 +14,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.android.crypt.chatapp.qrResult.ZBarScanActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.BaseActivity;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
-import com.yzq.zxinglibrary.common.Constant;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -92,6 +92,9 @@ public class LoadPrivateKeyActivity extends BaseActivity implements View.OnClick
     }
 
     public void onClick(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent;
         switch (view.getId()) {
             case R.id.scan_f:
@@ -125,9 +128,9 @@ public class LoadPrivateKeyActivity extends BaseActivity implements View.OnClick
 
     private void saveKeys(){
         String pri_key = loadPriKey.getText().toString();
-        String phone_num = priKeyAccount.getText().toString();
-        if (pri_key.equals("") || phone_num.equals("")){
-            makeSnake(savePriKey, "请输入私钥和对应的账号", R.mipmap.toast_alarm
+        String ac_num = priKeyAccount.getText().toString();
+        if (pri_key.equals("") || ac_num.equals("")){
+            makeSnake(savePriKey, "请输入私钥和对应的Air号", R.mipmap.toast_alarm
                     , Snackbar.LENGTH_LONG);
         }else{
             Logger.d("导入的私钥是：" + pri_key);
@@ -140,22 +143,24 @@ public class LoadPrivateKeyActivity extends BaseActivity implements View.OnClick
 
 
     private void startQrCode(){
-        Intent intent = new Intent(this, CaptureActivity.class);
+//        Intent intent = new Intent(this, CaptureActivity.class);
         /*ZxingConfig是配置类
         *可以设置是否显示底部布局，闪光灯，相册，
         * 是否播放提示音  震动
         * 设置扫描框颜色等
         * 也可以不传这个参数
         * */
-        ZxingConfig config = new ZxingConfig();
-        config.setPlayBeep(true);//是否播放扫描声音 默认为true
-        config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-        intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+//        ZxingConfig config = new ZxingConfig();
+//        config.setPlayBeep(true);//是否播放扫描声音 默认为true
+//        config.setShake(true);//是否震动  默认为true
+//        config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+//        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
+//        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+//        config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
+//        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+//        intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+//        startActivityForResult(intent, 1);
+        Intent intent = new Intent(this, ZBarScanActivity.class);
         startActivityForResult(intent, 1);
     }
 
@@ -166,7 +171,7 @@ public class LoadPrivateKeyActivity extends BaseActivity implements View.OnClick
         // 扫描二维码/条码回传
         if (requestCode == 1 && resultCode == RESULT_OK) {
             if (data != null) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                String content = data.getStringExtra("qr_code_string");
                 if (content.startsWith("1#")){
                     Logger.d("长度 = " + content.length());
                     loadPriKey.setText(content.substring(2));

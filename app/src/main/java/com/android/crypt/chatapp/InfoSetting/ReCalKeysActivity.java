@@ -1,93 +1,69 @@
 package com.android.crypt.chatapp.InfoSetting;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.android.crypt.chatapp.BaseActivity;
+import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.guide.RegNextActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
+import com.android.crypt.chatapp.utility.Crypt.CryToolCallbacks;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
-import com.baoyz.actionsheet.ActionSheet;
+import com.android.crypt.chatapp.widget.RoundImageView;
+import com.bumptech.glide.Glide;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.Response;
-import com.orhanobut.logger.Logger;
-import com.android.crypt.chatapp.R;
-import com.android.crypt.chatapp.guide.RegInputAccountActivity;
-import com.android.crypt.chatapp.utility.Crypt.CryToolCallbacks;
-import com.yzq.zxinglibrary.encode.CodeCreator;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.android.crypt.chatapp.utility.Common.ParameterUtil.imagePath;
 
-
-public class ReCalKeysActivity extends BaseActivity implements View.OnClickListener, CryToolCallbacks,View.OnLongClickListener, ActionSheet.ActionSheetListener {
-
+public class ReCalKeysActivity extends BaseActivity implements View.OnClickListener, CryToolCallbacks {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.show_recal)
-    Button showRecal;
-    @BindView(R.id.re_cal_tips)
-    LinearLayout reCalTips;
-    @BindView(R.id.recal_contant)
-    LinearLayout recalContant;
-    @BindView(R.id.start_re_cal)
-    Button startReCal;
-    @BindView(R.id.upload_keys)
-    Button uploadKeys;
-
-    @BindView(R.id.start_reg)
-    Button startReg;
     @BindView(R.id.pub_key)
     EditText pubKey;
     @BindView(R.id.pri_key)
     EditText priKey;
-    @BindView(R.id.contentIvWithLogo)
-    ImageView contentIvWithLogo;
-    @BindView(R.id.pri_key_bg)
-    LinearLayout priKeyBg;
-    @BindView(R.id.keys_contant)
-    LinearLayout keysContant;
-    @BindView(R.id.code_tips)
-    TextView codeTips;
+    @BindView(R.id.start_re_cal)
+    Button startReCal;
+    @BindView(R.id.start_reg)
+    Button startReg;
+    @BindView(R.id.upload_keys)
+    Button uploadKeys;
+    @BindView(R.id.recal_contant)
+    LinearLayout recalContant;
+    @BindView(R.id.re_cal_centre)
+    RoundImageView reCalCentre;
+    @BindView(R.id.re_cal_process)
+    LinearLayout reCalProcess;
+    @BindView(R.id.show_recal)
+    Button showRecal;
+    @BindView(R.id.re_cal_tips)
+    LinearLayout reCalTips;
 
 
-    private RelativeLayout relative;
-    private int width, height;
     private String prikeyEnString;
     private String pubKeySting;
-    private Bitmap bitmap;
+
     private boolean isrReg = false;
 
     private String mpub_key = "";
@@ -131,17 +107,14 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (bitmap != null){
-            bitmap.recycle();
-            bitmap = null;
-        }
     }
 
     private void initView() {
-        try{
+        try {
             Intent intent = getIntent();
             isrReg = (boolean) intent.getSerializableExtra("is_reg");
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
 
 
         showRecal.setOnClickListener(this);
@@ -150,44 +123,42 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
         uploadKeys.setOnClickListener(this);
 
 
-        Resources resources = this.getResources();
-        DisplayMetrics dm = resources.getDisplayMetrics();
-        width = dm.widthPixels;
-        height = dm.widthPixels;
-
-        relative = (RelativeLayout) findViewById(R.id.code_bg);
-        ViewGroup.LayoutParams params = relative.getLayoutParams();
-        params.height = height;
-        relative.setLayoutParams(params);
-
         pubKey.setOnTouchListener(touchListener);
         priKey.setOnTouchListener(touchListener);
         pubKey.setKeyListener(null);
         pubKey.setKeyListener(null);
-        priKeyBg.setOnLongClickListener(this);
 
-
-        String account = RunningData.getInstance().getCurrentAccount();
-        if (account.equals("")){
-            account = "x-";
-        }else{
-            account = account.substring(account.length() - 1, account.length()) + "-";
-        }
-        String tips = " 标记(助记):" + account + (int)(1+Math.random()*(10-1+1)) + " - 建议用摄像头扫描";
-        codeTips.setText(tips);
-
-        if (isrReg == true){
+        if (isrReg == true) {
             reCalTips.setVisibility(View.GONE);
-            recalContant.setVisibility(View.VISIBLE);
+            recalContant.setVisibility(View.GONE);
+            reCalProcess.setVisibility(View.VISIBLE);
+
+            uploadKeys.setVisibility(View.GONE);
+            startReg.setVisibility(View.VISIBLE);
+
+            startRecalculate();
+
+        } else {
+            reCalTips.setVisibility(View.VISIBLE);
+            recalContant.setVisibility(View.GONE);
+            reCalProcess.setVisibility(View.GONE);
+
+            uploadKeys.setVisibility(View.VISIBLE);
+            startReg.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (v.getId()) {
             case R.id.show_recal:
                 reCalTips.setVisibility(View.GONE);
                 recalContant.setVisibility(View.VISIBLE);
+                reCalProcess.setVisibility(View.GONE);
+                startRecalculate();
                 break;
             case R.id.start_re_cal:
                 startRecalculate();
@@ -198,14 +169,22 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
             case R.id.upload_keys:
                 startUploadMethod();
                 break;
-
             default:
                 break;
         }
     }
 
     private void startRecalculate() {
-        createDialog("正在计算密钥,请稍后...");
+        reCalProcess.setVisibility(View.VISIBLE);
+        reCalTips.setVisibility(View.GONE);
+        recalContant.setVisibility(View.GONE);
+
+
+        int resourceId = R.mipmap.code_cal;
+        Glide.with(this)
+                .load(resourceId)
+                .into(reCalCentre);
+
         Timer delayTimer = new Timer();
         delayTimer.schedule(new TimerTask() {
             @Override
@@ -215,11 +194,11 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
         }, 3000);
     }
 
-    private void startRegMethod(){
-        Intent intent = new Intent(this, RegInputAccountActivity.class);
-        intent.putExtra("pub_key", mpub_key);
-        intent.putExtra("pri_key", mpri_key);
-        startActivity(intent);
+    private void startRegMethod() {
+        Intent intent = new Intent(this, RegNextActivity.class);
+        intent.putExtra("mpub_key", mpub_key);
+        intent.putExtra("mpri_key", mpri_key);
+        startActivityForResult(intent, 1);
         overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
     }
 
@@ -230,10 +209,15 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-                if (isrReg == true){
+
+                reCalProcess.setVisibility(View.GONE);
+                reCalTips.setVisibility(View.GONE);
+                recalContant.setVisibility(View.VISIBLE);
+
+                if (isrReg == true) {
                     uploadKeys.setVisibility(View.GONE);
                     startReg.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     uploadKeys.setVisibility(View.VISIBLE);
                     startReg.setVisibility(View.GONE);
                 }
@@ -257,15 +241,6 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
                 mpri_key = pri_key_en;
                 pubKey.setText(pub_key);
                 priKey.setText(pri_key_en);
-                keysContant.setVisibility(View.VISIBLE);
-
-                String result = "1#" + pri_key_en;
-                bitmap = null;
-                bitmap = CodeCreator.createQRCode(result, width, width, null);
-
-                if (bitmap != null) {
-                    contentIvWithLogo.setImageBitmap(bitmap);
-                }
             }
         });
 
@@ -292,12 +267,15 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
     };
 
 
-    private void startUploadMethod(){
-        Logger.d("公钥 = " + mpub_key);
-        Logger.d("私钥 = " + mpri_key);
-
+    private void startUploadMethod() {
+//        Logger.d("公钥 = " + mpub_key);
+//        Logger.d("私钥 = " + mpri_key);
+        if (mpub_key.equalsIgnoreCase("") || mpri_key.equals("")) {
+            makeSnake(toolbar, "数据为空", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+            return;
+        }
         createDialog("修改中...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/updateUserInfo")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/v2/updateUserInfo")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -309,6 +287,7 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
                             dialog.dismiss();
                         }
                     }
+
                     @Override
                     public void onCacheSuccess(Response<CodeResponse> response) {
                         onSuccess(response);
@@ -336,81 +315,34 @@ public class ReCalKeysActivity extends BaseActivity implements View.OnClickListe
                 });
     }
 
-    private void process(){
+    private void process() {
         String account = RunningData.getInstance().getCurrentAccount();
         CacheTool.getInstance().cacheObjectWithKey(ObjectCacheType.pri_key, mpri_key, account);
         finish();
     }
 
-    public boolean onLongClick(View v) {
-        ActionSheet.createBuilder(this, getSupportFragmentManager())
-                .setCancelButtonTitle("取消")
-                .setOtherButtonTitles("保存图片")
-                .setCancelableOnTouchOutside(true)
-                .setListener(this)
-                .show();
-        return true;
-    }
+//    public String getRandomString(int length) {
+//        String str = "@#$%&*ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890";
+//        Random random = new Random();
+//        StringBuffer sb = new StringBuffer();
+//        for (int i = 0; i < length; i++) {
+//            int number = random.nextInt(str.length() - 1);
+//            sb.append(str.charAt(number));
+//        }
+//        return sb.toString();
+//    }
 
+    //******注册返回
     @Override
-    public void onOtherButtonClick(ActionSheet actionSheet, int index) {
-        if (index == 0) {
-            saveImage();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == 100) {
+            String ac_id = data.getStringExtra("ac_id");
+            Intent resultMethod = new Intent();
+            resultMethod.putExtra("ac_id", ac_id);
+            setResult(100, resultMethod);
+            finish();
         }
     }
 
-    @Override
-    public void onDismiss(ActionSheet actionSheet, boolean isCancle) {}
-
-
-    private Handler mHandler = new Handler();
-    private void saveImage(){
-        // 获取图片某布局
-        priKeyBg.setDrawingCacheEnabled(true);
-        priKeyBg.buildDrawingCache();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // 要在运行在子线程中
-                try {
-                    final Bitmap image_map = priKeyBg.getDrawingCache(); // 获取图片
-                    saveToLocal(image_map);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                priKeyBg.destroyDrawingCache(); // 保存过后释放资源
-            }
-        },1000);
-    }
-    private void saveToLocal(Bitmap bmp) throws IOException {
-        // 首先保存图片
-        File appDir = new File(imagePath);
-        if (!appDir.exists()) {
-            appDir.getParentFile().mkdirs();
-            appDir.mkdir();
-        }
-        String fileName = System.currentTimeMillis() + ".jpg";
-        File file = new File(appDir, fileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-            fos.close();
-            bmp.recycle();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // 其次把文件插入到系统图库
-        try {
-            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), fileName, null);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        // 最后通知图库更新
-        Uri uri = Uri.fromFile(file);
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-        makeSnake(toolbar, "保存成功", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
-    }
 }

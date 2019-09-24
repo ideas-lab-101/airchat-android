@@ -12,16 +12,20 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.android.crypt.chatapp.BaseActivity;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.android.crypt.chatapp.user.Model.UserInfo;
+import com.android.crypt.chatapp.utility.okgo.utils.Convert;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
+
+import org.json.JSONArray;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -87,6 +91,9 @@ public class SearchFriendActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (v.getId()) {
             case R.id.my_apply_list:
                 Intent intent = new Intent(this, ApplyListActivity.class);
@@ -113,7 +120,7 @@ public class SearchFriendActivity extends BaseActivity implements View.OnClickLi
         }
         okGoFlag = true;
         createDialog("正在查找...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/searchUser")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/searchUser")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -127,16 +134,20 @@ public class SearchFriendActivity extends BaseActivity implements View.OnClickLi
                         }
                         Logger.d("response.body()" + response.body());
                         if (response.body().code == 1){
-                            if (response.body().list.size() > 0){
-                                Gson gson = new Gson();
-                                String valueString = gson.toJson(response.body().list.get(0));
-                                final UserInfo info = gson.fromJson(valueString, UserInfo.class);
-                                showFriendCard(info);
-                            }else{
-                                makeSnake(myApplyList, "没有结果", R.mipmap.toast_alarm
-                                        , Snackbar.LENGTH_LONG);
-                            }
+                            try {
+                                JSONArray mList = Convert.formatToJson(response.body().data).getJSONArray("list");
+                                if (mList.length() > 0){
+                                    Gson gson = new Gson();
+                                    String valueString = mList.getJSONObject(0).toString();
+                                    final UserInfo info = gson.fromJson(valueString, UserInfo.class);
+                                    showFriendCard(info);
+                                }else{
+                                    makeSnake(myApplyList, "没有结果", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+                                }
 
+                            } catch (Exception ex) {
+                                makeSnake(myApplyList, "搜索出错", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+                            }
                         }else if (response.body().code == -1){
                             RunningData.getInstance().reLogInMethod();
                         }else{
@@ -158,9 +169,13 @@ public class SearchFriendActivity extends BaseActivity implements View.OnClickLi
     }
 
     private void showFriendCard(UserInfo friendInfo){
-        Intent intent = new Intent(this, SearchResultActivity.class);
-        intent.putExtra("friendInfo", friendInfo);
-        startActivity(intent);
-        overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+        if (friendInfo != null){
+            Intent intent = new Intent(this, SearchResultActivity.class);
+            intent.putExtra("friendInfo", friendInfo);
+            startActivity(intent);
+            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+        }else{
+            makeSnake(myApplyList, "搜索出错", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+        }
     }
 }

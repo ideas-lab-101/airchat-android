@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/tips_text_h"
-            android:background="@drawable/rig_tips_text_view"
+            android:background="@drawable/edit_text_view"
             android:textSize="12sp"
             android:alpha="0.8"
             android:textAlignment="center"
@@ -191,7 +191,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="horizontal">
@@ -240,7 +240,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             app:indicatorColor="@color/white_bg"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             app:indicatorName="LineScalePulseOutIndicator" />
 
                         <com.wang.avi.AVLoadingIndicatorView
@@ -250,7 +250,7 @@
                             android:layout_centerHorizontal="true"
                             android:layout_centerVertical="true"
                             app:indicatorColor="@color/white_bg"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             app:indicatorName="BallClipRotatePulseIndicator" />
                     </RelativeLayout>
 
@@ -391,13 +391,13 @@
         <TextView
             android:id="@+id/debug_show"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="10dp"
             android:visibility="gone"
             android:text="debug提示，最后还有一行高度0的空白行"
             android:textAlignment="center"
-            android:textColor="@color/black_text"
-            android:textSize="12sp"
-            android:background="@color/blue_bg" />
+            android:textColor="@color/clear"
+            android:textSize="5sp"
+            android:background="@color/clear" />
 
 
     </LinearLayout>

@@ -14,6 +14,7 @@ import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import android.widget.RelativeLayout;
 
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.widget.swipexlistview.RListView;
+import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -38,7 +40,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class ChatUiHelper implements AdapterView.OnItemClickListener{
+public class ChatUiHelper implements AdapterView.OnItemClickListener, SoftKeyBoardListener.OnSoftKeyBoardChangeListener {
     private static final String SHARE_PREFERENCE_NAME = "com.chat.ui";
     private static final String SHARE_PREFERENCE_TAG = "soft_input_height";
     private Activity mActivity;
@@ -59,18 +61,21 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
     private RListView messageList;
     private ImageView bgImageView;
     private int emoji_kind = -1;
-    public boolean isShowKb = false;
+    private SoftKeyBoardListener kbListener;
+    private boolean isShowEmoji = false;
+    private boolean iskbShow = false;
     public ChatUiHelper() {
 
     }
 
     public static ChatUiHelper with(Activity activity) {
         ChatUiHelper mChatUiHelper = new ChatUiHelper();
-     //   AndroidBug5497Workaround.assistActivity(activity);
+
         mChatUiHelper.mActivity = activity;
         mChatUiHelper.mInputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         mChatUiHelper.mSp = activity.getSharedPreferences(SHARE_PREFERENCE_NAME, Context.MODE_PRIVATE);
 
+        mChatUiHelper.kbListener.setListener(activity.getWindow().getDecorView(), mChatUiHelper);
         return mChatUiHelper;
     }
 
@@ -247,16 +252,8 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == MotionEvent.ACTION_UP && mBottomLayout.isShown()) {
-                    lockContentHeight();//显示软件盘时，锁定内容高度，防止跳闪。
-                    hideBottomLayout(true);//隐藏表情布局，显示软件盘
+                    hideBottomLayout();//隐藏表情布局，显示软件盘
                     mIvEmoji.setImageResource(R.mipmap.emojikb);
-                    //软件盘显示后，释放内容高度
-                    mEditText.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            unlockContentHeightDelayed();
-                        }
-                    }, 200L);
                 }
                 return false;
             }
@@ -339,11 +336,6 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
         return this;
     }
 
-//    //绑定添加布局
-//    public ChatUiHelper  bindAddLayout(LinearLayout addLayout) {
-//        mAddLayout = addLayout;
-//        return this;
-//    }
 
     //绑定发送按钮
     public ChatUiHelper  bindttToSendButton(Button sendbtn) {
@@ -373,7 +365,6 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
                 } else {
                     mEditText.clearFocus();
                     showAudioButton();
-                    hideEmotionLayout();
                 }
             }
         });
@@ -393,11 +384,11 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
         mAudioButton.setVisibility(View.VISIBLE);
         mEditText.setVisibility(View.GONE);
         mAudioIv.setImageResource(R.mipmap.ic_keyboard);
-
         if (mBottomLayout.isShown()) {
-               hideBottomLayout(false);
+               hideBottomLayout();
         } else {
-               hideSoftInput();
+            isShowEmoji = false;
+            hideSoftInput();
         }
     }
 
@@ -408,28 +399,19 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
             @Override
             public void onClick(View v) {
                 mEditText.clearFocus();
-                if (!mEmojiLayout.isShown()) {
-                    hideAudioButton();
-                    if (isSoftInputShown()) {//同上
-                        lockContentHeight();
+                if (!mBottomLayout.isShown()) {
+                    if (isSoftInputShown()){
+                        hideAudioButton();
+                        isShowEmoji = true;
+                        hideSoftInput();
+                    }else{
                         showBottomLayout();
-                        showEmotionLayout();
-                        unlockContentHeightDelayed();
-                    }else {
-                        showBottomLayout();
-                        showEmotionLayout();
                     }
                 } else {
+                    hideBottomLayout();//隐藏表情布局，显示软件盘
+                    showSoftInput();
                     mIvEmoji.setImageResource(R.mipmap.emojikb);
-                    hideAudioButton();
-                    if (mBottomLayout.isShown()) {
-                        lockContentHeight();//显示软件盘时，锁定内容高度，防止跳闪。
-                        hideBottomLayout(true);//隐藏表情布局，显示软件盘
-                        unlockContentHeightDelayed();//软件盘显示后，释放内容高度
-                        hideEmotionLayout();
-                    }
                 }
-                isShowKb = true;
             }
         });
         return this;
@@ -441,12 +423,12 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
        addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideAudioButton();
-                hideBottomLayout(true);//隐藏表情布局，显示软件盘
-                hideEmotionLayout();
                 if (isSoftInputShown()) {//同上
+                    isShowEmoji = false;
                     hideSoftInput();
                 }
+                hideAudioButton();
+                hideBottomLayout();//隐藏表情布局，显示软件盘
                 if(callback != null){
                     callback.showActionsheets();
                 }
@@ -462,46 +444,25 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
      *
      * @param showSoftInput 是否显示软件盘
      */
-    public void hideBottomLayout(boolean showSoftInput) {
-        isShowKb = false;
-        if (mBottomLayout.isShown()) {
-            mBottomLayout.setVisibility(View.GONE);
-            if (showSoftInput) {
-               showSoftInput();
-            }
-        }
+    public void hideBottomLayout() {
+        mIvEmoji.setImageResource(R.mipmap.emojikb);
+        mBottomLayout.setVisibility(View.GONE);
     }
 
     private void showBottomLayout() {
-        int softInputHeight = getSupportSoftInputHeight();
-         if (softInputHeight == 0) {
-            softInputHeight = mSp.getInt(SHARE_PREFERENCE_TAG, dip2Px(270));
-        }
-        hideSoftInput();
-        mBottomLayout.getLayoutParams().height = softInputHeight;
         mBottomLayout.setVisibility(View.VISIBLE);
-
-    }
-
-
-
-    private void showEmotionLayout() {
-        mEmojiLayout.setVisibility(View.VISIBLE);
         mIvEmoji.setImageResource(R.mipmap.ic_keyboard);
         listViewToBottom();
     }
 
-    private void hideEmotionLayout() {
-        mEmojiLayout.setVisibility(View.GONE);
-        mIvEmoji.setImageResource(R.mipmap.emojikb);
-    }
     /**
      * 是否显示软件盘
      *
      * @return
      */
     public boolean isSoftInputShown() {
-        return getSupportSoftInputHeight() != 0;
+        return iskbShow;
+//        return getSupportSoftInputHeight() != 0;
     }
 
     public int dip2Px(int dip) {
@@ -561,7 +522,6 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
                 mInputManager.showSoftInput(mEditText, 0);
             }
         });
-
     }
 
     /**
@@ -582,7 +542,7 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
             public void run() {
                 ((LinearLayout.LayoutParams) mContentLayout.getLayoutParams()).weight = 1.0F;
             }
-        }, 200L);
+        }, 200);
     }
 
 
@@ -602,7 +562,6 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
 
     public void listViewToBottom(){
         messageList.setSelection(messageList.getBottom());
-
     }
 
     public void addBgImage(final String account){
@@ -612,6 +571,7 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
             String imageUrl = "";
             //查找特定的图
             File fileRoot = new File(speBgImage);
+
             if (fileRoot.exists()){
                 File[] files = fileRoot.listFiles();
                 for (int i = 0; i < files.length; i++){
@@ -664,7 +624,18 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener{
 
     }
 
+    @Override
+    public void keyBoardShow(int height) {
+        iskbShow = true;
+    }
 
+    @Override
+    public void keyBoardHide(int height) {
+        iskbShow = false;
+        if (isShowEmoji == true){
+            showBottomLayout();
+        }
+    }
 
     private long string2int(String value){
         long result = 0;

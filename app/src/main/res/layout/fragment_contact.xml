@@ -26,21 +26,6 @@
             android:overScrollMode="never"
             android:scrollbars="none" />
 
-        <TextView
-            android:id="@+id/empty_view"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:text="点击右上角，可以同步通讯录好友。或者在在设置页，通过二维码/搜索账号添加好友\n\n"
-            android:textStyle="italic"
-            android:padding="10dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:textAlignment="textStart"
-            android:textColor="@color/black_text"
-            />
 
         <com.android.crypt.chatapp.contact.adapter.CharIndexView
             android:id="@+id/iv_main"

@@ -8,68 +8,92 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp">
-        <LinearLayout
-            android:id="@+id/search_ac_f"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:orientation="horizontal"
-            android:background="@color/light_gray_bg"
-            android:gravity="left">
+        android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/image"
-                android:visibility="visible"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginTop="0dp"
-                android:layout_marginBottom="0dp"
-                android:layout_marginLeft="5dp"
-                android:src="@mipmap/icon_search"
-                android:scaleType="centerInside" />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/sagacity_white"
+            android:orientation="vertical">
             <TextView
-                android:id="@+id/tv_caption"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:id="@+id/big_title"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
                 android:gravity="center|left"
-                android:textColor="@color/tips_text_l"
-                android:textSize="12sp"
-                android:textStyle="normal"
+                android:textColor="@color/black_text"
+                android:textSize="25sp"
+                android:textStyle="bold"
                 android:layout_marginTop="0dp"
-                android:text="Search"/>
+                android:paddingStart="12dp"
+                android:paddingLeft="12dp"
+                android:paddingTop="0dp"
+                android:text="消息"/>
+
+            <LinearLayout
+                android:id="@+id/search_ac_f"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="horizontal"
+                android:background="@drawable/search_shape"
+                android:gravity="left">
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:visibility="visible"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginBottom="0dp"
+                    android:layout_marginLeft="5dp"
+                    android:src="@mipmap/icon_search"
+                    android:scaleType="centerInside" />
+                <TextView
+                    android:id="@+id/tv_caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:gravity="center|left"
+                    android:textColor="@color/tips_text_l"
+                    android:textSize="12sp"
+                    android:textStyle="normal"
+                    android:layout_marginTop="0dp"
+                    android:text="Search"/>
+            </LinearLayout>
+
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/loading_offline_tips"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:gravity="center"
-            android:textColor="@color/tips_text_h"
-            android:textSize="12sp"
-            android:textStyle="normal"
-            android:visibility="gone"
-            android:textAlignment="textStart"
-            android:background="@color/white_bg"
-            android:text=" 正在获取离线消息..."/>
+
+        <!--<TextView-->
+            <!--android:id="@+id/loading_offline_tips"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="30dp"-->
+            <!--android:layout_marginLeft="10dp"-->
+            <!--android:layout_marginRight="10dp"-->
+            <!--android:layout_marginTop="5dp"-->
+            <!--android:layout_marginBottom="5dp"-->
+            <!--android:gravity="center"-->
+            <!--android:textColor="@color/tips_text_h"-->
+            <!--android:textSize="12sp"-->
+            <!--android:textStyle="bold"-->
+            <!--android:visibility="gone"-->
+            <!--android:textAlignment="textStart"-->
+            <!--android:background="@color/clear"-->
+            <!--android:text=""/>-->
+        <!--&lt;!&ndash;正在获取离线消息...&ndash;&gt;-->
 
     </RelativeLayout>
 
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:gravity="center"
-        android:background="@color/black_line_light"
-        android:orientation="horizontal"/>
+    <!--<View-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="1dp"-->
+        <!--android:gravity="center"-->
+        <!--android:background="@color/black_line_light"-->
+        <!--android:orientation="horizontal"/>-->
 
 </LinearLayout>

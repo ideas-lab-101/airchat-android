@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white_bg"
@@ -12,18 +11,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white_bg"
-        android:scaleType="centerCrop"/>
+        android:layout_margin="0dp"
+        android:scaleType="centerCrop" />
 
     <View
         android:id="@+id/blur_layout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/clear_white" />
+        android:background="@color/clear" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/clear"
+        android:visibility="visible"
+        android:layout_margin="0dp"
         android:orientation="vertical">
 
         <include
@@ -33,8 +35,7 @@
         <LinearLayout
             android:id="@+id/llContent"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <com.android.crypt.chatapp.widget.swipexlistview.RListView
@@ -49,7 +50,6 @@
                 android:fadingEdgeLength="0dip"
                 android:listSelector="#00000000"
                 android:overScrollMode="never"
-                android:scrollbars="none"
                 android:stackFromBottom="true"
                 android:transcriptMode="normal"
                 android:background="@color/clear"
@@ -65,88 +65,113 @@
             <LinearLayout
                 android:id="@+id/input_bg"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:background="@color/white_bg"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@color/clear"
+                    android:focusable="true"
+                    android:orientation="horizontal">
 
-                <ImageView
-                    android:id="@+id/ivAudio"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_margin="10px"
-                    android:background="@drawable/white_view_shape"
-                    android:src="@mipmap/voicebtn" />
+                    <ImageView
+                        android:id="@+id/ivAudio"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="10px"
+                        android:layout_marginRight="10px"
+                        android:layout_gravity="center"
+                        android:background="@drawable/white_view_shape"
+                        android:src="@mipmap/voicebtn" />
 
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:paddingLeft="8dp"
-                    android:paddingTop="6dp"
-                    android:paddingRight="8dp"
-                    android:paddingBottom="6dp">
-
-                    <EditText
-                        android:id="@+id/et_content"
-                        android:layout_width="match_parent"
+                    <RelativeLayout
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
-                        android:background="@drawable/edit_bg"
-                        android:maxLines="3"
-                        android:minHeight="36dp"
-                        android:paddingLeft="13dp"
-                        android:textStyle="bold"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:maxLength="500"
-                        android:textSize="15dp" />
+                        android:layout_weight="1">
 
-                    <com.android.crypt.chatapp.msgDetail.IMTools.RecordButton
-                        android:id="@+id/btnAudio"
-                        style="?android:attr/borderlessButtonStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/shape_session_btn_voice"
-                        android:text="按住说话"
+                        <EditText
+                            android:id="@+id/et_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="10px"
+                            android:layout_marginRight="10px"
+                            android:layout_marginTop="12px"
+                            android:layout_marginBottom="12px"
+                            android:background="@drawable/edit_bg"
+                            android:maxLines="3"
+                            android:minHeight="36dp"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
+                            android:textStyle="bold"
+                            android:focusable="true"
+                            android:focusableInTouchMode="true"
+                            android:maxLength="500"
+                            android:textSize="15dp" />
+
+                        <com.android.crypt.chatapp.msgDetail.IMTools.RecordButton
+                            android:id="@+id/btnAudio"
+                            style="?android:attr/borderlessButtonStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/shape_session_btn_voice"
+                            android:text="按住说话"
+                            android:textSize="13dp"
+                            android:layout_marginLeft="10px"
+                            android:layout_marginRight="10px"
+                            android:layout_marginTop="10px"
+                            android:layout_marginBottom="10px"
+                            android:visibility="gone" />
+
+                    </RelativeLayout>
+
+                    <ImageView
+                        android:id="@+id/ivEmo"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="10px"
+                        android:layout_marginRight="10px"
+                        android:layout_gravity="center"
+                        android:background="@drawable/white_view_shape"
+                        android:src="@mipmap/emojikb" />
+
+                    <ImageView
+                        android:id="@+id/ivAdd"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="10px"
+                        android:layout_marginRight="15px"
+                        android:layout_gravity="center"
+
+                        android:background="@drawable/white_view_shape"
+                        android:src="@mipmap/emoji_others" />
+
+                    <com.android.crypt.chatapp.msgDetail.IMTools.StateButton
+                        android:id="@+id/btn_send"
+                        android:layout_width="50dp"
+                        android:layout_height="30dp"
+                        android:padding="1dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_gravity="center"
+                        android:text="发送"
                         android:textSize="13dp"
-                        android:visibility="gone" />
+                        android:textColor="@color/white_bg"
+                        android:visibility="gone"
+                        app:normalBackgroundColor="@color/blue_bg"
+                        app:pressedBackgroundColor="@color/blue_bg_light"
+                        app:radius="5dp" />
+
+                </LinearLayout>
 
 
-                </RelativeLayout>
-
-                <ImageView
-                    android:id="@+id/ivEmo"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_margin="10px"
-                    android:background="@drawable/white_view_shape"
-                    android:src="@mipmap/emojikb" />
-
-                <ImageView
-                    android:id="@+id/ivAdd"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginLeft="10px"
-                    android:layout_marginRight="14px"
-                    android:background="@drawable/white_view_shape"
-                    android:src="@mipmap/emoji_others" />
-
-
-                <com.android.crypt.chatapp.msgDetail.IMTools.StateButton
-                    android:id="@+id/btn_send"
-                    android:layout_width="50dp"
-                    android:layout_height="30dp"
-                    android:padding="1dp"
-                    android:layout_marginRight="10dp"
-                    android:text="发送"
-                    android:textSize="13dp"
-                    android:textColor="@color/white_bg"
-                    android:visibility="gone"
-                    app:normalBackgroundColor="@color/blue_bg"
-                    app:pressedBackgroundColor="@color/blue_bg_light"
-                    app:radius="5dp" />
+                <View
+                    android:id="@+id/bottom_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:background="@color/clear"/>
 
             </LinearLayout>
 
@@ -155,26 +180,20 @@
                 android:layout_height="0.5dp"
                 android:background="@color/light_gray_line" />
 
+            <RelativeLayout
+                android:id="@+id/bottom_layout"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:visibility="gone">
+                <include
+                    android:id="@+id/rlEmotion"
+                    layout="@layout/msg_emoji_layout"
+                    android:visibility="visible" />
+            </RelativeLayout>
 
         </LinearLayout>
-
-        <RelativeLayout
-            android:id="@+id/bottom_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <include android:id="@+id/rlEmotion"
-                layout="@layout/msg_emoji_layout"
-                android:visibility="gone" />
-
-
-        </RelativeLayout>
 
     </LinearLayout>
 
 
-</android.support.constraint.ConstraintLayout>
-
-
-
+</RelativeLayout>

@@ -4,6 +4,7 @@ package com.android.crypt.chatapp.utility.Crypt;
 import android.util.Base64;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 
+import java.io.UnsupportedEncodingException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -204,30 +205,32 @@ public class CryTool {
 
 
     public String shaEncrypt(String data) {
-        if (data == null){
-            data = "";
-        }
-
-        byte[] dataBytes = data.getBytes();
-        MessageDigest md5 = null;
+        MessageDigest messageDigest;
+        String encodestr = data;
         try {
-            md5 = MessageDigest.getInstance("SHA-512");
-            md5.update(dataBytes);
+            messageDigest = MessageDigest.getInstance("SHA-256");
+            messageDigest.update(data.getBytes("UTF-8"));
+            encodestr = byte2Hex(messageDigest.digest());
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        byte[] resultBytes = md5.digest();
+        return encodestr;
+    }
 
-        StringBuilder sb = new StringBuilder();
-        for (byte b : resultBytes) {
-            if(Integer.toHexString(0xFF & b).length() == 1) {
-                sb.append("0").append(Integer.toHexString(0xFF & b));
-            } else {
-                sb.append(Integer.toHexString(0xFF & b));
+    private String byte2Hex(byte[] bytes) {
+        StringBuffer stringBuffer = new StringBuffer();
+        String temp = null;
+        for (int i = 0; i < bytes.length; i++) {
+            temp = Integer.toHexString(bytes[i] & 0xFF);
+            if (temp.length() == 1) {
+                // 1得到一位的进行补0操作
+                stringBuffer.append("0");
             }
+            stringBuffer.append(temp);
         }
-
-        return sb.toString();
+        return stringBuffer.toString();
     }
 
 

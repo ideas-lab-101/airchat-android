@@ -1,23 +1,19 @@
 package com.android.crypt.chatapp;
-
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.multidex.MultiDex;
 import android.support.multidex.MultiDexApplication;
 
+import com.android.crypt.chatapp.guide.WelcomeActivity;
 import com.android.crypt.chatapp.utility.Common.NotifyUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
+import com.android.crypt.chatapp.utility.Common.WRKShareUtil;
 import com.android.crypt.chatapp.utility.Websocket.Link.WsManager;
 import com.android.crypt.chatapp.utility.Cache.CacheManager.ObjectCacheManager;
 import com.android.crypt.chatapp.utility.Common.CrashHandler;
-import com.chatapp.push.PushTargetManager;
-import com.chatapp.push.handle.impl.BaseHandleListener;
-import com.chatapp.push.model.ReceiverInfo;
-import com.chatapp.push.util.PushCallback;
-import com.chatapp.push.util.PushRunningData;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechUtility;
 import com.lzy.okgo.OkGo;
@@ -25,18 +21,23 @@ import com.lzy.okgo.cache.CacheEntity;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
+import com.mob.MobSDK;
+import com.mob.pushsdk.MobPush;
+import com.mob.pushsdk.MobPushCallback;
+import com.mob.pushsdk.MobPushCustomMessage;
+import com.mob.pushsdk.MobPushNotifyMessage;
+import com.mob.pushsdk.MobPushReceiver;
+import com.mob.tools.proguard.ProtectedMemberKeeper;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.utility.Cache.CacheManager.IMMsgDBManager;
 import com.android.crypt.chatapp.utility.Websocket.Link.ForegroundCallbacks;
-
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
-public class ChatAppApplication extends MultiDexApplication implements PushCallback {
+public class ChatAppApplication extends MultiDexApplication implements ProtectedMemberKeeper {
 	public static ChatAppApplication instances;
 	private static Application context;
 	private static ChatAppApplication mContextApplication = null;
@@ -60,6 +61,7 @@ public class ChatAppApplication extends MultiDexApplication implements PushCallb
 		initLog();
 		initAppStatusListener();
 		initLifecycle();
+		initPush();
 	}
 
 	@Override
@@ -77,7 +79,7 @@ public class ChatAppApplication extends MultiDexApplication implements PushCallb
      * 初始化shareSDK
      */
     public void initShareSDK(){
-
+		WRKShareUtil.getInstance().regToWeiXin();
     }
 
     /**
@@ -90,10 +92,68 @@ public class ChatAppApplication extends MultiDexApplication implements PushCallb
     /**
      * 初始化推送
      */
-    public void initPush(String numberSha){
+
+
+	protected String getAppkey() {
+		return "2c68c5944f2d0";
+	}
+
+	protected String getAppSecret() {
+		return "0d42f4293c910c69943551e6bf00765a";
+	}
+
+    private void initPush(){
     	islogIn = true;
-		PushRunningData.getInstance().setCallbacks(this).setAlias(numberSha);
-		PushTargetManager.getInstance().init(this);
+		MobSDK.init(this, this.getAppkey(), this.getAppSecret());
+		//获取注册id
+		MobPush.getRegistrationId(new MobPushCallback<String>() {
+			@Override
+			public void onCallback(String data) {
+				RunningData.getInstance().setMobPushRegistrationId(data);
+			}
+		});
+	}
+
+	public void setPushAlias(String alias){
+		Logger.d("推送别名 alias = " + alias);
+		RunningData.getInstance().setPushAlias(alias);
+		MobPush.setAlias(alias);
+		MobPush.setShowBadge(true);
+		MobPush.setAppForegroundHiddenNotification(true);
+
+		//		MobPush.addTags(new String[]{""});
+		if (Build.VERSION.SDK_INT >= 21) {
+			MobPush.setNotifyIcon(R.mipmap.default_head);
+		} else {
+			MobPush.setNotifyIcon(R.mipmap.default_head);
+		}
+
+		MobPush.addPushReceiver(new MobPushReceiver() {
+			@Override
+			public void onCustomMessageReceive(Context context, MobPushCustomMessage message) {
+				//接收自定义消息(透传)
+				System.out.println("onCustomMessageReceive:" + message.toString());
+			}
+			@Override
+			public void onNotifyMessageReceive(Context context, MobPushNotifyMessage message) {
+				showNoty();
+			}
+
+			@Override
+			public void onNotifyMessageOpenedReceive(Context context, MobPushNotifyMessage message) {
+				//接收通知消息被点击事件
+			}
+
+			@Override
+			public void onTagsCallback(Context context, String[] tags, int operation, int errorCode) {
+				//接收tags的增改删查操作
+			}
+
+			@Override
+			public void onAliasCallback(Context context, String alias, int operation, int errorCode) {
+				//接收alias的增改删查操作
+			}
+		});
 	}
 
 	private void initNetwork(){
@@ -155,12 +215,11 @@ public class ChatAppApplication extends MultiDexApplication implements PushCallb
 	 * 初始化日志配置
 	 */
 	private void initLog() {
-		ApplicationInfo info = context.getApplicationInfo();
-		boolean isDebug = (info.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-		if (isDebug == true){
-			//***打印日志
-			Logger.addLogAdapter(new AndroidLogAdapter());
-		}
+//		boolean isDebug = RunningData.getInstance().IsApkInDebug();
+//		if (isDebug == true){
+            //***打印日志
+//			Logger.addLogAdapter(new AndroidLogAdapter());
+//		}
 		//***崩溃日志
 		CrashHandler.getInstance().init(this);
 	}
@@ -222,46 +281,49 @@ public class ChatAppApplication extends MultiDexApplication implements PushCallb
 		public void onActivityStopped(Activity activity) {
 			count--;
 			if (count == 0) { //前台切换到后台
-				Logger.d("App切到后台>>>>>>>>>>>>>>>>>>>");
                 isForground = false;
 				if (islogIn == true){
-					PushTargetManager.getInstance().setForeground(ChatAppApplication.this, false);
+//					PushTargetManager.getInstance().setForeground(ChatAppApplication.this, false);
 				}
 			}
 		}
 		@Override
 		public void onActivityStarted(Activity activity) {
 			if (count == 0) { //后台切换到前台
-				Logger.d(">>>>>>>>>>>>>>>>>>>App切到前台");
                 isForground = true;
                 if (islogIn == true) {
-					PushTargetManager.getInstance().setForeground(ChatAppApplication.this,true);
+//					PushTargetManager.getInstance().setForeground(ChatAppApplication.this,true);
 				}
 			}
 			count++;
 		}
 	}
 
-	@Override
-	public void comeSomePush(int count) {
-		Logger.d("来了一个通知");
+	public enum PushTargetEnum {
+		XIAOMI("XIAOMI"), //小米
+		HUAWEI("HUAWEI"),//华为
+		MEIZU("MEIZU"); //魅族
+
+		public String brand;
+		PushTargetEnum(String brand) {
+			this.brand = brand;
+		}
+	}
+
+
+	private void showNoty(){
 		if (isForground == false){
-            NotifyUtils.showNotification(getApplicationContext(),"你有一条新信息","点击查看", MainActivity.class);
-        }
-//		try{
-//			ShortcutBadger.applyCountOrThrow(WelcomeActivity.getLauncher(), 10); //for 1.1.4+
-//		}catch (ShortcutBadgeException e){Logger.d("comeSomePush Badge错误" + e);}
+//			String mobile_brand = android.os.Build.MANUFACTURER;
+//			mobile_brand = mobile_brand.toUpperCase();
+//			//根据设备厂商选择推送平台
+//			if (PushTargetEnum.XIAOMI.brand.equals(mobile_brand) ||
+//					PushTargetEnum.HUAWEI.brand.equals(mobile_brand) ||
+//					PushTargetEnum.MEIZU.brand.equals(mobile_brand)	) {
+//			} else {
+//				NotifyUtils.showNotification(getApplicationContext(),"你有一条新信息","点击查看", WelcomeActivity.class);
+//			}
+			NotifyUtils.showNotification(getApplicationContext(),"你有一条新信息","点击查看", WelcomeActivity.class);
+		}
 	}
 
-	@Override
-	public void pushIsOpened() {
-		Logger.d("通知被点击了");
-//		ShortcutBadger.removeCount(WelcomeActivity.getLauncher());
-	}
-
-
-	@Override
-	public void loggerString(String value) {
-		Logger.d("push --- \n " + value);
-	}
 }

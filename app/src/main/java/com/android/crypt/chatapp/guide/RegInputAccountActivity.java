@@ -17,10 +17,13 @@ import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
+import com.android.crypt.chatapp.utility.okgo.utils.Convert;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.logger.Logger;
+
+import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,14 +32,14 @@ public class RegInputAccountActivity extends BaseActivity implements View.OnClic
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.input_account)
-    EditText inputAccount;
+
     @BindView(R.id.send_sms)
     Button sendSms;
 
     private String mpub_key = "";
     private String mpri_key = "";
-    private String account = "";
+    private String regCode = "";
+    private String regToken = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,41 +87,41 @@ public class RegInputAccountActivity extends BaseActivity implements View.OnClic
     private void toNextPage(){
         //导向到主页面
         Intent intent = new Intent(this, RegNextActivity.class);
-        intent.putExtra("pub_key", mpub_key);
-        intent.putExtra("pri_key", mpri_key);
-        intent.putExtra("account", account);
-        startActivity(intent);
+        intent.putExtra("mpub_key", mpub_key);
+        intent.putExtra("mpri_key", mpri_key);
+        intent.putExtra("regCode", regCode);
+        intent.putExtra("regToken", regToken);
+
+        startActivityForResult(intent, 1);
         overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
     }
 
     @Override
     public void onClick(View v) {
-//        startCheckAccount();
-//        //导向到主页面
-        toNextPage();
+        startCheckAccount();
     }
 
     private void startCheckAccount(){
-        account = inputAccount.getText().toString();
-        if (account == null || account.length() != 11){
-            makeSnake(sendSms, "手机号不对", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
-            return;
-        }
-        createDialog("发送验证码...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/checkAccount")
+        createDialog("正在为你申请注册");
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/v2/getRegCode")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
-                .params("account", account)
-                .params("accountType", 1)
                 .execute(new JsonCallback<CodeResponse>() {
                     @Override
                     public void onSuccess(Response<CodeResponse> response) {
                         if (dialog != null) {
                             dialog.dismiss();
                         }
-                        Logger.d("response.body()" + response.body());
                         if (response.body().code == 1){
-                            toNextPage();
+                            try {
+                                JSONObject data = Convert.formatToJson(response.body().data);
+                                regCode = data.getString("regCode");
+                                regToken = data.getString("regToken");
+
+                                toNextPage();
+                            } catch (Exception ex) {
+                                makeSnake(sendSms, "数据错误", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+                            }
                         }else{
                             makeSnake(sendSms, response.body().msg, R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
                         }
@@ -133,5 +136,18 @@ public class RegInputAccountActivity extends BaseActivity implements View.OnClic
                 });
     }
 
+
+    //******注册返回
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == 100) {
+            String ac_id = data.getStringExtra("ac_id");
+            Intent resultMethod = new Intent();
+            resultMethod.putExtra("ac_id", ac_id);
+            setResult(100, resultMethod);
+            finish();
+        }
+    }
 
 }

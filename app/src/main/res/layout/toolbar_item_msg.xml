@@ -29,8 +29,8 @@
             android:layout_height="30dp"
             android:layout_marginLeft="10dp"
             android:visibility="gone"
-            app:indicatorColor="@color/blue_bg_dark"
-            app:indicatorName="BallSpinFadeLoaderIndicator" />
+            app:indicatorColor="@color/black_text"
+            app:indicatorName="BallClipRotateMultipleIndicator" />
 
         <TextView
             android:id="@+id/other_msg_tips"

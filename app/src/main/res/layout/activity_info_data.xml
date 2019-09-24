@@ -10,9 +10,9 @@
     <include layout="@layout/toolbar_item_with_line"/>
 
 
-    <ScrollView
+    <com.android.crypt.chatapp.widget.MyScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
@@ -113,7 +113,7 @@
                     android:layout_height="fill_parent"
                     android:layout_marginLeft="20dp"
                     android:gravity="center"
-                    android:text="修改职务"
+                    android:text="个人简介"
                     android:textColor="@color/black_text"
                     android:textSize="16sp" />
 
@@ -129,7 +129,7 @@
                         android:layout_marginRight="5dp"
                         android:textColor="@color/tips_text_h"
                         android:textSize="14sp"
-                        android:text="职务"/>
+                        android:text="个人简介"/>
 
                     <ImageView
                         android:layout_width="wrap_content"
@@ -161,7 +161,7 @@
                     android:layout_height="fill_parent"
                     android:layout_marginLeft="20dp"
                     android:gravity="center"
-                    android:text="账号"
+                    android:text="Air号"
                     android:textColor="@color/black_text"
                     android:textSize="16sp" />
 
@@ -171,7 +171,7 @@
                     android:layout_alignParentRight="true"
                     android:gravity="center" >
                     <TextView
-                        android:id="@+id/phone_number"
+                        android:id="@+id/ac_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
@@ -239,7 +239,7 @@
 
 
     </LinearLayout>
-    </ScrollView>
+    </com.android.crypt.chatapp.widget.MyScrollView>
 
 
 

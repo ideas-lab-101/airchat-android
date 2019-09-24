@@ -4,24 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white_bg"
+    android:background="@color/clear_white"
     android:id="@+id/all_bg_view"
     android:fitsSystemWindows="true">
 
 
-    <android.support.v4.view.ViewPager
+    <com.android.crypt.chatapp.PhotoViewer.FixMultiViewPager
         android:id="@+id/page_view"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@color/clear"
         android:scrollbars="none" >
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:background="@color/clear"
             android:orientation="horizontal" >
         </LinearLayout>
-    </android.support.v4.view.ViewPager>
+    </com.android.crypt.chatapp.PhotoViewer.FixMultiViewPager>
 
 
     <ImageButton
@@ -30,10 +30,20 @@
         android:layout_height="30dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="12dp"
-        android:background="@mipmap/navi_quit_b"
+        android:background="@mipmap/navi_quit_w"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 
+    <ImageButton
+        android:id="@+id/three_dot"
+        android:visibility="gone"
+        android:background="@mipmap/save_image"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

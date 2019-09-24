@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.android.crypt.chatapp"
     android:versionCode="1"
-    android:versionName="1.0.0">
+    android:versionName="1.6">
 
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -20,17 +19,29 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" /> <!-- 用于提高GPS定位速度 -->
+
+
+    <!-- 这个权限用于获取wifi的获取权限，wifi信息会用来进行网络定位 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <!-- 更改设置 -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
     <application
-        android:name="com.android.crypt.chatapp.ChatAppApplication"
+        android:name=".ChatAppApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_icon"
         android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
 
         <!-- 高德地图 -->
@@ -43,13 +54,13 @@
             android:process=":multiprocess"
             tools:node="replace" />
         <service
-            android:name="com.android.crypt.chatapp.utility.Websocket.WsChatService"
+            android:name=".utility.Websocket.WsChatService"
             android:enabled="true"
             android:exported="true" />
 
-        <!--    websocket   -->
+        <!-- websocket -->
         <receiver
-            android:name="com.android.crypt.chatapp.utility.Websocket.Link.NetStatusReceiver"
+            android:name=".utility.Websocket.Link.NetStatusReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -59,8 +70,24 @@
             </intent-filter>
         </receiver>
 
+        <!--ModPush 日志-->
+        <meta-data
+            android:name="com.mob.mobpush.debugLevel"
+            android:value="4" />
+        <!--ModPush 上架华为需要，此外不需要-->
+        <receiver
+            android:name="com.mob.pushsdk.plugins.huawei.PushHaiWeiRevicer">
+            <intent-filter>
+                <action android:name="com.huawei.android.push.intent.REGISTRATION" />
+                <action android:name="com.huawei.android.push.intent.RECEIVE" />
+                <action android:name="com.huawei.android.push.intent.CLICK" />
+                <action android:name="com.huawei.intent.action.PUSH_STATE" />
+                <action android:name="com.huawei.intent.action.PUSH_DELAY_NOTIFY" />
+            </intent-filter>
+        </receiver>
+
         <activity
-            android:name="com.android.crypt.chatapp.guide.WelcomeActivity"
+            android:name=".guide.WelcomeActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -69,154 +96,180 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.android.crypt.chatapp.MainActivity"
+            android:name=".MainActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NotTranslucent" />
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NotTranslucent" >
+            <!--ModPush 推送打开页面-->
+            <intent-filter>
+                <action android:name="${applicationId}.default.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
-            android:name="com.android.crypt.chatapp.guide.LoginActivity"
+            android:name=".guide.LoginActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".guide.LogOrRegActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.SettingActivity"
+            android:name=".InfoSetting.SettingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.guide.RefindPwordActivity"
+            android:name=".guide.RefindPwordActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".guide.RegTipsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.guide.RegTipsActivity"
+            android:name=".InfoSetting.LoadPrivateKeyActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.LoadPrivateKeyActivity"
+            android:name=".finder.SearchFriendActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.finder.SearchFriendActivity"
+            android:name=".finder.ApplyListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.finder.ApplyListActivity"
+            android:name=".InfoSetting.MyKeysOpActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.MyKeysOpActivity"
+            android:name=".InfoSetting.InfoDataActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.InfoDataActivity"
+            android:name=".PhotoViewer.PhotoViewerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.Translucent" />
+        <activity
+            android:name=".user.FriendCardActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.PhotoViewer.PhotoViewerActivity"
+            android:name=".InfoSetting.ChangeMyInfoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.user.FriendCardActivity"
+            android:name=".InfoSetting.ChangeFriendLabelActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.ChangeMyInfoActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.ChangeFriendLabelActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.msgDetail.MsgDetailActivity"
+            android:name=".msgDetail.MsgDetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <!-- <activity -->
         <!-- android:name=".InfoSetting.Tools.ScanActivity" -->
         <!-- android:screenOrientation="portrait" -->
         <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
         <activity
-            android:name="com.android.crypt.chatapp.qrResult.QScanOtherResultActivity"
+            android:name=".qrResult.QScanOtherResultActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.finder.SearchResultActivity"
+            android:name=".finder.SearchResultActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
-            android:name="com.android.crypt.chatapp.qrResult.MyQRCodeActivity"
+            android:name=".qrResult.MyQRCodeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.WatchMyPrivateKeyActivity"
+            android:name=".InfoSetting.WatchMyPrivateKeyActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.ReCalKeysActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.msgDetail.ResendMsgActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.guide.AppHelpActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.utility.Push.JPushTestActivity"
-            android:enabled="true"
-            android:exported="true" />
-        <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.TextSizeSetActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.Map.MapMainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.Map.MapSearchActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.android.crypt.chatapp.msgDetail.IMTools.ChoosePhotoActivity" />
-        <activity
-            android:name="com.android.crypt.chatapp.Map.MapShowActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.user.BgImageActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.msgDetail.IMTools.AddEmojiActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.msgDetail.IMTools.ChooseEmojiActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.guide.RegInputAccountActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.guide.RegNextActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name="com.android.crypt.chatapp.WebView.WebActivity"
+            android:name=".InfoSetting.WatchMyPrivateStringActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.android.crypt.chatapp.InfoSetting.ChangePushVoiceActivity"
+            android:name=".InfoSetting.ReCalKeysActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.android.crypt.chatapp.finder.SearchLocalActivity"
+            android:name=".msgDetail.ResendMsgActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".guide.AppHelpActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".InfoSetting.TextSizeSetActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Map.MapMainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Map.MapSearchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".msgDetail.IMTools.ChoosePhotoActivity" />
+        <activity
+            android:name=".Map.MapShowActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".user.BgImageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".msgDetail.IMTools.AddEmojiActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".msgDetail.IMTools.ChooseEmojiActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".guide.RegInputAccountActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".guide.RegNextActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".WebView.WebActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".InfoSetting.ChangePushVoiceActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".finder.SearchLocalActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:exported="true"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".qrResult.ZBarScanActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".guide.AppIntroActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 

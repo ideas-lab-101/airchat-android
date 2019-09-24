@@ -5,24 +5,26 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v7.widget.Toolbar;
+import android.support.design.widget.Snackbar;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.crypt.chatapp.BaseFragment;
 import com.android.crypt.chatapp.ChatAppApplication;
+import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.contact.Model.ContactModel;
 import com.android.crypt.chatapp.finder.SearchLocalActivity;
 import com.android.crypt.chatapp.msgDetail.MsgDetailActivity;
 import com.android.crypt.chatapp.msgList.adapter.MessageListAdapter;
@@ -30,23 +32,31 @@ import com.android.crypt.chatapp.msgList.model.MessageListModel;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
 import com.android.crypt.chatapp.utility.Common.AcNotifyCallbackManager;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.DensityUtil;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.Websocket.MessageCallbacks;
 import com.android.crypt.chatapp.utility.Websocket.Model.MessageSendState;
 import com.android.crypt.chatapp.utility.Websocket.Model.ReceiveRecalledInfo;
+import com.android.crypt.chatapp.utility.Websocket.Model.ReceiveSpecialInfo;
+import com.android.crypt.chatapp.utility.Websocket.Model.ReceiverIsTypingBody;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendMessageEnBody;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendToGetOffLineMessage;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendToResetPushNumber;
 import com.android.crypt.chatapp.utility.Websocket.WsChatService;
-import com.android.crypt.chatapp.utility.Websocket.Model.ReceiveSpecialInfo;
-import com.android.crypt.chatapp.utility.Websocket.Model.ReceiverIsTypingBody;
-import com.google.gson.Gson;
-import com.android.crypt.chatapp.R;
-import com.android.crypt.chatapp.contact.Model.ContactModel;
+import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
+import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
+import com.android.crypt.chatapp.utility.okgo.utils.Convert;
 import com.android.crypt.chatapp.widget.swipexlistview.SwipeXListView;
+import com.google.gson.Gson;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.cache.CacheMode;
+import com.lzy.okgo.model.Response;
 import com.orhanobut.logger.Logger;
 import com.wang.avi.AVLoadingIndicatorView;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,16 +77,17 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
     private static final String ARG_PARAM2 = "param2";
     @BindView(R.id.message_list)
     SwipeXListView messageList;
-    @BindView(R.id.empty_view)
-    TextView emptyView;
-    @BindView(R.id.msg_toolbar)
-    Toolbar msgToolbar;
 
     Unbinder unbinder;
-    @BindView(R.id.collapsing_toolbar_layout)
-    CollapsingToolbarLayout collapsingToolbarLayout;
     @BindView(R.id.connect_tips)
     AVLoadingIndicatorView connectTips;
+
+    @BindView(R.id.cos_text_title)
+    TextView cosTextTitle;
+    @BindView(R.id.gap_line)
+    View gapLine;
+    @BindView(R.id.list_bg_relative)
+    RelativeLayout listBgRelative;
 
 
     // TODO: Rename and change types of parameters
@@ -85,8 +96,9 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
     private MessageListAdapter adapterFavor = null;
     private ArrayList<MessageListModel> mListContact = null;
     private ViewHolder holder = null;
-
-
+    private LinearLayout listHeadView;
+    private int maxOffsetValue = 1000;
+    private String token = "";
     public MsgFragment() {
         // Required empty public constructor
     }
@@ -116,7 +128,7 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        loginAuto();
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -128,7 +140,9 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         toolbar.setVisibility(View.GONE);
-        msgToolbar.setTitle(R.string.tab_msg);
+        cosTextTitle.setText(R.string.tab_msg);
+        cosTextTitle.setVisibility(View.INVISIBLE);
+        gapLine.setVisibility(View.INVISIBLE);
         //重新设置菜单
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -139,11 +153,11 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         View view = inflater.inflate(R.layout.fragment_msg, container, false);
         unbinder = ButterKnife.bind(this, view);
 //        ***添加表头
-        LinearLayout headView = (LinearLayout) LayoutInflater.from(this.getContext()).inflate(R.layout.fragment_msg_list_header, null);
-        messageList.addHeaderView(headView);
+        listHeadView = (LinearLayout) LayoutInflater.from(this.getContext()).inflate(R.layout.fragment_msg_list_header, null);
+        messageList.addHeaderView(listHeadView);
 //        View headView = ((LayoutInflater)getLayoutInflater()).inflate(R.layout.fragment_contact_header, container, false);
 //        contactListLv.addHeaderView(headView); 这个是错的
-        holder = new ViewHolder(headView);
+        holder = new ViewHolder(listHeadView);
         holder.searchAcF.setOnClickListener(this);
         unbinder = ButterKnife.bind(this, view);
         return view;
@@ -160,51 +174,46 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
     }
 
     //登录成功后才初始化push服务
-    private void initPush(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                CryTool tool = new CryTool();
-                String accountSha256 = tool.shaAccount(RunningData.getInstance().getCurrentAccount());
-                if (accountSha256.length() > 40){
-                    accountSha256 = accountSha256.substring(0, 40);
-                }
-                Logger.d("accountSha256 = " + accountSha256);
-                ChatAppApplication.getInstances().initPush(accountSha256);
-            }
-        }).start();
+    private void initPush() {
+        CryTool tool = new CryTool();
+        String accountSha256 = tool.shaAccount(RunningData.getInstance().getCurrentAccount());
+        ChatAppApplication.getInstances().setPushAlias(accountSha256);
+        loginAuto();
     }
 
     private void initView() {
+
         messageList.setOnItemClickListener(this);
         messageList.setXListViewListener(this);
-        messageList.setPullRefreshEnable(true);
+        messageList.setPullRefreshEnable(false);
         messageList.setPullLoadEnable(false);
-        messageList.setEmptyView(emptyView);
         messageList.hideHeadViewLayout();
-
-        collapsingToolbarLayout.setCollapsedTitleTypeface(Typeface.DEFAULT_BOLD);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            messageList.setNestedScrollingEnabled(true);
-        }
+        gapLine.setVisibility(View.INVISIBLE);
+        listGapVlaue();
     }
 
-    private void initData(){
+    private void initData() {
         RunningData.getInstance().initContactList();
-        if (mListContact == null){
+        if (mListContact == null) {
             mListContact = RunningData.getInstance().getMsgList();
         }
-        if (adapterFavor == null){
-            adapterFavor = new MessageListAdapter(getActivity(), mListContact);
+        if (adapterFavor == null) {
+//            Logger.d("heigth all = " + RunningData.getInstance().getAppShowHeight() + " actionbar = " +  RunningData.getInstance().getActionBarHeight());
+//            Logger.d("headview = " + DensityUtil.dip2px(getContext(), 80));
+            int heightLlistView = RunningData.getInstance().getAppShowHeight() - RunningData.getInstance().getActionBarHeight() - DensityUtil.dip2px(getContext(), 75) - DensityUtil.dip2px(getContext(), 80);
+            adapterFavor = new MessageListAdapter(getActivity(), mListContact, heightLlistView, DensityUtil.dip2px(getContext(), 80), true);
             messageList.setAdapter(adapterFavor);
             adapterFavor.setOnRightItemClickListener(this);
             freshListMsthod();
         }
+        maxOffsetValue = DensityUtil.dip2px(getContext(), 40);
     }
 
     @Override
     public void onRightItemClick(View v, int position) {
-//        Logger.d("点击了左滑");
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         deleteOneList(v, position);
     }
 
@@ -219,6 +228,17 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
     }
 
 
+    private void showTitles(int value){
+        if (value >= maxOffsetValue){
+            cosTextTitle.setVisibility(View.VISIBLE);
+            gapLine.setVisibility(View.VISIBLE);
+        }else{
+            cosTextTitle.setVisibility(View.INVISIBLE);
+            gapLine.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
     private void stopFresh() {
         messageList.stopRefresh();
         messageList.stopLoadMore();
@@ -227,7 +247,10 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if ((position - 3) < mListContact.size()) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        if ((position - 3) < (mListContact.size() - 1)) {
             MessageListModel listModel = mListContact.get(position - 3);
             ContactModel model = new ContactModel(listModel.avatar_url, listModel.username, listModel.label, listModel.account, listModel.introduction, listModel.public_key, listModel.friend_id);
             Intent intent = new Intent(getActivity(), MsgDetailActivity.class);
@@ -247,10 +270,12 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         unbinder.unbind();
         stopWsService();
         cacheAllData();
-
     }
 
     public void onClick(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (view.getId()) {
             case R.id.search_ac_f:
                 Intent intent = new Intent(getActivity(), SearchLocalActivity.class);
@@ -265,8 +290,9 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
     static class ViewHolder {
         @BindView(R.id.search_ac_f)
         LinearLayout searchAcF;
-        @BindView(R.id.loading_offline_tips)
-        TextView loadingOfflineTips;
+        @BindView(R.id.big_title)
+        TextView bigTitle;
+
         ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
@@ -324,13 +350,14 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
             @Override
             public void run() {
                 // 连接成功，更改UI
-                connectTips.setVisibility(View.GONE);
+                connectTips.setVisibility(View.INVISIBLE);
+                holder.bigTitle.setText("接收中...");
             }
         });
         getOfflineMsg();
     }
 
-    private void getOfflineMsg(){
+    private void getOfflineMsg() {
         SendToGetOffLineMessage body = new SendToGetOffLineMessage(RunningData.getInstance().getCurrentAccount());
         wsChatService.getOfflineMsg(body);
     }
@@ -342,7 +369,7 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
             @Override
             public void run() {
                 // 连接成功，更改UI
-                connectTips.setVisibility(View.GONE);
+                connectTips.setVisibility(View.INVISIBLE);
             }
         });
     }
@@ -354,9 +381,9 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
             @Override
             public void run() {
                 // 连接断开，更改UI
-                connectTips.smoothToShow();
                 connectTips.setVisibility(View.VISIBLE);
-                holder.loadingOfflineTips.setVisibility(View.VISIBLE);
+                connectTips.show();
+                holder.bigTitle.setText(R.string.tab_msg);
             }
         });
     }
@@ -367,7 +394,7 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         freshListMsthod();
     }
 
-    private void freshListMsthod(){
+    private void freshListMsthod() {
         //更新主线程UI
         runOnUiThread(new Runnable() {
             @Override
@@ -384,8 +411,8 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                holder.loadingOfflineTips.setVisibility(View.GONE);
-                connectTips.setVisibility(View.GONE);
+                connectTips.setVisibility(View.INVISIBLE);
+                holder.bigTitle.setText(R.string.tab_msg);
             }
         });
     }
@@ -397,12 +424,25 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
 
     @Override
     public void allowMeASFriend(ReceiveSpecialInfo body) {
-        AcNotifyCallbackManager.getInstance().contact_callback_fresh();
+        startFreshContact(body);
     }
 
     @Override
     public void someOneDeleteMe(ReceiveSpecialInfo body) {
         AcNotifyCallbackManager.getInstance().contact_callback_fresh();
+        int index = -1;
+        for (int i = 0; i < mListContact.size(); i++){
+            String account = mListContact.get(i).account;
+            if (account.equalsIgnoreCase(body.MessageReceive)){
+                index = i;
+                break;
+            }
+        }
+        if (index >= 0) {
+            mListContact.remove(index);
+
+            freshListMsthod();
+        }
     }
 
 
@@ -412,20 +452,30 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         // 消息撤回，可以在这里删除消息
         // 暂时不实现
     }
+
     //***下面方法这里不必实现
     @Override
     public void messageSendSuccess(MessageSendState body) {
         //不做处理
     }
+
     @Override
     public void messageSendFailed(MessageSendState body) {
         //不做处理
     }
+
     @Override
     public void comeANewIMMessage(SendMessageEnBody body) {
         //来了一个私信
         //在 freshMsgListView 处理了
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                holder.bigTitle.setText(R.string.tab_msg);
+            }
+        });
     }
+
     @Override
     public void userIsTyping(ReceiverIsTypingBody body) {
         //不做处理
@@ -433,7 +483,7 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
 
 
     //********list cache
-    private void startTimerCache(){
+    private void startTimerCache() {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
@@ -442,18 +492,21 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         }, 30000, 60000);
     }
 
-    private void cacheAllData(){
+    private void cacheAllData() {
         Gson gson = new Gson();
         String contactsString = gson.toJson(mListContact);
         CacheTool.getInstance().cacheObject(ObjectCacheType.message_list, contactsString);
 
     }
 
-    private void deleteOneList(View v, int position){
-        if (position >=0 && position < mListContact.size()){
+    private void deleteOneList(View v, int position) {
+        if (position >= 0 && position < (mListContact.size() - 1)) {
             mListContact.remove(position);
-            adapterFavor.notifyDataSetChanged();
+        }else{
+            mListContact.remove(mListContact.size() - 1);
         }
+        messageList.hiddenRight();
+        freshListMsthod();
     }
 
     @Override
@@ -466,8 +519,8 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         }
     }
 
-    private void resetPushNumber(){
-        SendToResetPushNumber resetbody = new  SendToResetPushNumber(RunningData.getInstance().getCurrentAccount());
+    private void resetPushNumber() {
+        SendToResetPushNumber resetbody = new SendToResetPushNumber(RunningData.getInstance().getCurrentAccount());
         wsChatService.resetPushNumber(resetbody);
     }
 
@@ -491,9 +544,14 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         return false;
     }
 
-    private void loginAuto(){
-        //自动重新登录
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RunningData.getInstance().clearmsgList();
+    }
 
+    private void loginAuto() {
+        //自动重新登录
         Timer loginTimer = new Timer();
         loginTimer.schedule(new TimerTask() {
             @Override
@@ -503,5 +561,138 @@ public class MsgFragment extends BaseFragment implements SwipeXListView.IXListVi
         }, 10000);
     }
 
+    //监听listView滑动距离
+    private void listGapVlaue() {
+        messageList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            // 创建一个稀疏数组，用于存储Item的高度和mTop
+            private SparseArray recordSp = new SparseArray(0);
+            private int mCurrentFirstVisibleItem = 0;
 
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                                 int visibleItemCount, int totalItemCount) {
+                mCurrentFirstVisibleItem = firstVisibleItem;
+                // 这里获取的Item是ListView中第一个可见的Item
+                View firstView = view.getChildAt(0);
+                if (null != firstView) {
+                    ItemRecord itemRecord =
+                            (ItemRecord) recordSp.get(firstVisibleItem);
+                    if (null == itemRecord) {
+                        itemRecord = new ItemRecord();
+                    }
+                    itemRecord.height = firstView.getHeight();
+                    // top值总是小于或等于0的
+                    itemRecord.top = firstView.getTop();
+                    /**
+                     * 将当前第一个可见Item的高度和top存入SparseArray中，
+                     * SparseArray的key是Item的position
+                     */
+                    recordSp.append(firstVisibleItem, itemRecord);
+                    int scrollY = getScrollY();
+                    showTitles(scrollY);
+                }
+
+            }
+
+            private int getScrollY() {
+                int height = 0;
+                for (int i = 0; i < mCurrentFirstVisibleItem; i++) {
+                    ItemRecord itemRecord = (ItemRecord) recordSp.get(i);
+                    if (itemRecord != null){
+                        height += itemRecord.height;
+                    }
+                }
+                //取出当前第一个可见Item的ItemRecord对象
+                ItemRecord itemRecord =
+                        (ItemRecord) recordSp.get(mCurrentFirstVisibleItem);
+                if (null == itemRecord) {
+                    itemRecord = new ItemRecord();
+                }
+                //由于存入的top值是小于或等于0的，这里是减去top值而不是加
+                return height - itemRecord.top;
+            }
+
+            class ItemRecord {
+                int height = 0;
+                int top = 0;
+            }
+        });
+    }
+
+
+    private void startFreshContact(final ReceiveSpecialInfo body){
+        token = RunningData.getInstance().getToken();
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/getFriendList")
+                .tag(this)
+                .cacheMode(CacheMode.NO_CACHE)
+                .params("token", token)
+                .execute(new JsonCallback<CodeResponse>() {
+                    @Override
+                    public void onFinish() {
+                    }
+                    @Override
+                    public void onSuccess(Response<CodeResponse> response) {
+                        if (response.body().code == 1) {
+                            try {
+                                JSONArray mList = Convert.formatToJson(response.body().data).getJSONArray("list");
+                                if (mList != null) {
+                                    processResult(mList, body);
+                                }
+                            } catch (Exception ex) {}
+                        }
+                    }
+                    @Override
+                    public void onError(Response<CodeResponse> response) {}
+                });
+    }
+    private void processResult(JSONArray mList, final ReceiveSpecialInfo body){
+        if (mList != null && mList.length() > 0){
+            //1。0 刷新消息列表
+            freshMsgListToLatest(mList, body);
+
+            //*** 2.0 刷新联系人列表
+            AcNotifyCallbackManager.getInstance().contact_callback_apply_with_data(mList);
+        }
+        freshListMsthod();
+    }
+
+    private void freshMsgListToLatest(JSONArray mList, final ReceiveSpecialInfo body){
+        Gson gson = new Gson();
+        if (mListContact != null && mListContact.size() > 1){
+            try{
+                MessageListModel modeList = null;
+                boolean isGetValue = false;
+                for (int i = 0; i < mListContact.size() - 1; i++){
+                    modeList = mListContact.get(i);
+                    if (modeList.account.equalsIgnoreCase(body.MessageReceive)){
+                        isGetValue = true;
+                        break;
+                    }
+                }
+                if (isGetValue && modeList != null){
+                    for (int i = 0; i < mList.length(); i++){
+                        String valueString = mList.getJSONObject(i).toString();
+                        ContactModel info = gson.fromJson(valueString, ContactModel.class);
+                        if (info.label == null || info.label.equals("")){
+                            info.label = info.username;
+                        }
+                        if (modeList.account.equalsIgnoreCase(info.account)){
+                            if (!info.public_key.equals("")){
+                                modeList.public_key = info.public_key;
+                                modeList.username = info.username;
+                                modeList.label = info.label;
+                                modeList.avatar_url = info.avatar_url;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }catch (Exception ex) {
+//                makeSnake(toolbar, "freshMsgListToLatest 数据出错", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
+                Logger.d("freshMsgListToLatest 数据出错");
+            }
+        }
+    }
 }

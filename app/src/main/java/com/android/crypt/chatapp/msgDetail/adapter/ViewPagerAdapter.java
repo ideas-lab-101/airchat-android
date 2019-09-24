@@ -1,4 +1,4 @@
-package com.android.crypt.chatapp.PhotoViewer.adaptor;
+package com.android.crypt.chatapp.msgDetail.adapter;
 
 import android.support.v4.view.PagerAdapter;
 import android.view.View;
@@ -12,10 +12,10 @@ import java.util.List;
  * Created by White on 2019/6/3.
  */
 
-public class PhotoPagerAdapter extends PagerAdapter{
+public class ViewPagerAdapter extends PagerAdapter{
 
-    private List<DragPhotoView> viewList;
-    public PhotoPagerAdapter(List<DragPhotoView> viewList)
+    private List<View> viewList;
+    public ViewPagerAdapter(List<View> viewList)
     {
         this.viewList = viewList;
     }

@@ -1,5 +1,6 @@
 package com.android.crypt.chatapp.msgDetail.IMTools;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -17,8 +18,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.widget.RoundImageView;
 import com.orhanobut.logger.Logger;
@@ -26,24 +25,29 @@ import com.android.crypt.chatapp.R;
 
 import java.io.File;
 
+
+
 import static com.lzy.okgo.utils.HttpUtils.runOnUiThread;
 
 public class RecordButton extends android.support.v7.widget.AppCompatButton {
     private MsgBgView parentLayout;
-
-
+    private Context mContext;
+    private boolean isError = false;
     public RecordButton(Context context) {
         super(context);
+        mContext = context;
         init();
     }
 
     public RecordButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mContext = context;
         init();
     }
 
     public RecordButton(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
         init();
     }
 
@@ -62,7 +66,6 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
 
     private static View view;
     private TextView mStateTV;
-//    private ImageView mStateIV;
     private RoundImageView mStateIV;
     private MediaRecorder mRecorder;
     private ObtainDecibelThread mThread;
@@ -95,6 +98,12 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
 
     @SuppressLint("HandlerLeak")
     private void init() {
+        String voice_baseUrl =  RunningData.getInstance().getVoiceUrl();
+        File voice_file = new File(voice_baseUrl);
+        if (!voice_file.exists()){
+            voice_file.mkdir();
+        }
+
         volumeHandler = new Handler(){
             @Override
             public void handleMessage(Message msg) {
@@ -108,6 +117,7 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         };
     }
 
+
     private AnimationDrawable anim;
     private AniType isAnimation = AniType.UNKNOW;
     private enum AniType {
@@ -120,7 +130,6 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
         int action = event.getAction();
         y = event.getY();
         if(mStateTV!=null && mStateIV!=null &&y<0){
@@ -163,8 +172,10 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
                 }else{
                     cancelRecord();
                 }
+                if (recordDialog != null){
+                    recordDialog.dismiss();
+                }
 
-                recordDialog.dismiss();
                 endTime = 0;
                 recordTips = "手指上滑,取消发送";
                 break;
@@ -183,24 +194,24 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
      * 初始化录音对话框 并 开始录音
      */
     private void initDialogAndStartRecord() {
-         startTime = System.currentTimeMillis();
-         endTime = 0;
-         recordDialog = new Dialog(getContext(), R.style.like_toast_dialog_style);
+        startTime = System.currentTimeMillis();
+        endTime = 0;
+        recordDialog = new Dialog(getContext(), R.style.like_toast_dialog_style);
 
-       // view = new ImageView(getContext());
-         view = View.inflate(getContext(), R.layout.dialog_record, null);
-         mStateIV = (RoundImageView) view.findViewById(R.id.rc_audio_state_image);
-         mStateTV = (TextView) view.findViewById(R.id.rc_audio_state_text);
-         mStateIV.setImageDrawable(getResources().getDrawable(R.drawable.anmi_record));
-         anim = (AnimationDrawable) mStateIV.getDrawable();
-         anim.start();
-         isAnimation = AniType.START; ;
-         mStateIV.setVisibility(View.VISIBLE);
+        // view = new ImageView(getContext());
+        view = View.inflate(getContext(), R.layout.dialog_record, null);
+        mStateIV = (RoundImageView) view.findViewById(R.id.rc_audio_state_image);
+        mStateTV = (TextView) view.findViewById(R.id.rc_audio_state_text);
+        mStateIV.setImageDrawable(getResources().getDrawable(R.drawable.anmi_record));
+        anim = (AnimationDrawable) mStateIV.getDrawable();
+        anim.start();
+        isAnimation = AniType.START; ;
+        mStateIV.setVisibility(View.VISIBLE);
 
-         //mStateIV.setImageResource(R.drawable.ic_volume_1);
-         mStateTV.setVisibility(View.VISIBLE);
-         mStateTV.setText(recordTips);
-         recordDialog.setContentView(view, new LinearLayout.LayoutParams(
+        //mStateIV.setImageResource(R.drawable.ic_volume_1);
+        mStateTV.setVisibility(View.VISIBLE);
+        mStateTV.setText(recordTips);
+        recordDialog.setContentView(view, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         recordDialog.setOnDismissListener(onDismiss);
@@ -210,10 +221,12 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         recordDialog.show();
     }
 
+
     /**
      * 放开手指，结束录音处理
      */
     private void finishRecord() {
+        isError = false;
         long intervalTime = endTime - startTime;
         if (intervalTime < MIN_INTERVAL_TIME) {
             Logger.d("录音时间太短");
@@ -226,6 +239,7 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
             File file = new File(mFile);
             file.delete();
             stopRecording();
+
         /*    stopRecording();
             recordDialog.dismiss();*/
             return;
@@ -242,9 +256,11 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
         }catch (Exception e){
 
         }
-
-        if (finishedListener != null)
-            finishedListener.onFinishedRecord(mFile,mediaPlayer.getDuration()/1000);
+        if (finishedListener != null && isError == false){
+            if (mediaPlayer.getDuration() > 0){
+                finishedListener.onFinishedRecord(mFile,mediaPlayer.getDuration()/1000);
+            }
+        }
     }
 
     /**
@@ -296,7 +312,6 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
 
 
     private void stopRecording() {
-
         if (mThread != null) {
             mThread.exit();
             mThread = null;
@@ -308,6 +323,7 @@ public class RecordButton extends android.support.v7.widget.AppCompatButton {
                 mRecorder.release();
                 mRecorder = null;
             } catch (RuntimeException pE) {
+                isError = true;
                 pE.printStackTrace();
             }
         }

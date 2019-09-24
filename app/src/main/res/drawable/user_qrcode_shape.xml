@@ -4,10 +4,10 @@
 
     <solid android:color="@color/white_bg" />
     <!-- 这里是设置为四周 也可以单独设置某个位置为圆角-->
-    <corners android:topLeftRadius="5dp"
-        android:topRightRadius="5dp"
-        android:bottomRightRadius="5dp"
-        android:bottomLeftRadius="5dp"/>
-    <stroke android:width="15dp" android:color="#FF6FC9F0" />
+    <corners android:topLeftRadius="0dp"
+        android:topRightRadius="0dp"
+        android:bottomRightRadius="0dp"
+        android:bottomLeftRadius="0dp"/>
+    <stroke android:width="20dp" android:color="#FFF4F4F4" />
 
 </shape>

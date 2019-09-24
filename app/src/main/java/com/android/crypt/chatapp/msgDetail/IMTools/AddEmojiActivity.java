@@ -36,7 +36,7 @@ public class AddEmojiActivity extends BaseActivity implements AdapterView.OnItem
     private ArrayList<String> show_EmojiList;
     private ArrayList<String> true_EmojiList;  // 真是的数据
 
-    private String mFile = RunningData.getInstance().getCollectImage();;
+    private String mFile = RunningData.getInstance().getCollectImage();
     private EmojiAdapter emojiAdapter;
 
     @Override
@@ -244,6 +244,10 @@ public class AddEmojiActivity extends BaseActivity implements AdapterView.OnItem
                 @Override
                 public void run(){
                     mFile = RunningData.getInstance().getCollectImage();
+                    File file = new File(mFile);
+                    if (!file.exists()){
+                        file.mkdir();
+                    }
                     if (mFile != null){
                         String[] surNmaeArray = imageUrl.toString().split("\\.");
                         if (surNmaeArray.length >= 1){

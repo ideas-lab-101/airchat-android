@@ -4,18 +4,14 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.MainActivity;
 import com.android.crypt.chatapp.R;
-import com.android.crypt.chatapp.guide.WelcomeActivityPermissionsDispatcher;
 import com.android.crypt.chatapp.utility.Common.ParameterUtil;
 import com.android.crypt.chatapp.utility.Common.ServiceUtils;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnNeverAskAgain;
@@ -24,7 +20,6 @@ import permissions.dispatcher.OnShowRationale;
 import permissions.dispatcher.PermissionRequest;
 import permissions.dispatcher.RuntimePermissions;
 
-//import com.android.amusement.user.LoginActivity;
 
 /**
  * @author mula
@@ -32,10 +27,6 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class WelcomeActivity extends BaseActivity {
 
-    @BindView(R.id.tv_version)
-    TextView tvVersion;
-    @BindView(R.id.root_view)
-    FrameLayout rootView;
     private boolean blnFirstOpen = false;
     private static WelcomeActivity context;
 
@@ -52,11 +43,11 @@ public class WelcomeActivity extends BaseActivity {
     public void initView() {
         context = this;
         //根据AppCode更改欢迎页面背景
-        rootView.setBackgroundResource(R.mipmap.welcome);
-        tvVersion.setText(getString(R.string.version_set, ServiceUtils.getCurVersionName(this)));
+//        rootView.setBackgroundResource(R.mipmap.default_head);
+//        tvVersion.setText(getString(R.string.version_set, ServiceUtils.getCurVersionName(this)));
     }
 
-    @NeedsPermission({Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO})
+    @NeedsPermission({Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA})
     public void initApp() {
         //判断是否首次登入
         String loginState = getPrivateXml(
@@ -65,11 +56,10 @@ public class WelcomeActivity extends BaseActivity {
         Intent intent = null;
 
         blnFirstOpen = "1".equals(getPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "blnFirstOpen_" + ServiceUtils.getCurVersionName(getApplication()), "1")) ? true : false;
-
         if (blnFirstOpen) {
-            intent = new Intent(WelcomeActivity.this, LoginActivity.class);
+            intent = new Intent(WelcomeActivity.this, LogOrRegActivity.class);
         } else {
-            intent = "0".equals(loginState) ? new Intent(WelcomeActivity.this, LoginActivity.class) :
+            intent = "0".equals(loginState) ? new Intent(WelcomeActivity.this, LogOrRegActivity.class) :
                     new Intent(WelcomeActivity.this, MainActivity.class);
         }
 
@@ -82,19 +72,19 @@ public class WelcomeActivity extends BaseActivity {
     }
 
 
-    @OnShowRationale({Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO})
+    @OnShowRationale({ Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,  Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA})
     void showRationaleForApp(PermissionRequest request) {
-        showRationaleDialog("此APP必要的权相关权限", request);
+        showRationaleDialog("AirChat需要的基础权限", request);
     }
 
-    @OnPermissionDenied({Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO})
+    @OnPermissionDenied({Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,  Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA})
     void showPermissionDenied() {
-        makeToast(this, "拒绝权限将无法进行APP", R.mipmap.toast_alarm, Toast.LENGTH_SHORT);
+        makeToast(this, "基础权限将无法使用哦", R.mipmap.toast_alarm, Toast.LENGTH_SHORT);
     }
 
-    @OnNeverAskAgain({Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.RECORD_AUDIO})
+    @OnNeverAskAgain({Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,  Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA})
     void showNeverAskAgain() {
-        makeToast(this, "已选择不再询问，请至设置中打开APP权限", R.mipmap.toast_alarm, Toast.LENGTH_SHORT);
+        makeToast(this, "请至设置中打开相关权限", R.mipmap.toast_alarm, Toast.LENGTH_SHORT);
     }
 
     @Override

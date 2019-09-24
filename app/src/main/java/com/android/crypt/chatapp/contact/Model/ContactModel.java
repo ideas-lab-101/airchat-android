@@ -9,14 +9,19 @@ import java.io.Serializable;
 
 public class ContactModel implements CN, Serializable {
 
-    public String avatar_url;
-    public String username;
-    public String label;
-    public String account;
-    public String introduction;
-    public String public_key;
-    public String friend_id;
+    public String avatar_url = "";
+    public String username = "";
+    public String label = "";
+    public String account = "";
+    public String introduction = "";
+    public String public_key = "";
+    public String friend_id = "";
 
+    public boolean isBlank = false;
+
+    public ContactModel(){
+
+    }
 
     public ContactModel(String avatar_url,
                         String username,

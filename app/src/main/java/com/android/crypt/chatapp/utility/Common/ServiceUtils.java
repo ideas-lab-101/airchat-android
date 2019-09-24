@@ -125,19 +125,12 @@ public class ServiceUtils {
 
 		String m_szDevIDShort = "35" +
 				Build.BOARD.length() % 10 + Build.BRAND.length() % 10 +
-
 				Build.CPU_ABI.length() % 10 + Build.DEVICE.length() % 10 +
-
 				Build.DISPLAY.length() % 10 + Build.HOST.length() % 10 +
-
 				Build.ID.length() % 10 + Build.MANUFACTURER.length() % 10 +
-
 				Build.MODEL.length() % 10 + Build.PRODUCT.length() % 10 +
-
 				Build.TAGS.length() % 10 + Build.TYPE.length() % 10 +
-
 				Build.USER.length() % 10; //13 位
-
 		try {
 			serial = Build.class.getField("SERIAL").get(null).toString();
 			//API>=9 使用serial号
@@ -167,6 +160,7 @@ public class ServiceUtils {
 		}
 		return vn;
 	}
+
 
     public static int getCurVersionCode(Context con) {
         int vc = 1;

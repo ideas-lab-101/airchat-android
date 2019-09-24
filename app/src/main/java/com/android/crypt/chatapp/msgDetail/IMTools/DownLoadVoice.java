@@ -52,25 +52,28 @@ public class DownLoadVoice {
         void transEnd(SendMessageBody fileurl, String result, int has_error);  //
     }
 
-    public static DownLoadVoice getInstance(Context context, VoiceProcessCallback callback) {
+    public static DownLoadVoice getInstance() {
         if (mInstance == null) {
             synchronized (DownLoadVoice.class) {
                 if (mInstance == null) {
-                    mInstance = new DownLoadVoice(context, callback);
+                    mInstance = new DownLoadVoice();
                 }
             }
         }
         return mInstance;
     }
 
+    public DownLoadVoice(){
 
-    public DownLoadVoice(Context context, VoiceProcessCallback callback){
+    }
+
+
+    public void addListener(Context context, VoiceProcessCallback callback){
         this.callbacks = callback;
         this.context = context;
     }
 
     public void loadFile(final SendMessageBody body, final int op_type){ // op_type == 0 播放。 op_type == 1 翻译
-        Logger.d("op_type = " + op_type);
         final String fileurl = body.getFileUrl();
         cur_voice = body;
         if (this.isPlaying == true){
@@ -87,8 +90,16 @@ public class DownLoadVoice {
         final String voicePath =  RunningData.getInstance().getVoiceUrl();//getContext().getFilesDir()+ "/";
         final String fileLocal = voicePath + fileName;
 
+
+        File voicePathFile = new File(voicePath);
+        if (!voicePathFile.exists()){
+            voicePathFile.mkdir();
+        }
+
+
         if (fileIsExists(fileLocal)){
             if(op_type == 0){
+//                Logger.d("播放本地录音 " + fileLocal);
                 playVoice(fileLocal);
             }else{
                 translateMethod(fileLocal);
@@ -143,12 +154,13 @@ public class DownLoadVoice {
                             @Override
                             public void onFinish() {
                                 super.onFinish();
-                                Logger.d("onFinish onFinish onFinish");
+                                Logger.d("完成");
                                 if (callbacks != null){
                                     callbacks.downLoadEnd(false);
                                 }
                                 if(op_type == 0){
                                     playVoice(fileLocal);
+                                    Logger.d("播放远程录音 " + fileLocal);
                                 }else{
                                     translateMethod(fileurl);
                                 }

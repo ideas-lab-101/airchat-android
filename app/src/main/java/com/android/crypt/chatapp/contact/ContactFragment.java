@@ -20,6 +20,8 @@ import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
 import com.android.crypt.chatapp.utility.Common.ACNotifyMessage;
 import com.android.crypt.chatapp.utility.Common.AcNotifyCallbackManager;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.DensityUtil;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.baoyz.actionsheet.ActionSheet;
 import com.android.crypt.chatapp.utility.Common.RunningData;
@@ -44,11 +46,11 @@ import com.android.crypt.chatapp.user.FriendCardActivity;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 
+import org.json.JSONArray;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -69,8 +71,7 @@ public class ContactFragment extends BaseFragment implements
     private static final String ARG_PARAM2 = "param2";
     @BindView(R.id.contactList_lv)
     XListView contactListLv;
-    @BindView(R.id.empty_view)
-    TextView emptyView;
+
     Unbinder unbinder;
     @BindView(R.id.iv_main)
     CharIndexView ivMain;
@@ -81,7 +82,7 @@ public class ContactFragment extends BaseFragment implements
     private String mParam1;
     private String mParam2;
 
-    private ArrayList<CNPinyin<ContactModel>> mListContact;
+    private ArrayList<CNPinyin<ContactModel>> mContactContact;
     private Subscription subscription;
     private ContactListAdapter adapterFavor;
     private String token = "";
@@ -141,6 +142,11 @@ public class ContactFragment extends BaseFragment implements
     @Override
     public void freshFriendList() {
         getContactList();
+    }
+
+    @Override
+    public void freshFriendListWithData(JSONArray mList) {
+        processListData(mList);
     }
 
     @Override
@@ -217,12 +223,12 @@ public class ContactFragment extends BaseFragment implements
         contactListLv.setXListViewListener(this);
         contactListLv.setPullRefreshEnable(true);
         contactListLv.setPullLoadEnable(false);
-        contactListLv.setEmptyView(emptyView);
 
-        if (mListContact == null){
-            mListContact = RunningData.getInstance().getContactList();
+        if (mContactContact == null){
+            mContactContact = RunningData.getInstance().getContactList();
         }
-        adapterFavor = new ContactListAdapter(getActivity(), mListContact);
+        int heightLlistView = RunningData.getInstance().getAppShowHeight() - RunningData.getInstance().getActionBarHeight() - DensityUtil.dip2px(getContext(), 180);
+        adapterFavor = new ContactListAdapter(getActivity(), mContactContact, heightLlistView, DensityUtil.dip2px(getContext(), 80), true);
         contactListLv.setAdapter(adapterFavor);
         adapterFavor.notifyDataSetChanged();
 
@@ -234,8 +240,8 @@ public class ContactFragment extends BaseFragment implements
         ivMain.setOnCharIndexChangedListener(new CharIndexView.OnCharIndexChangedListener() {
             @Override
             public void onCharIndexChanged(char currentIndex) {
-                for (int i = 0; i < mListContact.size(); i++) {
-                    if (mListContact.get(i).getFirstChar() == currentIndex) {
+                for (int i = 0; i < mContactContact.size() - 1; i++) {
+                    if (mContactContact.get(i).getFirstChar() == currentIndex) {
                         contactListLv.smoothScrollToPositionFromTop(i, 200, 100);
                         return;
                     }
@@ -261,7 +267,7 @@ public class ContactFragment extends BaseFragment implements
         }
         canGetContact = false;
         isWebSuccess = false;
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/getFriendList")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/getFriendList")
                 .tag(this)
                 .cacheKey("contact-getFriendList")
                 .cacheMode(CacheMode.REQUEST_FAILED_READ_CACHE)
@@ -276,10 +282,15 @@ public class ContactFragment extends BaseFragment implements
                         }
                         if (isWebSuccess == false){
                             CacheEntity<?> cacheEntity = CacheManager.getInstance().get("contact-getFriendList");
-                            CodeResponse codeResponse = (CodeResponse)cacheEntity.getData();
-                            final List<Map<String, String>> mList = Convert.formatToListMap(codeResponse.list);
-                            if (mList != null) {
-                                getPinyinList(mList);
+                            if (cacheEntity != null){
+                                try {
+                                    CodeResponse codeResponse = (CodeResponse)cacheEntity.getData();
+                                    JSONArray mList = Convert.formatToJson(codeResponse.data).getJSONArray("list");
+//                                    final List<Map<String, String>> mList = Convert.formatToListMap(dataList);
+                                    if (mList != null) {
+                                        processResult(mList);
+                                    }
+                                }catch (Exception ex) {}
                             }
                         }
                     }
@@ -290,9 +301,9 @@ public class ContactFragment extends BaseFragment implements
                         if (response.body().code == 1) {
                             isWebSuccess = true;
                             try {
-                                final List<Map<String, String>> mList = Convert.formatToListMap(response.body().list);
+                                JSONArray mList = Convert.formatToJson(response.body().data).getJSONArray("list");
                                 if (mList != null) {
-                                    getPinyinList(mList);
+                                    processResult(mList);
                                 } else {
                                     makeSnake(toolbar, response.body().msg, R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
                                 }
@@ -311,7 +322,21 @@ public class ContactFragment extends BaseFragment implements
                 });
     }
 
-    private void getPinyinList(final List<Map<String, String>> mList) {
+    private void processResult(JSONArray mList){
+        if (mList.length() > 0){
+            getPinyinList(mList);
+        }else{
+            //***添加一个空白item
+            mContactContact.clear();;
+            ContactModel data = new ContactModel();
+            data.isBlank = true;
+            CNPinyin<ContactModel> pinyin = new CNPinyin(data);
+            mContactContact.add(pinyin);
+            adapterFavor.notifyDataSetChanged();
+        }
+    }
+
+    private void getPinyinList(final JSONArray mList) {
         subscription = Observable.create(new Observable.OnSubscribe<List<CNPinyin<ContactModel>>>() {
             @Override
             public void call(Subscriber<? super List<CNPinyin<ContactModel>>> subscriber) {
@@ -327,6 +352,13 @@ public class ContactFragment extends BaseFragment implements
                     @Override
                     public void onCompleted() {
                         reDrawIndexView();
+
+                        //***添加一个空白item
+                        ContactModel data = new ContactModel();
+                        data.isBlank = true;
+                        CNPinyin<ContactModel> pinyin = new CNPinyin(data);
+                        mContactContact.add(pinyin);
+                        adapterFavor.notifyDataSetChanged();
                     }
 
                     @Override
@@ -335,32 +367,33 @@ public class ContactFragment extends BaseFragment implements
 
                     @Override
                     public void onNext(List<CNPinyin<ContactModel>> cnPinyins) {
-                        mListContact.clear();
-                        mListContact.addAll(cnPinyins);
+                        mContactContact.clear();
+                        mContactContact.addAll(cnPinyins);
                         adapterFavor.notifyDataSetChanged();
                         changePub_key(cnPinyins);
                     }
                 });
     }
 
-    private List<ContactModel> processListData(List<Map<String, String>> mList) {
+    private List<ContactModel> processListData(JSONArray mList) {
         List<ContactModel> contactList = new ArrayList<>();
-        for (int i = 0; i < mList.size(); i++) {
-            Map data = mList.get(i);
-            String avatar_url = objToString(data.get("avatar_url"));
-            String username = objToString(data.get("username"));
-            String account = objToString(data.get("account"));
-            String public_key = objToString(data.get("public_key"));
-            String introduction = objToString(data.get("introduction"));
-            String friend_id = objToString(data.get("friend_id"));
+        Gson gson = new Gson();
+        try{
+            for (int i = 0; i < mList.length(); i++) {
 
-            String label = objToString(data.get("label"));
-            if (label == null || label.equals("")) {
-                label = username;
+                String valueString = mList.getJSONObject(i).toString();
+                ContactModel info = gson.fromJson(valueString, ContactModel.class);
+                if (info.label == null || info.label.equals("")){
+                    info.label = info.username;
+                }
+                contactList.add(info);
             }
-            contactList.add(new ContactModel(avatar_url, username, label, account, introduction, public_key, friend_id));
+            return contactList;
+        }catch (Exception ex) {
+            makeSnake(toolbar, "数据出错", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
+            return contactList;
         }
-        return contactList;
+
     }
 
     private void changePub_key(List<CNPinyin<ContactModel>> cnPinyins){
@@ -369,9 +402,12 @@ public class ContactFragment extends BaseFragment implements
             MessageListModel modeList = mListContact.get(i);
             for (int j = 0; j < cnPinyins.size(); j++){
                 ContactModel mMap = cnPinyins.get(j).data;
-                if (modeList.account.equals(mMap.account)){
+                if (modeList.account.equalsIgnoreCase(mMap.account)){
                     if (!mMap.public_key.equals("")){
                         modeList.public_key = mMap.public_key;
+                        modeList.username = mMap.username;
+                        modeList.label = mMap.label;
+                        modeList.avatar_url = mMap.avatar_url;
                     }
                     break;
                 }
@@ -390,8 +426,8 @@ public class ContactFragment extends BaseFragment implements
     private void reDrawIndexView() {
         char[] chars = new char[28];
         int curIndex = 0;
-        for (int i = 0; i < mListContact.size(); i++) {
-            char catalog = mListContact.get(i).getFirstChar();
+        for (int i = 0; i < mContactContact.size() - 1; i++) {
+            char catalog = mContactContact.get(i).getFirstChar();
             if (i == 0) {
                 chars[0] = catalog;
             } else {
@@ -414,8 +450,11 @@ public class ContactFragment extends BaseFragment implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        if ((position - 2) < mListContact.size()) {
-            ContactModel mMap = mListContact.get(position - 2).data;
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        if ((position - 2) < mContactContact.size() - 1) {
+            ContactModel mMap = mContactContact.get(position - 2).data;
             Intent intent = new Intent(getActivity(), FriendCardActivity.class);
             intent.putExtra("friendInfo", mMap);
             intent.putExtra("pushDirect", "message");
@@ -428,11 +467,12 @@ public class ContactFragment extends BaseFragment implements
     @Override
     public void onRefresh() {
         getContactList();
+        stopFresh();
     }
 
     @Override
     public void onLoadMore() {
-
+        stopFresh();
     }
 
     private void stopFresh() {
@@ -448,6 +488,9 @@ public class ContactFragment extends BaseFragment implements
     }
 
     public void onClick(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent;
         switch (view.getId()) {
             case R.id.my_apply_ac_f:
@@ -510,12 +553,15 @@ public class ContactFragment extends BaseFragment implements
     public void  cacheFriendList(){
         try{
             ArrayList<ContactCacheModel> cacheModelList = new ArrayList<>();
-            int totalSizeCache = mListContact.size();
-            if (totalSizeCache > 30){
-                totalSizeCache = 30;
+            int totalSizeCache = mContactContact.size() - 1;
+            if (totalSizeCache < 0){
+                totalSizeCache = 0;
+            }
+            if (totalSizeCache > 100){
+                totalSizeCache = 100;
             }
             for (int i = 0; i < totalSizeCache; i++){
-                CNPinyin<ContactModel> pinyin = mListContact.get(i);
+                CNPinyin<ContactModel> pinyin = mContactContact.get(i);
                 ContactModel data = pinyin.data;
                 ContactCacheModel cacheModel = new ContactCacheModel();
                 cacheModel.avatar_url = data.avatar_url;
@@ -539,6 +585,7 @@ public class ContactFragment extends BaseFragment implements
                 for (int j = 1; j < pinyinsLength; j++){
                     pinsValue = pinsValue + "_" + pinyinstring[j];
                 }
+                pinsValue = pinsValue + "_";
                 cacheModel.pinyins = pinsValue;
                 cacheModelList.add(cacheModel);
             }
@@ -548,5 +595,23 @@ public class ContactFragment extends BaseFragment implements
         }catch (Exception e){}
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RunningData.getInstance().clearmListContact();
+    }
 }
+
+
+//                JSONObject data = mList.getJSONObject(i);//.get(i);
+//                String avatar_url = objToString(data.getString("avatar_url"));
+//                String username = objToString(data.getString("username"));
+//                String account = objToString(data.getString("account"));
+//                String public_key = objToString(data.getString("public_key"));
+//                String introduction = objToString(data.getString("introduction"));
+//                String friend_id = objToString(data.getString("friend_id"));
+//                String label = objToString(data.getString("label"));
+//                if (label == null || label.equals("")) {
+//                    label = username;
+//                }
+//                contactList.add(new ContactModel(avatar_url, username, label, account, introduction, public_key, friend_id));

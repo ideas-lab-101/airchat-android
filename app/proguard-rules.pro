@@ -55,3 +55,78 @@
   **[] $VALUES;
   public *;
 }
+
+#ModPush
+-keep class com.mob.**{*;}
+-dontwarn com.mob.**
+-keep class com.mob.**{*;}
+-dontwarn com.mob.**
+
+#huawei
+-keep class com.huawei.**{*;}
+-dontwarn com.huawei.**
+
+#meizu
+-keep class com.meizu.**{*;}
+-dontwarn com.meizu.**
+
+#xiaomi
+-keep class com.xiaomi.**{*;}
+-dontwarn com.xiaomi.**
+-keep class org.apache.thrift.**{*;}
+-keep class android.os.SystemProperties
+-dontwarn android.os.SystemProperties
+
+#FCM
+-keep class com.google.**{*;}
+-dontwarn com.google.**
+
+#VIVO
+-keep class com.vivo.push.**{*; }
+-keep class com.vivo.vms.**{*; }
+-dontwarn com.vivo.push.**
+
+#OPPO
+-keep class com.coloros.** {*;}
+-dontwarn com.coloros.**
+
+
+#mobPush
+-keep class com.huawei.**{*;}
+-keep class com.meizu.**{*;}
+-keep class com.xiaomi.**{*;}
+-keep class android.os.SystemProperties
+-keep class com.coloros.** {*;}
+-keep class com.google.** {*;}
+-keep class org.apache.thrift.**{*;}
+
+-dontwarn com.huawei.**
+-dontwarn com.meizu.**
+-dontwarn com.xiaomi.**
+-dontwarn android.os.SystemProperties
+-dontwarn com.coloros.**
+-dontwarn com.google.**
+-dontwarn org.apache.thrift.**
+
+-dontwarn com.vivo.push.**
+-keep class com.vivo.push.**{*; }
+-keep class com.vivo.vms.**{*; }
+-keep class com.huawei.**{*;}
+-keep class com.meizu.**{*;}
+-keep class com.xiaomi.**{*;}
+-keep class android.os.SystemProperties
+-keep class com.coloros.** {*;}
+-keep class com.google.** {*;}
+-keep class org.apache.thrift.**{*;}
+
+-dontwarn com.huawei.**
+-dontwarn com.meizu.**
+-dontwarn com.xiaomi.**
+-dontwarn android.os.SystemProperties
+-dontwarn com.coloros.**
+-dontwarn com.google.**
+-dontwarn org.apache.thrift.**
+
+-dontwarn com.vivo.push.**
+-keep class com.vivo.push.**{*; }
+-keep class com.vivo.vms.**{*; }

@@ -35,7 +35,7 @@
 
     <!-- 列表相关 -->
     <color name="list_divider">#B6B6B6</color>
-    <color name="list_bg">#f7f7f7</color>
+    <color name="list_bg">#fff7f7f7</color>
 
     <color name="coor_tab_normal">#808080</color>
     <color name="coor_tab_select">#87a5cd</color>
@@ -56,12 +56,16 @@
     <color name="blue_bg">#FF1b8fe9</color>
     <color name="blue_bg_light">#4C1b8fe9</color>
     <color name="blue_text_Tips">#AA1b8fe9</color>
+    <color name="text_tips_key">#FF7c859c</color>
+
     <color name="blue_bg_dark">#C08533be</color>
     <color name="light_gray_bg">#fffafafa</color>
     <color name="msg_text_bg">#fAfafafa</color>
 
     <color name="white_bg">#FFFFFFFF</color>
     <color name="clear_white">#AAFFFFFF</color>
+    <color name="clear_black">#AA0F0F0F</color>
+    <color name="pure_black">#FF000000</color>
 
     <color name="clear">#00FFFFFF</color>
 
@@ -71,6 +75,8 @@
 
 
     <color name="gray_bg">#FFF9F9F9</color>
+    <color name="qrcode_bg">#FFF4F4F4</color>
+
     <color name="green_bg">#FF3CC6AA</color>
     <color name="green_tips">#FF0cdd07</color>
     <color name="green_text">#FF17A813</color>

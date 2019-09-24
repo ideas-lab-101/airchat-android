@@ -1,36 +1,50 @@
 package com.android.crypt.chatapp.InfoSetting;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.crypt.chatapp.BaseActivity;
-import com.android.crypt.chatapp.InfoSetting.Config.ConfigDic;
-import com.android.crypt.chatapp.guide.LoginActivity;
+import com.android.crypt.chatapp.guide.LogOrRegActivity;
 import com.android.crypt.chatapp.user.BgImageActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
+import com.android.crypt.chatapp.utility.Common.WRKShareUtil;
+import com.android.crypt.chatapp.utility.Crypt.CryTool;
+import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
+import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
+import com.android.crypt.chatapp.utility.okgo.utils.Convert;
 import com.baoyz.actionsheet.ActionSheet;
-import com.google.gson.Gson;
-import com.kyleduo.switchbutton.SwitchButton;
 import com.android.crypt.chatapp.ChatAppApplication;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.utility.Common.GlideCacheUtils;
 import com.android.crypt.chatapp.utility.Common.ParameterUtil;
 import com.android.crypt.chatapp.utility.Common.ServiceUtils;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.cache.CacheMode;
+import com.lzy.okgo.model.Response;
+import com.mob.pushsdk.MobPush;
+import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
+
+import org.json.JSONObject;
 
 import java.io.File;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -39,10 +53,11 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.auto_check)
-    SwitchButton autoCheck;
     @BindView(R.id.tv_version)
     TextView tvVersion;
+    @BindView(R.id.find_new_version)
+    TextView findNewVersion;
+
     @BindView(R.id.ll_version_check)
     LinearLayout llVersionCheck;
     @BindView(R.id.tv_cacheSize)
@@ -56,6 +71,8 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
 
     private String token;
     private String versionName;
+    private String versionCode;
+    private String version_url = "";
     private int actionKind = -1;
 
     @Override
@@ -67,7 +84,6 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
         setSupportActionBar(toolbar);
 
         token = RunningData.getInstance().getToken();
-        //getPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "token", "");// 用户token
         initView();
     }
 
@@ -83,8 +99,7 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                overridePendingTransition(R.anim.in_from_left,
-                        R.anim.out_to_right);
+                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                 break;
             default:
                 break;
@@ -93,30 +108,16 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
     }
 
     private void initView() {
-        if ("1".equals(getPrivateXml(ParameterUtil.SYS_SETTING_XML, "auto_check", "1"))) {
-            autoCheck.setChecked(true);
-        } else {
-            autoCheck.setChecked(false);
-        }
-        autoCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView,
-                                         boolean isChecked) {
-                if (isChecked) {
-                    setPrivateXml(ParameterUtil.SYS_SETTING_XML, "auto_check", "1");
-                } else
-                    setPrivateXml(ParameterUtil.SYS_SETTING_XML, "auto_check", "0");
-            }
-        });
-
         versionName = ServiceUtils.getCurVersionName(getApplication());
+        versionCode = ServiceUtils.getCurVersionCode(getApplication()) + ".";
         TextView tv_version = (TextView) findViewById(R.id.tv_version);
-        tv_version.setText("【" + versionName + "】");
+        tv_version.setText("【" + versionCode + versionName + "】");
         tvCacheSize.setText(GlideCacheUtils.getInstance().getCacheSize(this));
 
 
         String voice_setting = RunningData.getInstance().getCurPushVoice();
         changeTips(voice_setting);
+        startCheckVersion();
     }
 
     private void changeTips(String defaultVoice) {
@@ -131,17 +132,52 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
         }
     }
 
-    @OnClick({R.id.ll_version_check, R.id.ll_clear_cache, R.id.btn_exit, R.id.ll_account_info, R.id.ll_chat_global_Image, R.id.ll_chat_text_size, R.id.ll_server_setting, R.id.log_out_and_delete_key})
+    @OnClick({R.id.ll_version_check, R.id.ll_clear_cache, R.id.btn_exit, R.id.ll_account_info, R.id.ll_chat_global_Image, R.id.ll_chat_text_size, R.id.ll_server_setting, R.id.log_out_and_delete_key, R.id.share_app, R.id.ll_black_list, R.id.ll_tab_bar_height_setting})
     public void onViewClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent = null;
+        AlertDialog.Builder builder = null;
         switch (v.getId()) {
+            case R.id.ll_tab_bar_height_setting:
+                setPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "initTabbar", "0");
+
+                builder = new AlertDialog.Builder(this)
+                        .setTitle("已开启调整窗口")
+                        .setMessage("请重启此应用，然后就可以开始调整")
+                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            public void onDismiss(final DialogInterface dialog) {
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //ToDo: 你想做的事情
+                                dialogInterface.dismiss();
+                                finish();
+                                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+                            }
+                        });
+                builder.create().show();
+
+                break;
+            case R.id.ll_black_list:
+                makeSnake(btnExit, "此功能即将开放", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
+                break;
             case R.id.ll_version_check:
-//				createDialog(getString(R.string.str_waiting_for_loading));
-//				ServiceUtils.checkAppUpdate(this, pid, true);
-//				setPrivateXml(ParameterUtil.SYS_SETTING_XML, "last_check", DateUtils.formatDateTime(new Date(), DateUtils.DATETIME_FORMAT_SS));
+                if (!version_url.equalsIgnoreCase("")){
+                    Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(version_url));
+                    it.setClassName("com.android.browser", "com.android.browser.BrowserActivity");
+                    startActivity(it);
+                }
+                break;
+            case R.id.share_app:
+                shareMethod();
                 break;
             case R.id.ll_clear_cache:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder = new AlertDialog.Builder(this);
                 builder.setMessage("确认清除应用缓存?");
                 builder.setTitle(getResources().getString(
                         R.string.dialog_alert_tip));
@@ -168,8 +204,7 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
             case R.id.ll_account_info:
                 intent = new Intent(this, InfoDataActivity.class);
                 startActivity(intent);
-                overridePendingTransition(R.anim.in_from_right,
-                        R.anim.out_to_left);
+                overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
                 break;
             case R.id.btn_exit:
                 logOut(false);
@@ -209,14 +244,11 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
     public void onOtherButtonClick(ActionSheet actionSheet, int index) {
         if (actionKind == 1) {
             if (index == 0) {
-                if (logoutkind == 2) {
-                    CacheTool.getInstance().clearPri_key(RunningData.getInstance().getCurrentAccount());
+                if (logoutkind == 1){
+                    quitApp(false);
+                }else if (logoutkind == 2){
+                    quitApp(true);
                 }
-                setPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML,
-                        "loginState", "0");
-                Intent intent = new Intent(this, LoginActivity.class);
-                startActivity(intent);
-                ChatAppApplication.getDBcApplication().exit();
             }
         } else if (actionKind == 2) {
             if (index == 0) {
@@ -224,12 +256,93 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
             } else if (index == 1) {
                 openPhoto(true);
             }
+        }else if (actionKind == 3) {
+            String baseUrl = "http://airchat.ideas-lab.cn/download.html";
+            String title = "分享你一个安全的通讯工具";
+            String sub = "AirChat -- 基于密码学的安全通讯工具";
+
+            if (index == 0){
+                shareToWechat(baseUrl, title, sub, SendMessageToWX.Req.WXSceneSession);
+            }else if (index == 1){
+                shareToWechat(baseUrl, title, sub, SendMessageToWX.Req.WXSceneTimeline);
+            }else if (index == 2){
+                Intent share = new Intent(android.content.Intent.ACTION_SEND);
+                share.setType("text/plain");
+                share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+
+                share.putExtra(Intent.EXTRA_SUBJECT, title);
+                share.putExtra(Intent.EXTRA_TEXT, baseUrl);
+                startActivity(Intent.createChooser(share, "AirChat"));
+            }
         }
     }
 
     @Override
-    public void onDismiss(ActionSheet actionSheet, boolean isCancle) {
+    public void onDismiss(ActionSheet actionSheet, boolean isCancle) {}
+
+    private void quitApp(boolean deleteKey){
+        if (deleteKey == false){
+            MobPush.setAlias("");
+            setPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "loginState", "0");
+            RunningData.getInstance().clearDataWhenExit();
+            RunningData.getInstance().clearmListContact();
+            RunningData.getInstance().clearmsgList();
+            Intent intent = new Intent(this, LogOrRegActivity.class);
+            startActivity(intent);
+            ChatAppApplication.getDBcApplication().exit();
+        }else{
+            AlertDialog.Builder builder= new AlertDialog.Builder(this);
+            View view= LayoutInflater.from(this).inflate(R.layout.dialog_choosepage, null);
+            TextView cancel =view.findViewById(R.id.choosepage_cancel);
+            TextView sure =view.findViewById(R.id.choosepage_sure);
+            final EditText edittext =view.findViewById(R.id.choosepage_edittext);
+            final Dialog dialog= builder.create();
+            dialog.show();
+            dialog.getWindow().setContentView(view);
+
+            //使editext可以唤起软键盘
+            dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(0, InputMethodManager.RESULT_SHOWN);
+
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            sure.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String inputText =  edittext.getText().toString();
+                    final String pwd = RunningData.getInstance().getCurrentPwd();
+
+                    if (inputText.equals(pwd)){
+                        MobPush.setAlias("");
+                        RunningData.getInstance().clearDataWhenExit();
+                        RunningData.getInstance().clearmListContact();
+                        RunningData.getInstance().clearmsgList();
+
+                        CryTool tool = new CryTool();
+                        String pwd_en = tool.aesEnWith("", RunningData.getInstance().getInnerAESKey());
+                        CacheTool.getInstance().cacheObject(ObjectCacheType.cur_pwd, pwd_en);
+                        CacheTool.getInstance().clearPri_key(RunningData.getInstance().getCurrentAccount());
+
+                        makeSnake(btnExit, "正确", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
+                        setPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "loginState", "0");
+                        Intent intent = new Intent(SettingActivity.this, LogOrRegActivity.class);
+                        startActivity(intent);
+                        ChatAppApplication.getDBcApplication().exit();
+                    }else{
+                        makeSnake(btnExit, "密码错误", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
+                    }
+
+                    dialog.dismiss();
+                }
+            });
+        }
     }
+
 
 
     private void choosePicture() {
@@ -244,10 +357,26 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
 
     private void openPhoto(boolean isdelete) {
         if (isdelete == false) {
-            Intent intent = new Intent(this, BgImageActivity.class);
-            intent.putExtra("is_global", true);
-            startActivity(intent);
-            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle("设置基础聊天背景")
+                    .setMessage("如果对联系人设置了个人聊天背景\n优先显示个人聊天背景")
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    })
+                    .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //ToDo: 你想做的事情
+                            Intent intent = new Intent(SettingActivity.this, BgImageActivity.class);
+                            intent.putExtra("is_global", true);
+                            startActivity(intent);
+                            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+                        }
+                    });
+            builder.create().show();
+
         } else {
             deleteBgImage("global_bg_image");
         }
@@ -285,4 +414,49 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
             }
         }
     }
+
+    private void shareMethod(){
+        actionKind = 3;
+        ActionSheet.createBuilder(this, getSupportFragmentManager())
+                .setCancelButtonTitle("取消")
+                .setOtherButtonTitles("分享给微信联系人", "分享到朋友圈", "更多")
+                .setCancelableOnTouchOutside(true)
+                .setListener(this).show();
+    }
+
+    private void shareToWechat(String url, String title, String desc, final int wxSceneSession){
+        WRKShareUtil sharetool = WRKShareUtil.getInstance();
+        sharetool.shareUrlToWx(url, title, desc, wxSceneSession);
+    }
+
+
+    private void startCheckVersion(){
+        findNewVersion.setVisibility(View.GONE);
+        String version  = versionCode + versionName;
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "system/v2/checkAppVersion")
+                .tag(this)
+                .params("token", token)
+                .params("os", "Android")
+                .params("version", version)
+                .cacheMode(CacheMode.NO_CACHE)
+                .execute(new JsonCallback<CodeResponse>() {
+                    @Override
+                    public void onSuccess(Response<CodeResponse> response) {
+                        if (response.body().code == 1){
+                            try {
+                                JSONObject data = Convert.formatToJson(response.body().data);
+                                version_url = data.getString("version_url");
+                                findNewVersion.setVisibility(View.VISIBLE);
+                            } catch (Exception ex) {}
+                        }
+                    }
+                    @Override
+                    public void onError(Response<CodeResponse> response) {
+
+                    }
+                });
+    }
+
+
+
 }

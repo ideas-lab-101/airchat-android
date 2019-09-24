@@ -1,5 +1,7 @@
 package com.android.crypt.chatapp.utility.Common;
 
+import org.json.JSONArray;
+
 /**
  * Created by White on 2019/7/9.
  */
@@ -34,6 +36,12 @@ public class AcNotifyCallbackManager {
     public void contact_callback_apply(){
         if (this.fregment_contact_callback != null){
             this.fregment_contact_callback.newFriendApply();
+        }
+    }
+
+    public void contact_callback_apply_with_data(JSONArray mList){
+        if (this.fregment_contact_callback != null){
+            this.fregment_contact_callback.freshFriendListWithData(mList);
         }
     }
 

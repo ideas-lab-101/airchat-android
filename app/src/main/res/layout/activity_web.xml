@@ -21,6 +21,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/dismiss"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@mipmap/quit_dismiss"
+        app:layout_constraintStart_toEndOf="@+id/quit_web"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <EditText
         android:id="@+id/url_input_value"
@@ -29,7 +39,7 @@
         android:layout_marginEnd="15dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/rig_tips_text_view"
+        android:background="@drawable/edit_text_view"
         android:hint="输入网址/关键字"
         android:singleLine="true"
         android:paddingEnd="15dp"
@@ -39,7 +49,7 @@
         android:textSize="14sp"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/quit_web"
+        app:layout_constraintStart_toEndOf="@+id/dismiss"
         app:layout_constraintTop_toTopOf="parent" />
 
 
@@ -65,7 +75,7 @@
         android:layout_height="30dp"
         android:layout_marginTop="10dp"
         android:visibility="gone"
-        android:src="@mipmap/clear_text"
+        android:src="@mipmap/clear_input"
         android:background="#FFF0F0F0"
         android:scaleType="fitXY"
         app:layout_constraintEnd_toStartOf="@+id/start_search"

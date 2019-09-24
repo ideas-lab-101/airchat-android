@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bg_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/clear_white">
+
+
+    <LinearLayout
+        android:visibility="visible"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/gray_bg"
+        android:layout_marginTop="10dp"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:orientation="vertical" >
+
+
+        <TextView
+            android:id="@+id/text_eyes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="30dp"
+            android:text="调整底部导航栏高度 \n让它更适合你的机型"
+            android:textColor="@color/black_text"
+            android:textSize="17sp"
+            android:paddingTop="5dp"
+            android:textStyle="normal" />
+
+
+        <SeekBar
+            android:id="@+id/seek_bar"
+            android:layout_width="match_parent"
+            android:layout_height="34dp"
+            android:max="30"
+            android:layout_margin="10dp"/>
+
+        <LinearLayout
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/dismiss"
+                android:layout_width="100dp"
+                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:background="@drawable/btn_login_shape"
+                android:text="取消"
+                android:textColor="@color/white_bg"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/finish"
+                android:layout_width="100dp"
+                android:layout_weight="1"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_login_shape"
+                android:text="调整完毕"
+                android:textColor="@color/white_bg"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

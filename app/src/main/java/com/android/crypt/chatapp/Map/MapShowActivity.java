@@ -1,12 +1,20 @@
 package com.android.crypt.chatapp.Map;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -14,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -29,7 +38,9 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.services.poisearch.PoiSearch;
+import com.android.crypt.chatapp.ChatAppApplication;
 import com.android.crypt.chatapp.Map.utils.DatasKey;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.BaseActivity;
@@ -37,8 +48,18 @@ import com.android.crypt.chatapp.Map.utils.SPUtils;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendMessageBody;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnNeverAskAgain;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import rx.functions.Action1;
 
 public class MapShowActivity extends BaseActivity implements SensorEventListener {
     @BindView(R.id.m_map_view)
@@ -104,6 +125,12 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
         super.onResume();
         mMapView.onResume();
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+        if (Build.VERSION.SDK_INT >= 23
+                && getApplicationInfo().targetSdkVersion >= 23) {
+            if (isNeedCheck) {
+                checkPermissions(needPermissions);
+            }
+        }
     }
 
     @Override
@@ -139,7 +166,6 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
     private void initView(Bundle savedInstanceState) {
         initDatas(savedInstanceState);
         initListener();
-        startLocation();
         sensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
@@ -175,6 +201,8 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
 
             }
         }
+        startLocation();
+
     }
 
     @Override
@@ -259,6 +287,9 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
         mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!ClickUtils.isFastClick()) {
+                    return;
+                }
                 switch (view.getId()) {
                     case R.id.m_iv_location:
                         mIvLocation.setImageResource(R.mipmap.location_gps_black);
@@ -282,7 +313,7 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
         mUiSettings.setZoomControlsEnabled(false);//是否显示地图中放大缩小按钮
         mUiSettings.setMyLocationButtonEnabled(false); // 是否显示默认的定位按钮
         mUiSettings.setScaleControlsEnabled(true);//是否显示缩放级别
-        mAMap.setMyLocationEnabled(false);// 是否可触发定位并显示定位层
+        mAMap.setMyLocationEnabled(true);// 是否可触发定位并显示定位层
 
         gson = new Gson();
     }
@@ -320,16 +351,6 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
         return mOption;
     }
 
-    /**
-     * 开始定位
-     */
-    public void startLocation() {
-        initLocation();
-        // 设置定位参数
-        locationClient.setLocationOption(locationOption);
-        // 启动定位
-        locationClient.startLocation();
-    }
 
     /**
      * 停止定位
@@ -394,5 +415,148 @@ public class MapShowActivity extends BaseActivity implements SensorEventListener
         mAMap.invalidate();
     }
 
+    /***
+     *
+     * 动态权限
+     *
+     * **/
+
+    public void startLocation() {
+        //当所有权限都允许之后，返回true
+        initLocation();
+        // 设置定位参数
+        locationClient.setLocationOption(locationOption);
+        locationClient.startLocation();
+    }
+
+    /**
+     * 动态权限
+     * 需要进行检测的权限数组
+     */
+    protected String[] needPermissions = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+
+    private static final int PERMISSON_REQUESTCODE = 0;
+
+    /**
+     * 判断是否需要检测，防止不停的弹框
+     */
+    private boolean isNeedCheck = true;
+
+
+    /**
+     * @param permissions
+     * @since 2.5.0
+     */
+    private void checkPermissions(String... permissions) {
+        try {
+            if (Build.VERSION.SDK_INT >= 23
+                    && getApplicationInfo().targetSdkVersion >= 23) {
+                List<String> needRequestPermissonList = findDeniedPermissions(permissions);
+                if (null != needRequestPermissonList
+                        && needRequestPermissonList.size() > 0) {
+                    String[] array = needRequestPermissonList.toArray(new String[needRequestPermissonList.size()]);
+                    Method method = getClass().getMethod("requestPermissions", new Class[]{String[].class, int.class});
+
+                    method.invoke(this, array, PERMISSON_REQUESTCODE);
+                }
+            }
+        } catch (Throwable e) {
+        }
+    }
+
+    /**
+     * 获取权限集中需要申请权限的列表
+     *
+     * @param permissions
+     * @return
+     * @since 2.5.0
+     */
+    private List<String> findDeniedPermissions(String[] permissions) {
+        List<String> needRequestPermissonList = new ArrayList<String>();
+        if (Build.VERSION.SDK_INT >= 23
+                && getApplicationInfo().targetSdkVersion >= 23) {
+            try {
+                for (String perm : permissions) {
+                    Method checkSelfMethod = getClass().getMethod("checkSelfPermission", String.class);
+                    Method shouldShowRequestPermissionRationaleMethod = getClass().getMethod("shouldShowRequestPermissionRationale",
+                            String.class);
+                    if ((Integer) checkSelfMethod.invoke(this, perm) != PackageManager.PERMISSION_GRANTED
+                            || (Boolean) shouldShowRequestPermissionRationaleMethod.invoke(this, perm)) {
+                        needRequestPermissonList.add(perm);
+                    }
+                }
+            } catch (Throwable e) {
+
+            }
+        }
+        return needRequestPermissonList;
+    }
+
+    /**
+     * 检测是否所有的权限都已经授权
+     *
+     * @param grantResults
+     * @return
+     * @since 2.5.0
+     */
+    private boolean verifyPermissions(int[] grantResults) {
+        for (int result : grantResults) {
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @TargetApi(23)
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions, int[] paramArrayOfInt) {
+        if (requestCode == PERMISSON_REQUESTCODE) {
+            if (!verifyPermissions(paramArrayOfInt)) {
+                showMissingPermissionDialog();
+                isNeedCheck = false;
+            }
+        }
+    }
+
+    /**
+     * 显示提示信息
+     *
+     * @since 2.5.0
+     */
+    private void showMissingPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("提示");
+        builder.setMessage("当前应用缺少定位权限。\\n\\n请点击\\\"设置\\\"-\\\"权限\\\"-打开所需权限。");
+
+        // 拒绝, 退出应用
+        builder.setNegativeButton("取消",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                });
+
+        builder.setPositiveButton("去设置",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startAppSettings();
+                    }
+                });
+
+        builder.setCancelable(false);
+
+        builder.show();
+    }
+
+    private void startAppSettings() {
+        Intent intent = new Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
+    }
 
 }

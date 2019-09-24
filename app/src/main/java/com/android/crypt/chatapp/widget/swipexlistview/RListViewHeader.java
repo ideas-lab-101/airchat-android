@@ -22,7 +22,7 @@ import com.android.crypt.chatapp.R;
 
 public class RListViewHeader extends LinearLayout {
 	private LinearLayout mContainer;
-	private ImageView mArrowImageView;
+	private ProgressBar mArrowImageView;
 	private ProgressBar mProgressBar;
 	private TextView mHintTextView;
 	private int mState = STATE_NORMAL;
@@ -59,7 +59,7 @@ public class RListViewHeader extends LinearLayout {
 		addView(mContainer, lp);
 		setGravity(Gravity.BOTTOM);
 
-		mArrowImageView = (ImageView) findViewById(R.id.rlistview_header_arrow);
+		mArrowImageView = (ProgressBar) findViewById(R.id.rlistview_header_arrow);
 		mHintTextView = (TextView) findViewById(R.id.rlistview_header_hint_textview);
 		mProgressBar = (ProgressBar) findViewById(R.id.rlistview_header_progressbar);
 
@@ -80,7 +80,7 @@ public class RListViewHeader extends LinearLayout {
 			return;
 
 		if (state == STATE_LOADING) { // 显示进度
-			mArrowImageView.clearAnimation();
+//			mArrowImageView.clearAnimation();
 			mArrowImageView.setVisibility(View.INVISIBLE);
 			mProgressBar.setVisibility(View.VISIBLE);
 		} else { // 显示箭头图片
@@ -90,20 +90,20 @@ public class RListViewHeader extends LinearLayout {
 
 		switch (state) {
 		case STATE_NORMAL:
-			if (mState == STATE_READY) {
-				mArrowImageView.startAnimation(mRotateDownAnim);
-			}
-			if (mState == STATE_LOADING) {
-				mArrowImageView.clearAnimation();
-			}
+//			if (mState == STATE_READY) {
+//				mArrowImageView.startAnimation(mRotateDownAnim);
+//			}
+//			if (mState == STATE_LOADING) {
+//				mArrowImageView.clearAnimation();
+//			}
 			mHintTextView.setText(R.string.rlistview_header_hint_normal);
 			break;
 		case STATE_READY:
-			if (mState != STATE_READY) {
-				mArrowImageView.clearAnimation();
-				mArrowImageView.startAnimation(mRotateUpAnim);
-				mHintTextView.setText(R.string.rlistview_header_hint_ready);
-			}
+//			if (mState != STATE_READY) {
+//				mArrowImageView.clearAnimation();
+//				mArrowImageView.startAnimation(mRotateUpAnim);
+//				mHintTextView.setText(R.string.rlistview_header_hint_ready);
+//			}
 			break;
 		case STATE_LOADING:
 			mHintTextView.setText(R.string.rlistview_header_hint_loading);

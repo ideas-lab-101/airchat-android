@@ -6,9 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.CacheIMEnBody;
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
-import com.android.chatapp.utility.Cache.CacheClass.CacheIMEnBodyDao;
-import com.android.chatapp.utility.Cache.CacheClass.DaoMaster;
-import com.android.chatapp.utility.Cache.CacheClass.DaoSession;
+
+import com.android.crypt.chatapp.utility.Cache.CacheClass.CacheIMEnBodyDao;
+import com.android.crypt.chatapp.utility.Cache.CacheClass.DaoMaster;
+import com.android.crypt.chatapp.utility.Cache.CacheClass.DaoSession;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 

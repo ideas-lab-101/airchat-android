@@ -15,19 +15,20 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.android.crypt.chatapp.contact.cn.CNPinyin;
+import com.android.crypt.chatapp.msgDetail.adapter.ViewPagerAdapter;
 import com.android.crypt.chatapp.msgList.model.MessageListModel;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.DensityUtil;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendMessageEnBody;
 import com.android.crypt.chatapp.BaseActivity;
-import com.android.crypt.chatapp.PhotoViewer.adaptor.PhotoPagerAdapter;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.contact.Model.ContactModel;
 import com.android.crypt.chatapp.contact.adapter.CharIndexView;
 import com.android.crypt.chatapp.contact.adapter.ContactListAdapter;
 import com.android.crypt.chatapp.msgList.adapter.MessageListAdapter;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendMessageBody;
-import com.android.crypt.chatapp.widget.swipexlistview.SwipeXListView;
 import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
     private SendMessageBody resendBody;
     private int kind;   // 1 转发文本；  2 推荐联系人
     private List<View> viewList = null;
-    private PhotoPagerAdapter adapter;
+    private ViewPagerAdapter adapter;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -103,7 +104,7 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
         viewList.add(contact);
 
 
-        adapter = new PhotoPagerAdapter(viewList);
+        adapter = new ViewPagerAdapter(viewList);
         pageView.setAdapter(adapter);
         pageView.setCurrentItem(0);
 
@@ -115,32 +116,32 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
     private void freshMsgListView(View v){
         msgHolder = new MsgViewHolder(v);
         msgHolder.messageList.setOnItemClickListener(this);
-        msgHolder.messageList.setPullRefreshEnable(true);
+        msgHolder.messageList.setPullRefreshEnable(false);
         msgHolder.messageList.setPullLoadEnable(false);
         msgHolder.messageList.setEmptyView(msgHolder.emptyView);
-        msgHolder.messageList.hideHeadViewLayout();
-
+//        msgHolder.messageList.hideHeadViewLayout();
+        int heightLlistView = RunningData.getInstance().getAppShowHeight() - RunningData.getInstance().getActionBarHeight() - DensityUtil.dip2px(this, 50);
         mListMessage = RunningData.getInstance().getMsgList();
-
-        adapterMsgFavor = new MessageListAdapter(this, mListMessage);
+        adapterMsgFavor = new MessageListAdapter(this, mListMessage, heightLlistView, DensityUtil.dip2px(this, 80), false);
         msgHolder.messageList.setAdapter(adapterMsgFavor);
     }
 
     private void freshContactListView(View v){
         conHolder = new ConViewHolder(v);
         conHolder.contactListLv.setOnItemClickListener(this);
-        conHolder.contactListLv.setPullRefreshEnable(true);
+        conHolder.contactListLv.setPullRefreshEnable(false);
         conHolder.contactListLv.setEmptyView(conHolder.emptyView);
 
 
         mListContact = RunningData.getInstance().getContactList();
-        adapterContactFavor = new ContactListAdapter(this, mListContact);
+        int heightLlistView = RunningData.getInstance().getAppShowHeight() - RunningData.getInstance().getActionBarHeight() - DensityUtil.dip2px(this, 20);
+        adapterContactFavor = new ContactListAdapter(this, mListContact, heightLlistView, DensityUtil.dip2px(this, 80),false);
         conHolder.contactListLv.setAdapter(adapterContactFavor);
 
         conHolder.ivMain.setOnCharIndexChangedListener(new CharIndexView.OnCharIndexChangedListener() {
             @Override
             public void onCharIndexChanged(char currentIndex) {
-                for (int i = 0; i < mListContact.size(); i++) {
+                for (int i = 0; i < mListContact.size() - 1; i++) {
                     if (mListContact.get(i).getFirstChar() == currentIndex) {
                         conHolder.contactListLv.smoothScrollToPositionFromTop(i, 200, 100);
                         return;
@@ -162,13 +163,16 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         String title = "转发给: ";
         if(this.kind == 2){
             title = "推荐联系人: ";
         }
         if (parent.equals(msgHolder.messageList)){
-            position = position - 2;
-            if (position >= 0 && position < mListContact.size()){
+            position = position - 1;
+            if (position >= 0 && position < mListMessage.size() - 1){
                 final MessageListModel resendModel = mListMessage.get(position );
                 AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setTitle(title + resendModel.label)
@@ -185,7 +189,7 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
 
         }else if (parent.equals(conHolder.contactListLv)){
             position = position - 1;
-            if (position >= 0 && position < mListContact.size()){
+            if (position >= 0 && position < mListContact.size() - 1){
                 final ContactModel resendModel = mListContact.get(position).data;
                 AlertDialog.Builder builder = new AlertDialog.Builder(this)
                         .setTitle(title + resendModel.label)
@@ -233,7 +237,7 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
             String pubKey = "";
             if (list == true){
                 this.resendBody.setMessageReceiver(listModel.account);
-                for (int i = 0; i < mListMessage.size(); i++){
+                for (int i = 0; i < mListMessage.size() - 1; i++){
                     MessageListModel resendModel = mListMessage.get(i);
                     if (resendModel.account.equals(listModel.account)){
                         pubKey = resendModel.public_key;
@@ -242,7 +246,7 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
                 }
             }else{
                 this.resendBody.setMessageReceiver(contactModel.account);
-                for (int i = 0; i < mListContact.size(); i++){
+                for (int i = 0; i < mListContact.size() - 1; i++){
                     ContactModel resendModel = mListContact.get(i).data;
                     if (resendModel.account.equals(contactModel.account)){
                         pubKey = resendModel.public_key;
@@ -297,7 +301,8 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
 
     static class MsgViewHolder {
         @BindView(R.id.message_list)
-        SwipeXListView messageList;
+        XListView messageList;
+
         @BindView(R.id.empty_view)
         TextView emptyView;
         MsgViewHolder(View view) {

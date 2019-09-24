@@ -16,7 +16,7 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         android:gravity="center">
 
-        <com.android.crypt.chatapp.widget.swipexlistview.SwipeXListView
+        <com.android.crypt.chatapp.widget.swipexlistview.XListView
             android:id="@+id/message_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

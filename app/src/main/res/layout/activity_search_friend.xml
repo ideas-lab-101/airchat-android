@@ -30,7 +30,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             android:inputType="text"
-            android:hint="@string/prompt_phone"
+            android:hint="@string/prompt_account"
             android:theme="@style/MyEditText"
             android:textAlignment="center"
             android:textSize="14sp"

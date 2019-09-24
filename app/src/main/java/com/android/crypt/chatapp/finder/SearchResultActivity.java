@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.bumptech.glide.Glide;
@@ -102,6 +103,9 @@ public class SearchResultActivity extends BaseActivity implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (v.getId()) {
             case R.id.apply_event:
                 if (this.mMap.login_name.equals(RunningData.getInstance().getCurrentAccount())){
@@ -122,10 +126,14 @@ public class SearchResultActivity extends BaseActivity implements View.OnClickLi
 
 
     private String changePhoneNum(String account) {
-        if (account.length() != 11) {
-            return "*****";
-        } else {
-            return account.substring(0, 3) + "****" + account.substring(7, account.length());
+        if (account.startsWith("AC")){
+            return account;
+        }else{
+            if (account.length() <= 8) {
+                return account;
+            } else {
+                return account.substring(0, 3) + "****" + account.substring(7, account.length());
+            }
         }
     }
 
@@ -142,7 +150,7 @@ public class SearchResultActivity extends BaseActivity implements View.OnClickLi
         }
 
         createDialog("正在发送...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/applyFriend")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/applyFriend")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -157,8 +165,7 @@ public class SearchResultActivity extends BaseActivity implements View.OnClickLi
                         }
                         Logger.d("response.body()" + response.body());
                         if (response.body().code == 1){
-                            makeSnake(applyText, response.body().msg, R.mipmap.toast_alarm
-                                    , Snackbar.LENGTH_LONG);
+                            makeSnake(applyText, response.body().msg, R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
                         }else if (response.body().code == -1){
                             RunningData.getInstance().reLogInMethod();
                         }else{

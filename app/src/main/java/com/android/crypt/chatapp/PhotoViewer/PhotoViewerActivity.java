@@ -1,9 +1,11 @@
 package com.android.crypt.chatapp.PhotoViewer;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
@@ -11,18 +13,20 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.PhotoViewer.Model.ImageModel;
 import com.android.crypt.chatapp.PhotoViewer.adaptor.PhotoPagerAdapter;
-import com.android.crypt.chatapp.msgDetail.IMTools.DownLoadImage;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.baoyz.actionsheet.ActionSheet;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
+import com.wingsofts.dragphotoview.DragPhotoView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,22 +37,40 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import uk.co.senab.photoview.PhotoView;
 
 import static com.android.crypt.chatapp.utility.Common.ParameterUtil.imagePath;
 
 
-public class PhotoViewerActivity extends BaseActivity implements ActionSheet.ActionSheetListener,DownLoadImage.ImageCallback {
+public class PhotoViewerActivity extends BaseActivity implements ActionSheet.ActionSheetListener, View.OnClickListener, PhotoPagerAdapter.AddLongTapCallback {
+
+
 
     private LayoutInflater inflater;
     private PhotoView longPressImage = null;
     private PhotoPagerAdapter adapter;
-    private List<View> viewList = null;
-    private List<Bitmap> bitMapList = null;
+    private List<DragPhotoView> viewList = null;
+
+
+    int mOriginLeft;
+    int mOriginTop;
+    int mOriginHeight;
+    int mOriginWidth;
+    int mOriginCenterX;
+    int mOriginCenterY;
+    private float mTargetHeight;
+    private float mTargetWidth;
+    private float mScaleX;
+    private float mScaleY;
+    private float mTranslationX;
+    private float mTranslationY;
+
 
     @BindView(R.id.quit_photo_viewer)
     ImageButton quitPhotoViewer;
+    @BindView(R.id.three_dot)
+    ImageButton threeDot;
+
     @BindView(R.id.page_view)
     ViewPager pageView;
     @BindView(R.id.all_bg_view)
@@ -56,6 +78,8 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        //禁止截屏
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_contain);
         ButterKnife.bind(this);
@@ -64,31 +88,24 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
     }
 
     private void initView() {
-        Intent intent = getIntent();//获取相关的intent
-        boolean isEncode = (boolean) intent.getSerializableExtra("is_encode");
-        if (isEncode == false){
-            allBgView.setBackground(new ColorDrawable(0x100F0F0F));
-            quitPhotoViewer.setBackground(getResources().getDrawable(R.mipmap.navi_quit_b));
-        }else{
-            allBgView.setBackground(new ColorDrawable(0xff0f0f0f));
-            quitPhotoViewer.setBackground(getResources().getDrawable(R.mipmap.navi_quit_w));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(getResources().getColor(R.color.black_text));
         }
+
+        Intent intent = getIntent();//获取相关的intent
+        quitPhotoViewer.setBackground(getResources().getDrawable(R.mipmap.navi_quit_w));
         try {
             ArrayList<ImageModel> image_url_list = (ArrayList) intent.getSerializableExtra("image_url");
             if (viewList == null) {
-                viewList = new ArrayList<View>();
-            }
-            if (bitMapList == null) {
-                bitMapList = new ArrayList<Bitmap>();
+                viewList = new ArrayList<DragPhotoView>();
             }
             if (image_url_list != null) {
                 for (int i = 0; i < image_url_list.size(); i++) {
                     ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.activity_photo_viewer, null);
-                    viewList.add(view);
-                    String url = image_url_list.get(i).image_url;
-                    loadImageWith(url, view, image_url_list.get(i).de_key);
+                    DragPhotoView photo = (DragPhotoView) view.findViewById(R.id.big_image_viewer);
+                    viewList.add(photo);
                 }
-                adapter = new PhotoPagerAdapter(viewList);
+                adapter = new PhotoPagerAdapter(image_url_list, this, this);
                 pageView.setAdapter(adapter);
                 try {
                     int index = (int) intent.getSerializableExtra("cur_index");
@@ -99,9 +116,64 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
                 }
             }
 
+
+            pageView.getViewTreeObserver()
+                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            pageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+
+                            mOriginLeft = RunningData.getInstance().getScreenWidth() / 8 * 3;//getIntent().getIntExtra("left", 0);
+                            mOriginTop = RunningData.getInstance().getScreenHeight() /  8 * 3;//getIntent().getIntExtra("top", 0);
+                            mOriginHeight = RunningData.getInstance().getScreenHeight() / 4;//getIntent().getIntExtra("height", 0);
+                            mOriginWidth = RunningData.getInstance().getScreenWidth() / 4;//getIntent().getIntExtra("width", 0);
+                            mOriginCenterX = mOriginLeft + mOriginWidth / 2;
+                            mOriginCenterY = mOriginTop + mOriginHeight / 2;
+
+                            int[] location = new int[2];
+
+                            final DragPhotoView photoView = (DragPhotoView) viewList.get(0);
+                            photoView.getLocationOnScreen(location);
+
+                            mTargetHeight = (float) photoView.getHeight();
+                            mTargetWidth = (float) photoView.getWidth();
+
+                            if (mTargetHeight <= 10){
+                                mTargetHeight = RunningData.getInstance().getScreenHeight();
+                            }
+
+                            if (mTargetWidth <= 10){
+                                mTargetWidth = RunningData.getInstance().getScreenWidth();
+                            }
+
+                            mScaleX = (float) mOriginWidth / mTargetWidth;
+                            mScaleY = (float) mOriginHeight / mTargetHeight;
+
+                            float targetCenterX = location[0] + mTargetWidth / 2;
+                            float targetCenterY = location[1] + mTargetHeight / 2;
+
+                            mTranslationX = mOriginCenterX - targetCenterX;
+                            mTranslationY = mOriginCenterY - targetCenterY;
+                            photoView.setTranslationX(mTranslationX);
+                            photoView.setTranslationY(mTranslationY);
+
+                            photoView.setScaleX(mScaleX);
+                            photoView.setScaleY(mScaleY);
+
+                            performEnterAnimation();
+
+                            for (int i = 0; i < viewList.size(); i++) {
+                                DragPhotoView photo = (DragPhotoView) viewList.get(0);
+                                photo.setMinScale(mScaleX);
+                            }
+                        }
+                    });
+
         } catch (Exception e) {
             Logger.d("url参数错误");
         }
+        quitPhotoViewer.setOnClickListener(this);
+        threeDot.setOnClickListener(this);
 
     }
 
@@ -109,54 +181,31 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
     protected void onDestroy() {
         super.onDestroy();
         viewList.clear();
-        for (int i = 0; i < bitMapList.size(); i++){
-            Bitmap bitmap = bitMapList.get(i);
-            if (bitmap != null){
-                Logger.d("PHOTO onDestroy");
-                bitmap.recycle();
-            }
-        }
-        bitMapList.clear();
     }
+
 
     @Override
-    public void showImageResult(Bitmap bitmap) {
-        bitMapList.add(bitmap);
-    }
-
-    private void loadImageWith(String image_url, ConstraintLayout view, String deKey) {
-        PhotoView photo = (PhotoView) view.findViewById(R.id.big_image_viewer);
-        TextView text_Tips = (TextView) view.findViewById(R.id.text_se_tips);
-
-        if (deKey == null || deKey.equals("")) {
-            text_Tips.setVisibility(View.GONE);
-            RequestOptions requestOptions = new RequestOptions().fitCenter().placeholder(R.mipmap.default_image);
-            Glide.with(this).load(image_url).apply(requestOptions).into(photo);
-            addLongTapMethod(photo);
-        } else {
-            text_Tips.setVisibility(View.VISIBLE);
-            //加密图片
-            DownLoadImage loadTool = new DownLoadImage(this, this);
-            loadTool.loadFile(photo, image_url, deKey, R.mipmap.default_image);
+    public void addLongTapMethod(DragPhotoView photo, int position) {
+        if (photo != null){
+            photo.setOnExitListener(new DragPhotoView.OnExitListener() {
+                @Override
+                public void onExit(DragPhotoView view, float x, float y, float w, float h) {
+                    performExitAnimation(view, x, y, w, h);
+                }
+            });
+            photo.setOnTapListener(new DragPhotoView.OnTapListener() {
+                @Override
+                public void onTap(DragPhotoView view) {
+                    finish();
+                    overridePendingTransition(0, 0);
+                }
+            });
+            viewList.set(position, photo);
         }
     }
 
 
-    private void addLongTapMethod(PhotoView photo) {
-        photo.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                longPressImage = (PhotoView) v;
-                Logger.d("view = " + v);
-                ActionSheet.createBuilder(PhotoViewerActivity.this, getSupportFragmentManager())
-                        .setCancelButtonTitle("取消")
-                        .setOtherButtonTitles("保存图片")
-                        .setCancelableOnTouchOutside(true)
-                        .setListener(PhotoViewerActivity.this).show();
-                return true;
-            }
-        });
-    }
+
 
     @Override
     public void onOtherButtonClick(ActionSheet actionSheet, int index) {
@@ -166,11 +215,13 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
                     @Override
                     public void run() {
                         try {
+
                             Bitmap image_map = Bitmap.createBitmap(longPressImage.getDrawingCache());
-//                            long timeStamp = System.currentTimeMillis();
-//                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                            String sd = sdf.format(new Date(timeStamp));
-                            saveImageToGallery(image_map);
+                            if (image_map != null){
+                                saveImageToGallery(image_map);
+                            }else {
+                                makeSnake(pageView, "保存失败", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -186,39 +237,28 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
 
     }
 
-    @OnClick(R.id.quit_photo_viewer)
-    public void onViewClicked() {
-        finish();
-        overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+
+
+    @Override
+    public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        switch (v.getId()){
+            case R.id.quit_photo_viewer:
+                finish();
+                overridePendingTransition(0, 0);
+                break;
+            case R.id.three_dot:
+                longPressImage = viewList.get(pageView.getCurrentItem());
+                ActionSheet.createBuilder(PhotoViewerActivity.this, getSupportFragmentManager())
+                        .setCancelButtonTitle("取消")
+                        .setOtherButtonTitles("保存图片")
+                        .setCancelableOnTouchOutside(true)
+                        .setListener(PhotoViewerActivity.this).show();
+                break;
+        }
     }
-
-
-//    private void saveToLocal(Bitmap bitmap, String bitName) throws IOException {
-//        File file = new File(imagePath + bitName + ".jpg");
-//        if (!file.exists()) {
-//            file.getParentFile().mkdirs();
-//            file.createNewFile();
-//        }
-//        FileOutputStream out;
-//        try {
-//            out = new FileOutputStream(file);
-//            if (bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)) {
-//                out.flush();
-//                out.close();
-//                //保存图片后发送广播通知更新数据库
-//                 Uri uri = Uri.fromFile(file);
-//                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-////                Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-////                intent.setData(uri);
-////                this.sendBroadcast(intent);
-//                makeSnake(pageView, "保存成功", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     private void saveImageToGallery(Bitmap bmp) throws IOException{
         // 首先保存图片
@@ -251,4 +291,108 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
         sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
         makeSnake(pageView, "保存成功", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
     }
+
+
+
+    private void performExitAnimation(final DragPhotoView view, float x, float y, float w, float h) {
+        view.finishAnimationCallBack();
+        float viewX = mTargetWidth / 2 + x - mTargetWidth * mScaleX / 2;
+        float viewY = mTargetHeight / 2 + y - mTargetHeight * mScaleY / 2;
+        view.setX(viewX);
+        view.setY(viewY);
+
+        float centerX = view.getX() + mOriginWidth / 2;
+        float centerY = view.getY() + mOriginHeight / 2;
+
+        float translateX = mOriginCenterX - centerX;
+        float translateY = mOriginCenterY - centerY;
+
+
+        ValueAnimator translateXAnimator = ValueAnimator.ofFloat(view.getX(), view.getX() + translateX);
+        translateXAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                view.setX((Float) valueAnimator.getAnimatedValue());
+            }
+        });
+        translateXAnimator.setDuration(100);
+        translateXAnimator.start();
+        ValueAnimator translateYAnimator = ValueAnimator.ofFloat(view.getY(), view.getY() + translateY);
+        translateYAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                view.setY((Float) valueAnimator.getAnimatedValue());
+            }
+        });
+        translateYAnimator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                animator.removeAllListeners();
+                finish();
+                overridePendingTransition(0, 0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        translateYAnimator.setDuration(100);
+        translateYAnimator.start();
+    }
+
+    private void performEnterAnimation() {
+        final DragPhotoView photoView = (DragPhotoView) viewList.get(0);
+//        final DragPhotoView photoView = mPhotoViews[0];
+        ValueAnimator translateXAnimator = ValueAnimator.ofFloat(photoView.getX(), 0);
+        translateXAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                photoView.setX((Float) valueAnimator.getAnimatedValue());
+            }
+        });
+        translateXAnimator.setDuration(100);
+        translateXAnimator.start();
+
+        ValueAnimator translateYAnimator = ValueAnimator.ofFloat(photoView.getY(), 0);
+        translateYAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                photoView.setY((Float) valueAnimator.getAnimatedValue());
+            }
+        });
+        translateYAnimator.setDuration(100);
+        translateYAnimator.start();
+
+        ValueAnimator scaleYAnimator = ValueAnimator.ofFloat(mScaleY, 1);
+        scaleYAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                photoView.setScaleY((Float) valueAnimator.getAnimatedValue());
+            }
+        });
+        scaleYAnimator.setDuration(100);
+        scaleYAnimator.start();
+
+        ValueAnimator scaleXAnimator = ValueAnimator.ofFloat(mScaleX, 1);
+        scaleXAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                photoView.setScaleX((Float) valueAnimator.getAnimatedValue());
+            }
+        });
+        scaleXAnimator.setDuration(100);
+        scaleXAnimator.start();
+    }
+
 }

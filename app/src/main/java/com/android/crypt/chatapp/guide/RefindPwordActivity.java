@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.lzy.okgo.OkGo;
@@ -57,7 +58,7 @@ public class RefindPwordActivity extends BaseActivity {
 
         toolbar.setTitle(R.string.title_bar_find_pwd);
         setSupportActionBar(toolbar);
-
+        makeSnake(resetPword, "此功能还未开放", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
     }
 
     @Override
@@ -81,6 +82,9 @@ public class RefindPwordActivity extends BaseActivity {
 
     @OnClick({R.id.send_sms, R.id.reset_pword})
     public void onViewClicked(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (view.getId()) {
             case R.id.send_sms:
                 sendSmsMethod();

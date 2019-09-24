@@ -10,9 +10,9 @@
     <include layout="@layout/toolbar_item_with_line"/>
 
 
-    <ScrollView
+    <com.android.crypt.chatapp.widget.MyScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
@@ -136,7 +136,7 @@
                     android:layout_height="fill_parent"
                     android:layout_marginLeft="20dp"
                     android:gravity="center"
-                    android:text="手机号"
+                    android:text="Air号"
                     android:textStyle="bold"
                     android:textColor="@color/black_text"
                     android:textSize="16sp" />
@@ -264,7 +264,7 @@
 
 
     </LinearLayout>
-    </ScrollView>
+    </com.android.crypt.chatapp.widget.MyScrollView>
 
 
 </android.support.design.widget.CoordinatorLayout>

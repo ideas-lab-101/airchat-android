@@ -14,11 +14,11 @@ public class CNPinyin <T extends CN> implements Serializable, Comparable<CNPinyi
     /**
      * 对应首字首拼音字母
      */
-    public char firstChar;
+    public char firstChar = '#';
     /**
      * 所有字符中的拼音首字母
      */
-    public String firstChars;
+    public String firstChars = "";
     /**
      * 对应的所有字母拼音
      */
@@ -42,6 +42,9 @@ public class CNPinyin <T extends CN> implements Serializable, Comparable<CNPinyi
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder().append("--firstChar--").append(firstChar).append("--pinyins:");
+        if (pinyins == null){
+            return "";
+        }
         for (String str : pinyins) {
             sb.append(str);
         }
@@ -59,6 +62,9 @@ public class CNPinyin <T extends CN> implements Serializable, Comparable<CNPinyi
     public int compareTo(CNPinyin<T> tcnPinyin) {
         int compare = compareValue() - tcnPinyin.compareValue();
         if (compare == 0) {
+            if (data == null){
+                return 0;
+            }
             String chinese1 = data.chinese();
             String chinese2 = tcnPinyin.data.chinese();
             return chinese1.compareTo(chinese2);

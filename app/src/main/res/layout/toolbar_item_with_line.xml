@@ -32,8 +32,7 @@
             android:layout_marginRight="10dp"
             android:layout_gravity="right"
             android:visibility="gone"
-            android:background="@mipmap/s_scan" />
-
+            android:background="@mipmap/three_dot" />
 
 
     </android.support.v7.widget.Toolbar>

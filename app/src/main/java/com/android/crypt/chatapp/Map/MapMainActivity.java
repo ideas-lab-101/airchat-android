@@ -1,13 +1,19 @@
 package com.android.crypt.chatapp.Map;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -46,6 +52,7 @@ import com.android.crypt.chatapp.Map.utils.DatasKey;
 import com.android.crypt.chatapp.Map.utils.OnItemClickLisenter;
 import com.android.crypt.chatapp.Map.utils.SPUtils;
 import com.android.crypt.chatapp.Map.utils.DataConversionUtils;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.google.gson.Gson;
 import com.android.crypt.chatapp.R;
 
@@ -54,6 +61,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
 
 public class MapMainActivity extends BaseActivity implements SensorEventListener{
     @BindView(R.id.m_bt_send)
@@ -139,6 +147,7 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
         super.onResume();
         mMapView.onResume();
         sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+
     }
 
     @Override
@@ -201,7 +210,6 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
 
         sensorManager = (SensorManager)getSystemService(this.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-
     }
 
     @Override
@@ -347,6 +355,9 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
         mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!ClickUtils.isFastClick()) {
+                    return;
+                }
                 switch (view.getId()) {
                     case R.id.m_iv_search:
 //                        Toast.makeText(MapMainActivity.this, "搜索", Toast.LENGTH_SHORT).show();
@@ -394,7 +405,7 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
         mUiSettings.setZoomControlsEnabled(false);//是否显示地图中放大缩小按钮
         mUiSettings.setMyLocationButtonEnabled(false); // 是否显示默认的定位按钮
         mUiSettings.setScaleControlsEnabled(true);//是否显示缩放级别
-        mAMap.setMyLocationEnabled(false);// 是否可触发定位并显示定位层
+        mAMap.setMyLocationEnabled(true);// 是否可触发定位并显示定位层
 
         mList = new ArrayList<>();
         mAddressAdapter = new AddressAdapter(this, mList);
@@ -405,7 +416,6 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
 
         mTransAnimator = ObjectAnimator.ofFloat(mIvCenterLocation, "translationY", 0f, -80f, 0f);
         mTransAnimator.setDuration(800);
-//        mTransAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
     }
 
     private void sendPosition(PoiItem poiItem){
@@ -457,16 +467,7 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
         return mOption;
     }
 
-    /**
-     * 开始定位
-     */
-    public void startLocation() {
-        initLocation();
-        // 设置定位参数
-        locationClient.setLocationOption(locationOption);
-        // 启动定位
-        locationClient.startLocation();
-    }
+
 
     /**
      * 停止定位
@@ -657,6 +658,64 @@ public class MapMainActivity extends BaseActivity implements SensorEventListener
         public void onPoiItemSearched(PoiItem poiItem, int i) {
 
         }
+    }
+
+
+    public void startLocation() {
+        //当所有权限都允许之后，返回true
+        initLocation();
+        // 设置定位参数
+        locationClient.setLocationOption(locationOption);
+        locationClient.startLocation();
+    }
+
+    /**
+     * 动态权限
+     * 需要进行检测的权限数组
+     */
+    protected String[] needPermissions = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+
+    
+
+
+    /**
+     * 显示提示信息
+     *
+     * @since 2.5.0
+     */
+    private void showMissingPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("提示");
+        builder.setMessage("当前应用缺少定位权限。\\n\\n请点击\\\"设置\\\"-\\\"权限\\\"-打开所需权限。");
+
+        // 拒绝, 退出应用
+        builder.setNegativeButton("取消",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {}
+                });
+
+        builder.setPositiveButton("去设置",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startAppSettings();
+                    }
+                });
+
+        builder.setCancelable(false);
+
+        builder.show();
+    }
+
+    private void startAppSettings() {
+        Intent intent = new Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        intent.setData(Uri.parse("package:" + getPackageName()));
+        startActivity(intent);
     }
 
 }

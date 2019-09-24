@@ -33,6 +33,10 @@
                 android:lineSpacingMultiplier="1.5"
                 android:lineSpacingExtra = "10dp"
                 android:textColor="@color/black_text"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
                 android:textSize="14sp"/>
 
         </LinearLayout>

@@ -1,20 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    >
-    <!-- pageview里面必须有LinearLayout，这个写死了。 -->
-    <com.android.crypt.chatapp.guide.View.PageView
-        android:id="@+id/page_view"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:scrollbars="none" >
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:orientation="horizontal" >
-        </LinearLayout>
-    </com.android.crypt.chatapp.guide.View.PageView>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
 
-</LinearLayout>
+    <include layout="@layout/toolbar_item"/>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_bg"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white_bg"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp" >
+
+            <TextView
+                android:id="@+id/text_eyes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp"
+                android:text="◉◉"
+                android:textAlignment="center"
+                android:textColor="@color/blue_bg"
+                android:textSize="30sp"
+                android:layout_centerHorizontal="true"
+                android:textStyle="bold" />
+
+            <com.github.guilhe.views.CircularProgressView
+                android:id="@+id/circular_progress_view"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                app:backgroundColor="@color/clear"
+                android:layout_marginTop="-50dp"
+                android:layout_below="@+id/text_eyes"
+                app:progress="0"
+                android:layout_centerHorizontal="true"
+                app:progressBarColor="@color/blue_bg_dark"
+                app:progressBarThickness="6dp"
+                app:progressThumb="true"
+                app:shadow="false"
+                app:startingAngle="0" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:text="注册之前建议阅读"
+                    android:gravity="bottom"
+                    android:textColor="@color/black_text"
+                    android:textSize="14sp"
+                    android:textAlignment="textStart"
+                    android:textStyle="normal" />
+
+                <Button
+                    android:id="@+id/register_tips"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="5dp"
+                    android:textSize="14sp"
+                    android:background="@color/clear"
+                    android:text="你为什么会需要它"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black_text"/>
+
+                <View
+                    android:layout_width="105sp"
+                    android:layout_height="1dp"
+                    android:background="@color/black_text"
+                    android:layout_marginTop="-10dp"/>
+
+                <Button
+                    android:id="@+id/register"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginBottom="30dp"
+                    android:gravity="center"
+                    android:background="@drawable/btn_login_shape"
+                    android:text="不用了，直接注册"
+                    android:textColor="@color/white_bg"
+                    android:textSize="17sp" />
+
+            </LinearLayout>
+
+
+
+        </RelativeLayout>
+    </ScrollView>
+</android.support.design.widget.CoordinatorLayout>

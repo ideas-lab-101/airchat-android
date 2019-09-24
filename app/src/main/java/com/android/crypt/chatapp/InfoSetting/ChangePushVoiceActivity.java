@@ -156,7 +156,7 @@ public class ChangePushVoiceActivity extends BaseActivity implements View.OnClic
 
     private void startUpload() {
         createDialog("修改中...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/updateUserInfo")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/v2/updateUserInfo")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -226,11 +226,8 @@ public class ChangePushVoiceActivity extends BaseActivity implements View.OnClic
 
         }
     }
-    private MediaPlayer mp = new MediaPlayer();
+    private MediaPlayer mp = null;
     private void playMusic(){
-        if(mp.isPlaying()){
-            return;
-        }
         try{
             if (defaultVoice.equals("dog.mp3")) {
                 mp = MediaPlayer.create(this, R.raw.dog);
@@ -245,6 +242,7 @@ public class ChangePushVoiceActivity extends BaseActivity implements View.OnClic
                 mp = MediaPlayer.create(this, R.raw.cat);
                 mp.start();
             }
+            mp.setVolume(0.5f, 0.5f);
         }catch (Exception e){}
     }
 

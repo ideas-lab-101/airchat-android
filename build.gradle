@@ -10,6 +10,10 @@ buildscript {
         classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2' // add plugin
         classpath 'com.jakewharton:butterknife-gradle-plugin:8.8.1'
 
+        //**** ModPush
+        classpath "com.mob.sdk:MobSDK:2018.0319.1724"
+        //*** FCM
+        classpath 'com.google.gms:google-services:4.0.0'
     }
 }
 

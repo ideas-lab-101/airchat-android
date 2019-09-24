@@ -1,6 +1,10 @@
 package com.android.crypt.chatapp.user;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
@@ -11,13 +15,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.android.crypt.chatapp.BaseFragment;
 import com.android.crypt.chatapp.InfoSetting.LoadPrivateKeyActivity;
 import com.android.crypt.chatapp.PhotoViewer.Model.ImageModel;
+import com.android.crypt.chatapp.contact.Model.ContactModel;
+import com.android.crypt.chatapp.qrResult.MyQRCodeActivity;
 import com.android.crypt.chatapp.qrResult.QScanOtherResultActivity;
+import com.android.crypt.chatapp.qrResult.ZBarScanActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.NotifyUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.baoyz.widget.PullRefreshLayout;
@@ -33,9 +41,6 @@ import com.android.crypt.chatapp.user.Model.UserInfo;
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
-import com.yzq.zxinglibrary.common.Constant;
 import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +50,7 @@ import butterknife.Unbinder;
 import static android.app.Activity.RESULT_OK;
 
 
-public class UserFragment extends BaseFragment {
+public class UserFragment extends BaseFragment{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -64,6 +69,9 @@ public class UserFragment extends BaseFragment {
     LinearLayout llSec;
     @BindView(R.id.ll_account)
     LinearLayout llAccount;
+//    @BindView(R.id.blank_view)
+//    LinearLayout blankView;
+
     @BindView(R.id.fresh_view)
     PullRefreshLayout freshView;
     Unbinder unbinder;
@@ -115,6 +123,8 @@ public class UserFragment extends BaseFragment {
         return view;
     }
 
+
+
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         //找到activity的toolbar,重新设置title和menu
         toolbar.setVisibility(View.VISIBLE);
@@ -142,6 +152,7 @@ public class UserFragment extends BaseFragment {
                 getFresh();
             }
         });
+
     }
 
     public void initView() {
@@ -164,12 +175,33 @@ public class UserFragment extends BaseFragment {
                 Logger.d("UserInfo userInfo = gson.fromJson(userInfoString, UserInfo.class) 错误");
             }
         }
+
+        checkIsPushOpened();
     }
 
+    private void checkIsPushOpened(){
+        final Context mContext = getContext();
+        if (NotifyUtils.isNotificationEnabled(mContext) == false){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext())
+                    .setTitle("推送未开启>.<")
+                    .setMessage("建议打开推送可以及时获得消息")
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {}
+                    })
+                    .setPositiveButton("去开启", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            NotifyUtils.gotoSet(mContext);
+                        }
+                    });
+            builder.create().show();
+        }
+    }
 
     public void getFresh() {
-        initView();
         freshView.setRefreshing(false);
+        initView();
     }
 
     @Override
@@ -180,7 +212,9 @@ public class UserFragment extends BaseFragment {
 
     @OnClick({R.id.ll_friend, R.id.ll_scan, R.id.ll_sec, R.id.ll_account, R.id.iv_qrCode, R.id.iv_username, R.id.iv_avatar, R.id.ll_help, R.id.ll_share})
     public void onViewClicked(View view) {
-
+        if (!ClickUtils.isFastClick()) {
+           return;
+        }
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.ll_friend:
@@ -227,8 +261,9 @@ public class UserFragment extends BaseFragment {
                 intent.putExtra("is_encode", false);
 
                 startActivity(intent);
-                getActivity().overridePendingTransition(R.anim.in_from_right,
-                        R.anim.out_to_left);
+                getActivity().overridePendingTransition(0,0);
+
+
                 break;
             case  R.id.ll_help:
                 intent = new Intent(getActivity(), AppHelpActivity.class);
@@ -246,34 +281,47 @@ public class UserFragment extends BaseFragment {
     }
 
     private void shareMethod(){
-        Intent share = new Intent(android.content.Intent.ACTION_SEND);
-        share.setType("text/plain");
-        share.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        // Add data to the intent, the receiving app will decide
-        // what to do with it.
-        share.putExtra(Intent.EXTRA_SUBJECT, "一个安全的通讯工具");
-        share.putExtra(Intent.EXTRA_TEXT, "http://www.baidu.com");
-        startActivity(Intent.createChooser(share, "AirChat分享给好友"));
+        Gson gson = new Gson();
+        String userInfoString = CacheTool.getInstance().getCacheObject(ObjectCacheType.user_info);
+        if (userInfoString != "") {
+            try {
+                UserInfo userInfo = gson.fromJson(userInfoString, UserInfo.class);
+
+                ContactModel mMap = new ContactModel(userInfo.avatar_url, userInfo.username, "", userInfo.login_name, userInfo.introduction, "", "");
+                Intent intent  = new Intent(getActivity(), MyQRCodeActivity.class);
+                intent.putExtra("friendInfo", mMap);
+                intent.putExtra("isMine", true);
+                startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+            }catch (Exception e){
+                Logger.d("UserInfo userInfo = gson.fromJson(userInfoString, UserInfo.class) 错误");
+            }
+        }
 
     }
 
+
     private void startQrCode(){
-        Intent intent = new Intent(getActivity(), CaptureActivity.class);
+
+//        Intent intent = new Intent(getActivity(), CaptureActivity.class);
         /*ZxingConfig是配置类
         *可以设置是否显示底部布局，闪光灯，相册，
         * 是否播放提示音  震动
         * 设置扫描框颜色等
         * 也可以不传这个参数
         * */
-        ZxingConfig config = new ZxingConfig();
-        config.setPlayBeep(true);//是否播放扫描声音 默认为true
-        config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(true);//是否扫描条形码 默认为true
-        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
-        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
-        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-        intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+//        ZxingConfig config = new ZxingConfig();
+//        config.setPlayBeep(true);//是否播放扫描声音 默认为true
+//        config.setShake(true);//是否震动  默认为true
+//        config.setDecodeBarCode(true);//是否扫描条形码 默认为true
+//        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为白色
+//        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+//        config.setScanLineColor(R.color.colorAccent);//设置扫描线的颜色 默认白色
+//        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+//        intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+
+        //***Zxing太慢 使用Zbar
+        Intent intent = new Intent(getActivity(), ZBarScanActivity.class);
         startActivityForResult(intent, 1);
     }
 
@@ -284,7 +332,7 @@ public class UserFragment extends BaseFragment {
         // 扫描二维码/条码回传
         if (requestCode == 1 && resultCode == RESULT_OK) {
             if (data != null) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                String content = data.getStringExtra("qr_code_string");//Constant.CODED_CONTENT
                 if (content.startsWith("1#")){
                     Intent intent = new Intent(getActivity(), LoadPrivateKeyActivity.class);
                     intent.putExtra("qr_result", content.substring(2));

@@ -90,7 +90,7 @@ public class CacheTool {
                 dbManager.insertData(body);
             }
         }catch (Exception e){
-
+            Logger.d("存入失败");
         }
     }
 

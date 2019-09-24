@@ -1,145 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="#FF6A68A0"
-    tools:context="com.android.crypt.chatapp.qrResult.MyQRCodeActivity">
+    android:background="@color/qrcode_bg"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/code_bg"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
+    <include layout="@layout/toolbar_item_with_line"/>
+
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:orientation="vertical"
-        android:background="#FBFED2" >
+        android:background="@color/clear"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:background="@color/clear"
+            android:orientation="vertical" >
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/code_bg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:orientation="vertical"
+                android:background="@color/white_bg" >
 
-            <com.android.crypt.chatapp.widget.RoundImageView
-                android:id="@+id/head_icon"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginLeft="5dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/default_head"
-                app:isCircle="false"
-                app:borderRadius="5dp" />
-            <TextView
-                android:id="@+id/user_name_code"
-                android:layout_width="160dp"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10dp"
-                android:text="野草"
-                android:gravity="center"
-                android:textAlignment="textStart"
-                android:textColor="@color/black_text"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:orientation="horizontal">
+
+                    <com.android.crypt.chatapp.widget.RoundImageView
+                        android:id="@+id/head_icon"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_marginLeft="8dp"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/default_head"
+                        app:isCircle="false"
+                        app:borderRadius="5dp" />
+
+                    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:tools="http://schemas.android.com/tools"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="10dp"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/user_name_code"
+                            android:layout_width="160dp"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="0dp"
+                            android:text="野草"
+                            android:gravity="center"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/black_text"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/user_intro"
+                            android:layout_width="160dp"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="0dp"
+                            android:text=""
+                            android:visibility="gone"
+                            android:gravity="center"
+                            android:textAlignment="textStart"
+                            android:textColor="@color/tips_text_h"
+                            android:textSize="14sp"
+                            android:textStyle="normal" />
+                    </LinearLayout>
 
 
-        <RelativeLayout
-            android:id="@+id/code_bg_content"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/user_qrcode_shape">
+                </LinearLayout>
 
-            <ImageView
-                android:id="@+id/contentIvWithLogo"
+
+                <RelativeLayout
+                    android:id="@+id/code_bg_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/user_qrcode_shape">
+
+                    <ImageView
+                        android:id="@+id/contentIvWithLogo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_margin="18dp"
+                        android:background="@color/white_bg" />
+
+                    <com.android.crypt.chatapp.widget.RoundImageView
+                        android:id="@+id/inner_head_icon"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:scaleType="centerCrop"
+                        android:src="@mipmap/default_head"
+                        app:isCircle="false"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        app:borderRadius="2dp" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tips_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="扫一扫二维码 添加我AirChat"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/black_text"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/choose_limit"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="0dp"
+                android:background="@color/clear"
+                android:orientation="vertical" >
+                <TextView
+                    android:id="@+id/qrcode_tips"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginBottom="10dp"
+                    android:text= "修改二维码期限(默认100天)"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/tips_text_h"
+                    android:textSize="13sp"
+                    android:textStyle="normal" />
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_margin="15dp"
-                android:background="@color/white_bg" />
-
-            <com.android.crypt.chatapp.widget.RoundImageView
-                android:id="@+id/inner_head_icon"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/default_head"
-                app:isCircle="false"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                app:borderRadius="2dp" />
-
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/tips_code"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginBottom="10dp"
-            android:text="扫码添加我的AirChat"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:textColor="@color/black_text"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/choose_limit"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_marginTop="0dp"
-        android:background="@color/clear"
-        android:orientation="vertical" >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginBottom="10dp"
-            android:text= "二维码期限(默认100天)"
-            android:gravity="center"
-            android:textAlignment="center"
-            android:textColor="@color/white_bg"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:orientation="vertical"
-        android:gravity="bottom"
-        android:background="@color/clear" >
-        <ImageButton
-            android:id="@+id/quit_msg_ac"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="0dp"
-            android:background="@mipmap/quit_dismiss"
-            android:layout_gravity="center"
-            android:gravity="bottom|center"/>
-
-    </LinearLayout>
-
-
-
-
-
-
-</LinearLayout>
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
+                android:orientation="vertical"
+                android:gravity="bottom"
+                android:visibility="gone"
+                android:background="@color/clear" >
+                <ImageButton
+                    android:id="@+id/quit_msg_ac"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="0dp"
+                    android:background="@mipmap/quit_dismiss"
+                    android:layout_gravity="center"
+                    android:gravity="bottom|center"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</android.support.design.widget.CoordinatorLayout>

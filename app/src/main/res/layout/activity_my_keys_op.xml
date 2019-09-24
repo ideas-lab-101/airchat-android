@@ -10,107 +10,153 @@
     <include layout="@layout/toolbar_item_with_line"/>
 
 
-    <ScrollView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-    <LinearLayout
+    <com.android.crypt.chatapp.widget.MyScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white_bg"
-        android:orientation="vertical" >
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="15dp"
-            android:background="@color/light_gray_line" />
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:id="@+id/recal_my_pri_key"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/sagacity_white" >
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:gravity="center_vertical" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_marginLeft="20dp"
-                    android:gravity="center"
-                    android:text="重新计算密钥"
-                    android:textColor="@color/black_text"
-                    android:textSize="16sp" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center" >
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="12dp"
-                        android:src="@drawable/mm_submenu"/>
-                </LinearLayout>
-            </RelativeLayout>
-        </LinearLayout>
-
-        <View
             android:layout_width="match_parent"
-            android:layout_height="15dp"
-            android:background="@color/light_gray_line" />
+            android:layout_height="match_parent"
+            android:background="@color/white_bg"
+            android:orientation="vertical" >
 
-        <LinearLayout
-            android:id="@+id/my_pri_key"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/sagacity_white" >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:text="支持手动更新密钥"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textAlignment="textStart"
+                android:textColor="@color/tips_text_l"
+                android:paddingStart="20dp"
+                android:background="@color/light_gray_line" />
 
-            <RelativeLayout
+            <LinearLayout
+                android:id="@+id/recal_my_pri_key"
                 android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:gravity="center_vertical" >
+                android:layout_height="wrap_content"
+                android:background="@color/sagacity_white" >
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical" >
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_marginLeft="20dp"
-                    android:gravity="center"
-                    android:text="查看我的私钥"
-                    android:textColor="@color/black_text"
-                    android:textSize="16sp" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center" >
                     <TextView
-                        android:id="@+id/account"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="5dp"
-                        android:textColor="@color/tips_text_h"
-                        android:textSize="14sp"
-                        android:text=""/>
+                        android:layout_height="fill_parent"
+                        android:layout_marginLeft="20dp"
+                        android:gravity="center"
+                        android:text="重新计算密钥"
+                        android:textColor="@color/black_text"
+                        android:textSize="16sp" />
 
-                    <ImageView
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="12dp"
-                        android:src="@drawable/mm_submenu"/>
-                </LinearLayout>
-            </RelativeLayout>
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentRight="true"
+                        android:gravity="center" >
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="12dp"
+                            android:src="@drawable/mm_submenu"/>
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:text="迁移账号时需要这些信息"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:textAlignment="textStart"
+                android:textColor="@color/tips_text_l"
+                android:paddingStart="20dp"
+                android:background="@color/light_gray_line" />
+
+            <LinearLayout
+                android:id="@+id/my_pri_key"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/sagacity_white" >
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_marginLeft="20dp"
+                        android:gravity="center"
+                        android:text="密钥字符串"
+                        android:textColor="@color/black_text"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentRight="true"
+                        android:gravity="center" >
+                        <TextView
+                            android:id="@+id/account"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="5dp"
+                            android:textColor="@color/tips_text_h"
+                            android:textSize="14sp"
+                            android:text=""/>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="12dp"
+                            android:src="@drawable/mm_submenu"/>
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/my_pri_key_code"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/sagacity_white" >
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_marginLeft="20dp"
+                        android:gravity="center"
+                        android:text="密钥二维码"
+                        android:textColor="@color/black_text"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentRight="true"
+                        android:gravity="center" >
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="12dp"
+                            android:src="@drawable/mm_submenu"/>
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+
+
         </LinearLayout>
-
-
-
-    </LinearLayout>
-</ScrollView>
+    </com.android.crypt.chatapp.widget.MyScrollView>
 
 
 

@@ -7,6 +7,7 @@ import android.widget.ImageView;
 
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
+import com.bumptech.glide.Glide;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.callback.FileCallback;
@@ -14,6 +15,7 @@ import com.lzy.okgo.model.Progress;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.logger.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +39,11 @@ public class DownLoadImage {
         this.callbacks = callback;
 
     }
+
+    public DownLoadImage(Context context){
+        this.context = context;
+    }
+
     public Bitmap bitmap;
 
 
@@ -49,7 +56,6 @@ public class DownLoadImage {
         final String fileName = fileNames[fileNames.length - 1];
         final String imagePath =  RunningData.getInstance().getEncodeImageUrl();
         final String fileLocal = imagePath + fileName;
-
 
         photo.setImageDrawable(context.getResources().getDrawable(placeHolder));
         Logger.d("fileLocal = " + fileLocal);
@@ -115,14 +121,23 @@ public class DownLoadImage {
                     CryTool tool = new CryTool();
                     byte[] date_de = tool.aesImageDeWith(data, deKey);
                     if (date_de != null){
+//                        bitmap = BitmapFactory.decodeByteArray(date_de, 0, date_de.length);
+//                        photo.setImageBitmap(bitmap);
+//                        photo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+//                        date_de = null;
+//                        data = null;
+
                         bitmap = BitmapFactory.decodeByteArray(date_de, 0, date_de.length);
-                        photo.setImageBitmap(bitmap);
-                        photo.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-                        date_de = null;
-                        data = null;
-                        if (callbacks != null){
-                            callbacks.showImageResult(bitmap);
-                        }
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                        byte[] bytes = baos.toByteArray();
+                        Glide.with(context)
+                                .load(bytes)
+                                .into(photo);
+                        bitmap.recycle();
+                        bitmap = null;
+                        bytes = null;
+
                     }
                 }
             }catch (Exception e){

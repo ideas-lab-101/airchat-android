@@ -9,10 +9,11 @@
 
     <include layout="@layout/toolbar_item_with_line"/>
 
-    <android.support.v4.widget.NestedScrollView
+    <com.android.crypt.chatapp.widget.MyScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -35,7 +36,7 @@
                         android:layout_height="fill_parent"
                         android:layout_marginLeft="20dp"
                         android:gravity="center"
-                        android:text="添加聊天背景"
+                        android:text="聊天背景"
                         android:textColor="@color/black_text"
                         android:textSize="16sp" />
 
@@ -89,11 +90,6 @@
                 </RelativeLayout>
             </LinearLayout>
 
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="5dp"
-                android:background="@color/black_line_light" />
             <LinearLayout
                 android:id="@+id/ll_account_info"
                 android:layout_width="fill_parent"
@@ -129,9 +125,43 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_tab_bar_height_setting"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/sagacity_white" >
+
+                <RelativeLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="50dp"
+                    android:gravity="center_vertical" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_marginLeft="20dp"
+                        android:gravity="center"
+                        android:text="底部高度适配"
+                        android:textColor="@color/black_text"
+                        android:textSize="16sp" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentRight="true"
+                        android:gravity="center" >
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="12dp"
+                            android:src="@drawable/mm_submenu"/>
+                    </LinearLayout>
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/ll_server_setting"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:background="@color/sagacity_white" >
 
                 <RelativeLayout
@@ -172,7 +202,7 @@
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
-                android:layout_height="5dp"
+                android:layout_height="1dp"
                 android:background="@color/black_line_light" />
             <LinearLayout
                 android:id="@+id/ll_black_list"
@@ -210,14 +240,14 @@
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
-                android:layout_height="5dp"
+                android:layout_height="1dp"
                 android:background="@color/black_line_light" />
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:id="@+id/share_app"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/sagacity_white" >
-
                 <RelativeLayout
                     android:layout_width="fill_parent"
                     android:layout_height="50dp"
@@ -228,30 +258,10 @@
                         android:layout_height="fill_parent"
                         android:layout_marginLeft="20dp"
                         android:gravity="center"
-                        android:text="自动升级检查"
+                        android:text="分享应用"
                         android:textColor="@color/black_text"
                         android:textSize="16sp" />
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="fill_parent"
-                        android:layout_alignParentRight="true"
-                        android:gravity="center" >
-                        <com.kyleduo.switchbutton.SwitchButton
-                            android:id="@+id/auto_check"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:layout_marginRight="@dimen/page_margin_right"
-                            app:kswAnimationDuration="300"
-                            app:kswBackDrawable="@drawable/ios_back_drawable"
-                            app:kswBackMeasureRatio="1.4"
-                            app:kswThumbDrawable="@drawable/ios_thumb_selector"
-                            app:kswThumbMarginBottom="-8dp"
-                            app:kswThumbMarginLeft="-5dp"
-                            app:kswThumbMarginRight="-5dp"
-                            app:kswThumbMarginTop="-2.5dp"/>
-                    </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>
 
@@ -289,20 +299,26 @@
                             android:layout_marginRight="5dp"
                             android:textColor="@color/tips_text_h"
                             android:textSize="14sp"
-                            android:text="0.0.0"/>
-                        <ImageView
+                            android:text=""/>
+
+                        <TextView
+                            android:id="@+id/find_new_version"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="12dp"
-                            android:src="@drawable/mm_submenu"/>
+                            android:layout_marginRight="5dp"
+                            android:textColor="@color/sagacity_red"
+                            android:textSize="12sp"
+                            android:text="发现新版本"/>
+                        <!--<ImageView-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:layout_marginRight="12dp"-->
+                            <!--android:src="@drawable/mm_submenu"/>-->
+
                     </LinearLayout>
                 </RelativeLayout>
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="5dp"
-                android:background="@color/black_line_light" />
 
             <LinearLayout
                 android:id="@+id/ll_clear_cache"
@@ -349,7 +365,7 @@
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
-                android:layout_height="5dp"
+                android:layout_height="1dp"
                 android:background="@color/black_line_light" />
             <LinearLayout
                 android:id="@+id/log_out_and_delete_key"
@@ -359,9 +375,8 @@
 
                 <RelativeLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="60dp"
                     android:gravity="center_vertical" >
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
@@ -382,8 +397,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginRight="5dp"
                             android:textColor="@color/tips_text_h"
-                            android:textSize="14sp"
-                            android:text="登出同时删除本地私钥"/>
+                            android:textSize="12sp"
+                            android:text="注意: \n当前操作登出 + 删除本地私钥\n下次登录需要重新导入私钥"/>
 
                         <ImageView
                             android:layout_width="wrap_content"
@@ -395,7 +410,7 @@
             </LinearLayout>
             <View
                 android:layout_width="match_parent"
-                android:layout_height="5dp"
+                android:layout_height="1dp"
                 android:background="@color/black_line_light" />
             <LinearLayout
                 android:layout_width="match_parent"
@@ -404,8 +419,14 @@
                 <TextView
                     android:id="@+id/btn_exit"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/btn_height"
-                    android:layout_margin="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginBottom="30dp"
+
                     android:text="直接退出登录"
                     android:textSize="18sp"
                     android:textColor="@color/white_bg"
@@ -414,5 +435,5 @@
             </LinearLayout>
 
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </com.android.crypt.chatapp.widget.MyScrollView>
 </android.support.design.widget.CoordinatorLayout>

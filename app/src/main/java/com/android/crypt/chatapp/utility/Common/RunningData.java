@@ -1,11 +1,15 @@
 package com.android.crypt.chatapp.utility.Common;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.Display;
 
 import com.android.crypt.chatapp.msgList.model.MessageListModel;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
@@ -13,11 +17,11 @@ import com.android.crypt.chatapp.utility.Cache.CacheTool;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.android.crypt.chatapp.utility.okgo.utils.Convert;
-import com.chatapp.push.util.PushRunningData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
+import com.lzy.okgo.db.CacheManager;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.ChatAppApplication;
@@ -28,6 +32,8 @@ import com.android.crypt.chatapp.contact.cn.CNPinyin;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 
 import org.json.JSONObject;
+
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -52,9 +58,12 @@ public class RunningData {
     private String cur_account = null;
     private String cur_pwd = null;
     private String curPushVoice = null;
+    private String mobPushRegistrationId = "";
+    private String pushAlias = "";
 
     private int curTextSize = 0;
     private boolean isDebug;
+    private int appShowHeight = 0;
 
     private static RunningData mInstance;
     public static RunningData getInstance() {
@@ -66,6 +75,46 @@ public class RunningData {
             }
         }
         return mInstance;
+    }
+
+    public String getMobPushRegistrationId(){
+        return mobPushRegistrationId;
+    }
+
+    public void setMobPushRegistrationId(String value){
+        if (value == null){
+            value = "default";
+        }
+        mobPushRegistrationId = value;
+    }
+
+    public String getPushAlias(){
+        return pushAlias;
+    }
+
+    public void setPushAlias(String value){
+        pushAlias = value;
+    }
+
+    public void clearDataWhenExit(){
+        this.iMMessageAESKey = "";
+        this.myPrivateKey = "";
+        this.curPushVoice = "";
+        this.curTextSize = 0;
+        this.cur_account = "";
+        this.cur_pwd = "";
+
+        CacheManager.getInstance().remove("contact-getFriendList");
+    }
+
+
+    /**
+     *
+     * debug 时候返回true
+     *
+     * **/
+    public void setIsApkInDebug() {
+        this.isDebug  = false;
     }
 
     /***
@@ -200,11 +249,19 @@ public class RunningData {
         return CacheTool.getInstance().getPri_key(getCurrentAccount());
     }
 
+    public void setCurrentAccount(String account){
+        cur_account = account;
+    }
+
     public String getCurrentAccount(){
         if (cur_account == null || cur_account.equals("")){
             cur_account = CacheTool.getInstance().getCacheObject(ObjectCacheType.cur_account);
         }
         return cur_account;
+    }
+
+    public void setCurrentPwd(String pwd){
+        cur_pwd = pwd;
     }
 
     public String getCurrentPwd(){
@@ -228,7 +285,16 @@ public class RunningData {
     public void initContactList(){
         if (mListContact == null){
             mListContact = new ArrayList<>();
-            getCacheFriendList();
+        }else{
+            mListContact.clear();
+        }
+        getCacheFriendList();
+    }
+
+    public void clearmListContact(){
+        if (mListContact!= null){
+            mListContact.clear();
+            mListContact = null;
         }
     }
     public  ArrayList<CNPinyin<ContactModel>> getContactList(){
@@ -240,14 +306,14 @@ public class RunningData {
     }
 
     private void getCacheFriendList() {
+        Gson gson = new Gson();
         try {
             String friendListString =  CacheTool.getInstance().getCacheObject(ObjectCacheType.friend_list);
             Logger.d("friendListString = " + friendListString);
             if (friendListString != null){
-                Gson gson = new Gson();
                 ArrayList<ContactCacheModel> cacheModelsList = gson.fromJson(friendListString, new TypeToken<ArrayList<ContactCacheModel>>() {
                 }.getType());
-                if (cacheModelsList != null && cacheModelsList.size() > 0){
+                if (cacheModelsList != null && cacheModelsList.size() >= 0){
                     for (int i = 0; i < cacheModelsList.size(); i++){
                         ContactCacheModel cacheModel = cacheModelsList.get(i);
                         ContactModel data = new ContactModel(cacheModel.avatar_url, cacheModel.username, cacheModel.label, cacheModel.account, cacheModel.introduction, cacheModel.public_key, cacheModel.friend_id);
@@ -259,7 +325,14 @@ public class RunningData {
                         pinyin.pinyins = cacheModel.pinyins.split("_");
                         mListContact.add(pinyin);
                     }
-                    Logger.d("mListContact = " + gson.toJson(mListContact));
+                }
+
+                if (mListContact.size() == 0 || mListContact.get(mListContact.size() - 1).data.isBlank == false){
+                    //***添加一个空白item
+                    ContactModel data = new ContactModel();
+                    data.isBlank = true;
+                    CNPinyin<ContactModel> pinyin = new CNPinyin(data);
+                    mListContact.add(pinyin);
                 }
             }
 
@@ -301,12 +374,25 @@ public class RunningData {
             String cacheString = CacheTool.getInstance().getCacheObject(ObjectCacheType.message_list);
             ArrayList<MessageListModel> cacheList = gson.fromJson(cacheString, new TypeToken<ArrayList<MessageListModel>>() {
             }.getType());
-            if (cacheList != null && cacheList.size() > 0){
+            if (cacheList != null && cacheList.size() >= 0){
                 msgList.addAll(cacheList);
             }
+            if (msgList.size() == 0 || msgList.get(msgList.size() - 1).isblank == false){
+                MessageListModel blankModel = new MessageListModel();
+                blankModel.isblank = true;
+                msgList.add(blankModel);
+            }
         }
+
         return msgList;
     }
+    public void clearmsgList(){
+        if (msgList!= null){
+            msgList.clear();
+            msgList = null;
+        }
+    }
+
 
 
     //***重新登录
@@ -315,14 +401,8 @@ public class RunningData {
         String pwdStr = getCurrentPwd();
         JSONObject deviceInfo = new JSONObject();
         try {
-            CryTool tool = new CryTool();
-            String accountSha256 = tool.shaAccount(accountStr);
-            if (accountSha256.length() > 40){
-                accountSha256 = accountSha256.substring(0, 40);
-            }
-
             deviceInfo.put("uniqueId", ServiceUtils.getUniqueID());
-            deviceInfo.put("deviceToken", accountSha256);
+            deviceInfo.put("deviceToken", getPushAlias());
             deviceInfo.put("osType", "Android");
             deviceInfo.put("osVersion", Build.VERSION.RELEASE);
         } catch (Exception e) {
@@ -332,7 +412,7 @@ public class RunningData {
 
         String baseurl = RunningData.getInstance().server_url();
 
-        OkGo.<CodeResponse>post(baseurl + "system/userLogin")
+        OkGo.<CodeResponse>post(baseurl + "system/v2/userLogin")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("account", accountStr)
@@ -355,11 +435,10 @@ public class RunningData {
                                 //***缓存user info
                                 String userInfoString = data.getJSONObject("userInfo").toString();
                                 CacheTool.getInstance().cacheObject(ObjectCacheType.user_info, userInfoString);
+
                             } catch (Exception ex) {
 
                             }
-                        }else{
-
                         }
                     }
 
@@ -386,15 +465,30 @@ public class RunningData {
         return  dm.heightPixels;
     }
 
-    public void setIsApkInDebug() {
-        try {
-            Context context = ChatAppApplication.getContext();
-            ApplicationInfo info = context.getApplicationInfo();
-            this.isDebug = (info.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-        } catch (Exception e) {
-            this.isDebug  = false;
-        }
+
+    public void  setAppShowHeigth(Activity ac){
+        Display defaultDisplay = ac.getWindowManager().getDefaultDisplay();
+        Point point = new Point();
+        defaultDisplay.getSize(point);
+//        int x = point.x;
+        appShowHeight = point.y;
     }
+
+    public int getActionBarHeight(){
+        int actionBarHeight = 0;
+        Context context = ChatAppApplication.getContext();
+        TypedValue tv = new TypedValue();
+        if (context.getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, context.getResources().getDisplayMetrics());
+        }
+        return actionBarHeight;
+    }
+
+
+    public int getAppShowHeight(){
+        return appShowHeight;
+    }
+
 
     public boolean IsApkInDebug(){
         return this.isDebug;
@@ -403,21 +497,38 @@ public class RunningData {
 
     public String getBgImageUrl(){
         String mFile = ChatAppApplication.getContext().getFilesDir()+ "/"+"bg_image/";
+        File file = new File(mFile);
+        if (!file.exists()){
+            file.mkdir();
+        }
         return mFile;
     }
 
     public String getEncodeImageUrl(){
         String mFile = ChatAppApplication.getContext().getFilesDir()+ "/"+"encode_image/";
+        File file = new File(mFile);
+        if (!file.exists()){
+            file.mkdir();
+        }
         return mFile;
     }
 
     public String getVoiceUrl(){
         String mFile = ChatAppApplication.getContext().getFilesDir()+ "/"+"voice/";
+        File file = new File(mFile);
+        if (!file.exists()){
+            file.mkdir();
+        }
         return mFile;
     }
 
     public String getCollectImage(){
         String mFile = ChatAppApplication.getContext().getFilesDir()+ "/"+"collect_image/";
+        File file = new File(mFile);
+        if (!file.exists()){
+            file.mkdir();
+        }
+
         return mFile;
     }
 

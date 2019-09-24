@@ -2,7 +2,7 @@
  * FixMultiViewPager 2016-12-26
  * Copyright (c) 2016 suzeyu Co.Ltd. All right reserved
  */
-package com.wingsofts.myapplication;
+package com.android.crypt.chatapp.PhotoViewer;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;

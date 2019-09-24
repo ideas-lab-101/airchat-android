@@ -21,6 +21,7 @@ import java.util.ArrayList;
 /**
  * Created by mulaliu on 17/6/19.
  * 为保存fragment的状态，切换时不会反复执行onCreateView()
+ *
  */
 
 public class StateTabHost extends TabHost
@@ -154,11 +155,12 @@ public class StateTabHost extends TabHost
      * call {@link #setup(Context, FragmentManager)} or
      * {@link #setup(Context, FragmentManager, int)}.
      */
+//    @Deprecated
     @Override
-    @Deprecated
     public void setup() {
-        throw new IllegalStateException(
-                "Must call setup() that takes a Context and FragmentManager");
+//        throw new IllegalStateException(
+//                "Must call setup() that takes a Context and FragmentManager");
+        super.setup();
     }
 
     public void setup(Context context, FragmentManager manager) {

@@ -31,7 +31,6 @@ public class ParameterUtil {
 	 * 当前登录帐号记录文件名
 	 */
 	public static String CUR_ACCOUNT_MANAGEMENT_XML = "CUR_ACCOUNT_MANAGEMENT_XML";
-
     public static String CUR_PROFILE_MANAGEMENT_XML = "CUR_PROFILE_MANAGEMENT_XML";
 
 	public static String SYS_SETTING_XML = "SYS_SETTING_XML";

@@ -2,40 +2,40 @@ package com.android.crypt.chatapp.guide;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.crypt.chatapp.ChatAppApplication;
+import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.InfoSetting.LoadPrivateKeyActivity;
 import com.android.crypt.chatapp.InfoSetting.ReCalKeysActivity;
+import com.android.crypt.chatapp.MainActivity;
+import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
+import com.android.crypt.chatapp.utility.Common.ParameterUtil;
 import com.android.crypt.chatapp.utility.Common.RunningData;
+import com.android.crypt.chatapp.utility.Common.ServiceUtils;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
+import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
-import com.baoyz.actionsheet.ActionSheet;
 import com.android.crypt.chatapp.utility.okgo.utils.Convert;
-import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.Response;
 import com.orhanobut.logger.Logger;
-import com.android.crypt.chatapp.BaseActivity;
-import com.android.crypt.chatapp.MainActivity;
-import com.android.crypt.chatapp.R;
-import com.android.crypt.chatapp.utility.Common.ParameterUtil;
-import com.android.crypt.chatapp.utility.Common.ServiceUtils;
-import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 
 import org.json.JSONObject;
 
@@ -44,19 +44,22 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class LoginActivity extends BaseActivity implements ActionSheet.ActionSheetListener {
+public class LoginActivity extends BaseActivity  {
 
 
     @BindView(R.id.txt_account)
     EditText txtAccount;
     @BindView(R.id.txt_password)
     EditText txtPassword;
-    @BindView(R.id.log_title)
-    TextView logTitle;
-    @BindView(R.id.tv_register)
-    Button tvRegister;
+
+
     @BindView(R.id.tv_login)
     Button tvLogin;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
+
+
     @BindView(R.id.tv_findPwd)
     Button tvFindPwd;
 
@@ -69,26 +72,39 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.account_login_activity);
         ButterKnife.bind(this);
-        setSwipeBackEnable(false);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
 
         accountStr = RunningData.getInstance().getCurrentAccount();
         pwdStr = RunningData.getInstance().getCurrentPwd();
 
         initView();
-        setupUI();
         directLogin = getIntent().getIntExtra("directLogin", 0);
         if (directLogin == 1) {
             accountLogin();
         }
     }
 
-    private void setupUI() {
-        //更改字体
-        Typeface customFont = Typeface.createFromAsset(this.getAssets(), "fonts/Days.otf");
-        if (customFont != null) {
-            logTitle.setTypeface(customFont);
-        }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        return super.onCreateOptionsMenu(menu);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // 处理ActionBar的菜单
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     /**
      * 绑定事件
@@ -110,17 +126,17 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
 
     }
 
-    @OnClick({R.id.tv_login, R.id.tv_findPwd, R.id.tv_register})
+    @OnClick({R.id.tv_login, R.id.tv_findPwd})
     public void onViewClicked(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (view.getId()) {
             case R.id.tv_login:
                 attemptLogin();
                 break;
             case R.id.tv_findPwd:
                 toFindPwdAc();
-                break;
-            case R.id.tv_register:
-                othersOp();
                 break;
             default:
                 break;
@@ -132,30 +148,6 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
         startActivity(intent);
     }
 
-    private void othersOp(){
-        ActionSheet.createBuilder(this, getSupportFragmentManager())
-                .setCancelButtonTitle("取消")
-                .setOtherButtonTitles("新用户注册", "导入历史私钥")
-                .setCancelableOnTouchOutside(true)
-                .setListener(this).show();
-    }
-
-    @Override
-    public void onOtherButtonClick(ActionSheet actionSheet, int index) {
-        if (index == 0) {
-            Intent intent = new Intent(this, RegTipsActivity.class);
-            startActivity(intent);
-        } else if (index == 1) {
-            Intent intent = new Intent(this, LoadPrivateKeyActivity.class);
-            startActivity(intent);
-        }
-    }
-
-    @Override
-    public void onDismiss(ActionSheet actionSheet, boolean isCancle) {
-
-
-    }
 
     private void attemptLogin() {
         // Reset errors.
@@ -196,24 +188,19 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
     }
 
     private void accountLogin() {
-
         JSONObject deviceInfo = new JSONObject();
         try {
-            CryTool tool = new CryTool();
-            String accountSha256 = tool.shaAccount(accountStr);
-            if (accountSha256.length() > 40){
-                accountSha256 = accountSha256.substring(0, 40);
-            }
+            String deviceToken = RunningData.getInstance().getPushAlias();
 
             deviceInfo.put("uniqueId", ServiceUtils.getUniqueID());
-            deviceInfo.put("deviceToken", accountSha256);
+            deviceInfo.put("deviceToken", deviceToken);
             deviceInfo.put("osType", "Android");
             deviceInfo.put("osVersion", Build.VERSION.RELEASE);
         } catch (Exception e) {
             e.printStackTrace();
         }
         String baseurl = RunningData.getInstance().server_url();
-        OkGo.<CodeResponse>post(baseurl + "system/userLogin")
+        OkGo.<CodeResponse>post(baseurl + "system/v2/userLogin")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("account", accountStr)
@@ -231,10 +218,14 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
                     public void onSuccess(Response<CodeResponse> response) {
                         if (response.body().code == 1) {
                             try {
+                                RunningData.getInstance().setCurrentAccount(accountStr);
+                                RunningData.getInstance().setCurrentPwd(pwdStr);
+
                                 JSONObject data = Convert.formatToJson(response.body().data);
                                 String token = data.getString("token");
                                 CacheTool.getInstance().cacheObject(ObjectCacheType.cur_token, token);
                                 CacheTool.getInstance().cacheObject(ObjectCacheType.cur_account, accountStr);
+
                                 CryTool tool = new CryTool();
                                 String pwd_en = tool.aesEnWith(pwdStr, RunningData.getInstance().getInnerAESKey());
                                 CacheTool.getInstance().cacheObject(ObjectCacheType.cur_pwd, pwd_en);
@@ -242,7 +233,7 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
                                 //***缓存user info
                                 String userInfoString = data.getJSONObject("userInfo").toString();
                                 CacheTool.getInstance().cacheObject(ObjectCacheType.user_info, userInfoString);
-                                whetherCanLogIn(accountStr);
+                                whetherCanLogIn();
 
                                 Logger.d("userInfoString - " + userInfoString);
                             } catch (Exception ex) {
@@ -264,19 +255,18 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
 
     }
 
-    private void whetherCanLogIn(String accountStr){
+    private void whetherCanLogIn() {
         String pri_key = RunningData.getInstance().getMyRSAPriKeyWith(accountStr);
-        Logger.d("获取的私钥是 =" + pri_key+"---"+pri_key.equals("")+"--");
-        if (pri_key.equals("")){
+        Logger.d("获取的私钥是 =" + pri_key + "---" + pri_key.equals("") + "--");
+        if (pri_key.equals("")) {
             showAlert();
-        }else{
+        } else {
             setPrivateXml(ParameterUtil.CUR_ACCOUNT_MANAGEMENT_XML, "loginState", "1");// 0未登录,1已登录
             //导向到主页面
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             // 设置切换动画，从右边进入，左边退出
-            overridePendingTransition(R.anim.in_from_right,
-                    R.anim.out_to_left);
+            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
         }
 
     }
@@ -303,12 +293,37 @@ public class LoginActivity extends BaseActivity implements ActionSheet.ActionShe
         builder.create().show();
     }
 
-    static class ViewHolder {
-        @BindView(R.id.log_title)
-        TextView logTitle;
+//    private void setupUI() {
+//        //更改字体
+//        Typeface customFont = Typeface.createFromAsset(this.getAssets(), "fonts/Days.otf");
+//        if (customFont != null) {
+//            logTitle.setTypeface(customFont);
+//        }
+//    }
 
-        ViewHolder(View view) {
-            ButterKnife.bind(this, view);
-        }
-    }
+//    private void othersOp() {
+//        ActionSheet.createBuilder(this, getSupportFragmentManager())
+//                .setCancelButtonTitle("取消")
+//                .setOtherButtonTitles("新用户注册", "导入历史私钥")
+//                .setCancelableOnTouchOutside(true)
+//                .setListener(this).show();
+//    }
+
+//    @Override
+//    public void onOtherButtonClick(ActionSheet actionSheet, int index) {
+//        if (index == 0) {
+//            Intent intent = new Intent(this, RegTipsActivity.class);
+//            startActivity(intent);
+//        } else if (index == 1) {
+//            Intent intent = new Intent(this, LoadPrivateKeyActivity.class);
+//            startActivity(intent);
+//        }
+//    }
+
+//    @Override
+//    public void onDismiss(ActionSheet actionSheet, boolean isCancle) {
+//
+//
+//    }
+
 }

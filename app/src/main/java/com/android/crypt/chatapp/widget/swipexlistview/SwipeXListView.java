@@ -1,10 +1,12 @@
 package com.android.crypt.chatapp.widget.swipexlistview;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -18,34 +20,26 @@ import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.utility.Common.DensityUtil;
+import com.orhanobut.logger.Logger;
 
-public class SwipeXListView extends ListView implements OnScrollListener {
+public class SwipeXListView extends ListView implements OnScrollListener{
 
 	private Boolean mIsHorizontal;
-
 	private View mPreItemView;
-
 	private View mCurrentItemView;
-
 	private float mFirstX;
-
 	private float mFirstY;
-
 	private int mRightViewWidth;
-
 	private final int mDuration = 100;
-
 	private final int mDurationStep = 10;
-
 	private boolean mIsShown;
-
 	private float mLastY = -1; // save event y
 	private Scroller mScroller; // used for scroll back
 	private OnScrollListener mScrollListener; // user's scroll listener
 
 	// the interface to trigger refresh and load more.
 	private IXListViewListener mListViewListener;
-
 	// -- header view
 	private SwipeXListViewHeader mHeaderView;
 	// header view content, use it to calculate the Header's height. And hide it
@@ -55,21 +49,17 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 	private int mHeaderViewHeight; // header view's height
 	private boolean mEnablePullRefresh = true;
 	private boolean mPullRefreshing = false; // is refreashing.
-
 	// -- footer view
 	private SwipeXListViewFooter mFooterView;
 	private boolean mEnablePullLoad;
 	private boolean mPullLoading;
 	private boolean mIsFooterReady = false;
-
 	// total list items, used to detect is at the bottom of listview.
 	private int mTotalItemCount;
-
 	// for mScroller, scroll back from header or footer.
 	private int mScrollBack;
 	private final static int SCROLLBACK_HEADER = 0;
 	private final static int SCROLLBACK_FOOTER = 1;
-
 	private final static int SCROLL_DURATION = 400; // scroll back duration
 	private final static int PULL_LOAD_MORE_DELTA = 50; // when pull up >= 50px
 	// at bottom, trigger
@@ -99,6 +89,8 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 		initWithContext(context);
 	}
 
+
+
 	private void initWithContext(Context context) {
 		mScroller = new Scroller(context, new DecelerateInterpolator());
 		// XListView need the scroll event, and it will dispatch the event to
@@ -126,6 +118,8 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 								.removeGlobalOnLayoutListener(this);
 					}
 				});
+//		mContext = context;
+//		initBounceListView();
 	}
 
 	public void hideHeadViewLayout(){
@@ -339,8 +333,8 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 	 */
 	public interface IXListViewListener {
 		public void onRefresh();
-
 		public void onLoadMore();
+//		public void curOffsetYValue(int value);
 	}
 
 	/**
@@ -354,7 +348,6 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				mIsHorizontal = null;
-				System.out.println("onInterceptTouchEvent----->ACTION_DOWN");
 				mFirstX = lastX;
 				mFirstY = lastY;
 				int motionPosition = pointToPosition((int) mFirstX, (int) mFirstY);
@@ -364,7 +357,7 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 					mPreItemView = mCurrentItemView;
 					mCurrentItemView = currentItemView;
 				}
-
+//				onInterceptTouchEventActionDown(ev);
 				break;
 
 			case MotionEvent.ACTION_MOVE:
@@ -440,8 +433,7 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 		switch (ev.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				mLastY = ev.getRawY();
-				System.out.println("---->ACTION_DOWN");
-
+//				touchDown(ev);
 				break;
 
 			case MotionEvent.ACTION_MOVE:
@@ -495,8 +487,8 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 						 */
 						hiddenRight(mPreItemView);
 					}
+//					touchMove(ev);
 				}
-
 				final float deltaY = ev.getRawY() - mLastY;
 				mLastY = ev.getRawY();
 				if (getFirstVisiblePosition() == 0
@@ -516,6 +508,7 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 			case MotionEvent.ACTION_CANCEL:
 				System.out.println("============ACTION_UP");
 				clearPressedState();
+//				touchCancel();
 				if (mIsShown) {
 					System.out.println("4---> hiddenRight");
 					/**
@@ -689,5 +682,119 @@ public class SwipeXListView extends ListView implements OnScrollListener {
 	public void setRightViewWidth(int mRightViewWidth) {
 		this.mRightViewWidth = mRightViewWidth;
 	}
+
+
+	/***
+	 *
+	 *   滑动弹性代码
+	 *
+	 *
+	 */
+//	private static final int MAX_Y_OVER_SCROLL_DISTANCE = 100;
+//	private Context mContext;
+//	private int mMaxYOverScrollDistance;
+//	private boolean mStartCalc = false;
+//	private int mScrollY = 0;
+//	private int mLastMotionY = 0;
+//	private int mDeltaY = 0;
+//	private int allDeltaY = 0;
+//
+//	private boolean mIsAnimationRunning = false;
+//	private boolean mIsActionUp = false;
+//
+//	private void initBounceListView(){
+//		mMaxYOverScrollDistance = DensityUtil.dip2px(mContext, MAX_Y_OVER_SCROLL_DISTANCE);
+//	}
+
+//	public void scrollTo(int x, int y) {
+//		super.scrollTo(x, y);
+//		mScrollY = y;
+//	}
+
+//	protected void onOverScrolled(int scrollX, int scrollY, boolean clampedX,
+//								  boolean clampedY) {
+//		if(mDeltaY == 0 || mIsActionUp) {
+//			return;
+//		}
+
+//		scrollBy(0, mDeltaY/2);
+//		allDeltaY = allDeltaY + mDeltaY/2;
+//		if (mListViewListener != null) {
+//			mListViewListener.curOffsetYValue(allDeltaY);
+//		}
+//	}
+
+//	private void startBoundAnimate() {
+//		mIsAnimationRunning = true;
+//		final int scrollY = mScrollY;
+//		int time = Math.abs(100*scrollY/mMaxYOverScrollDistance);
+//		ValueAnimator animator = ValueAnimator.ofInt(0,1).setDuration(time);//设置为动态时间
+//		animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//			@Override
+//			public void onAnimationUpdate(ValueAnimator animator) {
+//				float fraction = animator.getAnimatedFraction();
+//				scrollTo(0, scrollY - (int) (scrollY * fraction));
+//
+//				if((int)fraction == 1) {
+//					scrollTo(0, 0);
+//					resetStatus();
+//				}
+//			}
+//		});
+//		animator.start();
+//		allDeltaY = 0;
+//		if (mListViewListener != null) {
+//			mListViewListener.curOffsetYValue(0);
+//		}
+//	}
+
+//	private void resetStatus() {
+//		mIsAnimationRunning = false;
+//		mStartCalc = false;
+//	}
+
+//	private void onInterceptTouchEventActionDown(MotionEvent event){
+//		mIsActionUp = false;
+//		resetStatus();
+//		if(getFirstVisiblePosition() == 0 ){
+//			mStartCalc = true;
+//		}else{
+//			mStartCalc = false;
+//		}
+//		mLastMotionY = (int)event.getY();
+//	}
+
+//	private void touchDown(MotionEvent event){
+//		mIsActionUp = false;
+//		allDeltaY = 0;
+//		resetStatus();
+//		if(getFirstVisiblePosition() == 0){
+//			mStartCalc = true;
+//		}else{
+//			mStartCalc = false;
+//		}
+//		mLastMotionY = (int)event.getY();
+//	}
+
+//	private void touchMove(MotionEvent event){
+//		if(!mStartCalc && (getFirstVisiblePosition() == 0) ){
+//			mStartCalc = true;
+//		}
+//
+//		final int y = (int) event.getY();
+//		mDeltaY = mLastMotionY - y;
+//		mLastMotionY = y;
+//		if(Math.abs(mScrollY) >= mMaxYOverScrollDistance) {
+//			if(mDeltaY * mScrollY > 0) {
+//				mDeltaY = 0;
+//			}
+//		}
+//	}
+
+//	private void touchCancel(){
+//		allDeltaY = 0;
+//		mIsActionUp = true;
+//		startBoundAnimate();
+//	}
 
 }

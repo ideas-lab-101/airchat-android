@@ -2,6 +2,7 @@ package com.android.crypt.chatapp.msgDetail.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,8 +20,10 @@ import com.android.crypt.chatapp.utility.Common.TimeStrings;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendMessageBody;
 import com.android.crypt.chatapp.widget.swipexlistview.RListView;
+import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -61,7 +64,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         void innerItemClick(final int position);
         void longPressListener(final int position);
         void urlClickMethod(final String text);
-
     }
 
 
@@ -144,7 +146,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         // 6    *//位置
         // 7    *//推荐联系人
         // 8    *//加密图片
-
 
         addListener(position);
         switch (mMap.getMsgType()) {
@@ -248,7 +249,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             }
         });
 
-        viewHolder.imTextContent.setOnLongClickListener(new View.OnLongClickListener(){
+        viewHolder.imText.setOnLongClickListener(new View.OnLongClickListener(){
             @Override
             public boolean onLongClick(View v) {
                 if (innerListener != null) {
@@ -336,12 +337,13 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imTime.setVisibility(View.GONE);
         viewHolder.imTimeBg.setVisibility(View.GONE);
 
-        //****是否显示debug的空白表格
-        if (RunningData.getInstance().IsApkInDebug()){
-            viewHolder.debugShow.setVisibility(View.VISIBLE);
-        }else{
-            viewHolder.debugShow.setVisibility(View.GONE);
-        }
+        //****最后有一行空白行空白表格
+        viewHolder.debugShow.setVisibility(View.VISIBLE);
+//        if (RunningData.getInstance().IsApkInDebug()){
+//            viewHolder.debugShow.setVisibility(View.VISIBLE);
+//        }else{
+//            viewHolder.debugShow.setVisibility(View.INVISIBLE);
+//        }
     }
 
 
@@ -837,6 +839,9 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
         viewHolder.gapLine.setVisibility(View.VISIBLE);
 
+        viewHolder.voidPlayingTips.setVisibility(View.INVISIBLE);
+        viewHolder.voidLoadingTips.setVisibility(View.INVISIBLE);
+
         if (mMap.getMessageSecretType() == 1){
             viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_secret_shape));
         }else{
@@ -879,6 +884,9 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
 
             int voiceWidth = string2int(timeLength);
             int bgLength = 120 + (int)((80 / 30.0) * voiceWidth);
+            if (bgLength > 210){
+                bgLength = 210;
+            }
 
             ViewGroup.LayoutParams lp;
             lp = viewHolder.voiceBgVolorView.getLayoutParams();
@@ -902,38 +910,27 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
 
 
 
-    public  void updateItem(RListView listView, SendMessageBody itemBody, int showStyle) {
-        if (listView != null){
-            int start = listView.getFirstVisiblePosition();
-            int end = listView.getLastVisiblePosition() - 1; //末尾有一个空白行
+    public  void updateItem(RListView listView, SendMessageBody itemBody, int showStyle, int position) {
+        if (listView != null && itemBody != null && position >= 0){
+            String msgId = itemBody.getMessageIdClient();
+            SendMessageBody mMap = mListAll.get(position);
+            View convertView = listView.getChildAt(position - listView.getFirstVisiblePosition() + 1);
 
-            for (int k = start; k < end; k++){
-                SendMessageBody mMap = mListAll.get(k);
-
-                if (mMap.getMsgType() == 4){
-                    View convertView = listView.getChildAt(k - start + 1);
-                    ViewHolder viewHolderTemp = (ViewHolder) convertView.getTag();
-
-                    viewHolderTemp.voidPlayingTips.setVisibility(View.GONE);
-                    viewHolderTemp.voidLoadingTips.setVisibility(View.GONE);
-                    String msgId = itemBody.getMessageIdClient();
-
-                    if (msgId.equalsIgnoreCase(mMap.getMessageIdClient())){
-                        viewHolder = viewHolderTemp;
+            if (mMap != null && convertView != null){
+                ViewHolder viewHolderTemp = (ViewHolder) convertView.getTag();
+                if (viewHolderTemp != null && mMap.getMessageIdClient().equalsIgnoreCase(msgId)){
+                    if (showStyle == 0){
+                        viewHolderTemp.voidPlayingTips.setVisibility(View.INVISIBLE);
+                        viewHolderTemp.voidLoadingTips.setVisibility(View.INVISIBLE);
+                    }else if(showStyle == 1){  //加载中
+                        viewHolderTemp.voidLoadingTips.show();
+                        viewHolderTemp.voidPlayingTips.setVisibility(View.INVISIBLE);
+                        viewHolderTemp.voidLoadingTips.setVisibility(View.VISIBLE);
+                    }else if(showStyle == 2){   //播放中
+                        viewHolderTemp.voidPlayingTips.show();
+                        viewHolderTemp.voidPlayingTips.setVisibility(View.VISIBLE);
+                        viewHolderTemp.voidLoadingTips.setVisibility(View.INVISIBLE);
                     }
-                }
-            }
-
-            if (viewHolder != null){
-                if (showStyle == 0){
-                    viewHolder.voidPlayingTips.setVisibility(View.GONE);
-                    viewHolder.voidLoadingTips.setVisibility(View.GONE);
-                }else if(showStyle == 1){  //加载中
-                    viewHolder.voidPlayingTips.setVisibility(View.GONE);
-                    viewHolder.voidLoadingTips.setVisibility(View.VISIBLE);
-                }else if(showStyle == 2){   //播放中
-                    viewHolder.voidPlayingTips.setVisibility(View.VISIBLE);
-                    viewHolder.voidLoadingTips.setVisibility(View.GONE);
                 }
             }
         }
@@ -1197,4 +1194,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             innerListener.urlClickMethod(text);
         }
     }
+
+
 }

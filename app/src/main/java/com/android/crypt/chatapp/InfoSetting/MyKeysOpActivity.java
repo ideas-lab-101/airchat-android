@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,7 +22,8 @@ public class MyKeysOpActivity extends BaseActivity implements View.OnClickListen
     LinearLayout recalMyPriKey;
     @BindView(R.id.my_pri_key)
     LinearLayout myPriKey;
-
+    @BindView(R.id.my_pri_key_code)
+    LinearLayout myPriKeyCode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,10 +60,14 @@ public class MyKeysOpActivity extends BaseActivity implements View.OnClickListen
     private void initView() {
         recalMyPriKey.setOnClickListener(this);
         myPriKey.setOnClickListener(this);
+        myPriKeyCode.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent = null;
         switch (v.getId()){
             case R.id.recal_my_pri_key:
@@ -72,6 +78,11 @@ public class MyKeysOpActivity extends BaseActivity implements View.OnClickListen
                         R.anim.out_to_left);
                 break;
             case R.id.my_pri_key:
+                intent = new Intent(this, WatchMyPrivateStringActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+                break;
+            case R.id.my_pri_key_code:
                 intent = new Intent(this, WatchMyPrivateKeyActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);

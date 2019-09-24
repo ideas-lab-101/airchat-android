@@ -3,10 +3,10 @@ package com.android.crypt.chatapp.utility.Cache.CacheManager;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.android.chatapp.utility.Cache.CacheClass.DaoMaster;
-import com.android.chatapp.utility.Cache.CacheClass.DaoSession;
+import com.android.crypt.chatapp.utility.Cache.CacheClass.DaoMaster;
+import com.android.crypt.chatapp.utility.Cache.CacheClass.DaoSession;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheBody;
-import com.android.chatapp.utility.Cache.CacheClass.ObjectCacheBodyDao;
+import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheBodyDao;
 
 import org.greenrobot.greendao.query.Query;
 

@@ -175,16 +175,30 @@
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
-
-                android:layout_margin="30dp"
-
-
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
                 android:layout_marginTop="40dp"
                 android:gravity="center"
                 android:background="@drawable/btn_login_shape"
                 android:text="修 改"
                 android:textColor="@color/white_bg"
                 android:textSize="14sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="35dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginRight="35dp"
+                android:layout_marginEnd="35dp"
+                android:padding="10dp"
+                android:gravity="center"
+                android:textAlignment="textEnd"
+                android:text="安卓某些机型仅支持系统推送声音\n此设置可能无效\n"
+                android:textColor="@color/tips_text_l"
+                android:textSize="10sp" />
         </LinearLayout>
     </ScrollView>
 </android.support.design.widget.CoordinatorLayout>

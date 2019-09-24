@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
-
     <include layout="@layout/toolbar_item" />
 
     <LinearLayout
@@ -14,7 +13,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
         <FrameLayout
             android:id="@+id/tab_content"
             android:layout_width="match_parent"
@@ -27,10 +25,16 @@
             android:background="@color/sagacity_light_gray"/>
         <com.android.crypt.chatapp.widget.StateTabHost
             android:id="@+id/tab_host"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/sagacity_white">
         </com.android.crypt.chatapp.widget.StateTabHost>
+
+        <View
+            android:id="@+id/bottom_view"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@color/sagacity_white"/>
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

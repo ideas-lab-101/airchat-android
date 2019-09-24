@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.utility.Common.RunningData;
 
 
 public class BaseFragment extends Fragment {
@@ -34,6 +35,7 @@ public class BaseFragment extends Fragment {
     public void onActivityCreated (Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         // 如果集成的Fragment有ActionBar菜单，则设置该fragment拥有自己的actionItem
+        RunningData.getInstance().setAppShowHeigth(getActivity());
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         cosTitleTextView = (TextView) getActivity().findViewById(R.id.cos_text_title);
         cosTitleTextView.setVisibility(View.GONE);

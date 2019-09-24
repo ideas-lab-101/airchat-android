@@ -9,12 +9,12 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.model.Response;
-import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.contact.Model.ContactModel;
@@ -88,6 +88,9 @@ public class ChangeFriendLabelActivity extends BaseActivity {
 
     @OnClick(R.id.finish)
     public void onViewClicked() {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         String textVaule = inputValue.getText().toString();
 
         if (textVaule.equals("")){
@@ -99,7 +102,7 @@ public class ChangeFriendLabelActivity extends BaseActivity {
         okGoFlag = true;
         createDialog("修改中...");
 
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/setFriendLabel")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/setFriendLabel")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -112,11 +115,9 @@ public class ChangeFriendLabelActivity extends BaseActivity {
                         if (dialog != null) {
                             dialog.dismiss();
                         }
-
-                        Logger.d("response.body()" + response.body());
                         if (response.body().code == 1) {
                             process();
-                        } else {
+                        }else {
                             makeSnake(toolbar, response.body().msg, R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
                         }
                     }

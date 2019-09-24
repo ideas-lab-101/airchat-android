@@ -22,6 +22,7 @@ import com.android.crypt.chatapp.contact.Model.ContactModel;
 import com.android.crypt.chatapp.msgDetail.MsgDetailActivity;
 import com.android.crypt.chatapp.qrResult.MyQRCodeActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
@@ -126,18 +127,29 @@ public class FriendCardActivity extends BaseActivity implements ActionSheet.Acti
 
         scanF.setVisibility(View.VISIBLE);
         scanF.setBackgroundResource(R.mipmap.three_dot);
+
+//        ivAvatar.add
     }
 
     private String changePhoneNum(String account) {
-        if (account.length() != 11) {
-            return "*****";
-        } else {
-            return account.substring(0, 3) + "****" + account.substring(7, account.length());
+        if (account.startsWith("AC")){
+            return account;
+        }else{
+            if (account.length() <= 8) {
+                return account;
+            } else {
+                return account.substring(0, 3) + "****" + account.substring(7, account.length());
+            }
         }
     }
 
+
+
     @OnClick({R.id.iv_avatar, R.id.iv_qrCode, R.id.change_name_f, R.id.send_sm_f, R.id.scan_f, R.id.change_bg_image})
     public void onViewClicked(View view) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Intent intent;
         switch (view.getId()) {
             case R.id.iv_avatar:
@@ -151,8 +163,8 @@ public class FriendCardActivity extends BaseActivity implements ActionSheet.Acti
                 intent.putExtra("cur_index", 0);
                 intent.putExtra("is_encode", false);
                 startActivity(intent);
-                overridePendingTransition(R.anim.in_from_right,
-                        R.anim.out_to_left);
+                overridePendingTransition(0,0);
+
                 break;
             case R.id.iv_qrCode:
                 myQrCodeAc();
@@ -190,9 +202,12 @@ public class FriendCardActivity extends BaseActivity implements ActionSheet.Acti
         }
     }
 
+
+
     private void myQrCodeAc() {
         Intent intent = new Intent(this, MyQRCodeActivity.class);
         intent.putExtra("friendInfo", this.mMap);
+        intent.putExtra("isMine", false);
         startActivity(intent);
         overridePendingTransition(R.anim.in_from_right,
                 R.anim.out_to_left);
@@ -311,11 +326,25 @@ public class FriendCardActivity extends BaseActivity implements ActionSheet.Acti
 
     private void openPhoto(boolean isdelete){
         if (isdelete == false){
-            Intent   intent = new Intent(this, BgImageActivity.class);
-            intent.putExtra("is_global", false);
-            intent.putExtra("account", this.mMap.account);
-            startActivity(intent);
-            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle("设置个人聊天背景")
+                    .setMessage("如果设置了基础聊天背景\n优先显示此背景")
+                    .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    })
+                    .setPositiveButton("选择图片", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Intent   intent = new Intent(FriendCardActivity.this, BgImageActivity.class);
+                            intent.putExtra("is_global", false);
+                            intent.putExtra("account", mMap.account);
+                            startActivity(intent);
+                            overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+                        }
+                    });
+            builder.create().show();
         }else{
             deleteBgImage( this.mMap.account);
         }
@@ -345,7 +374,7 @@ public class FriendCardActivity extends BaseActivity implements ActionSheet.Acti
 
     private void deleteFriend(){
         createDialog("正在删除中..");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/delFriend")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "contact/v2/delFriend")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)
@@ -356,7 +385,6 @@ public class FriendCardActivity extends BaseActivity implements ActionSheet.Acti
                         if (dialog != null) {
                             dialog.dismiss();
                         }
-                        Logger.d("response.body()" + response.body());
                         if (response.body().code == 1){
                             overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                             finish();

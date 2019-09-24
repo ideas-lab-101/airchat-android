@@ -1,6 +1,5 @@
 package com.android.crypt.chatapp.InfoSetting;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -27,14 +26,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.crypt.chatapp.BaseActivity;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.baoyz.actionsheet.ActionSheet;
 import com.android.crypt.chatapp.R;
 import com.yzq.zxinglibrary.encode.CodeCreator;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -44,8 +48,6 @@ import static com.android.crypt.chatapp.utility.Common.ParameterUtil.imagePath;
 public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnClickListener, View.OnLongClickListener, ActionSheet.ActionSheetListener {
     @BindView(R.id.contentIvWithLogo)
     ImageView contentIvWithLogo;
-    @BindView(R.id.pri_key_string)
-    EditText priKeyString;
     @BindView(R.id.show_bg)
     LinearLayout showBg;
     @BindView(R.id.txt_password)
@@ -120,32 +122,33 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
         String result = "1#" + pri_key;
 
         bitmap = null;
+
         bitmap = CodeCreator.createQRCode(result, width, width, null);
 
         if (bitmap != null) {
             contentIvWithLogo.setImageBitmap(bitmap);
         }
 
-        priKeyString.setText(pri_key);
         tvLogin.setOnClickListener(this);
-        priKeyString.setOnTouchListener(touchListener);
-        priKeyString.setKeyListener(null);
         priKeyBg.setOnLongClickListener(this);
-
-
         String account = RunningData.getInstance().getCurrentAccount();
-        if (account.equals("")) {
-            account = "x-";
-        } else {
-            account = account.substring(account.length() - 1, account.length()) + "-";
+        if (account.length() <= 4) {
+            account = "xxxx";
+        }else {
+            account = account.substring(account.length() - 4, account.length());
         }
-        String tips = " 标记(助记):" + account + (int)(1 + Math.random() * (10 - 1 + 1)) + " - 建议用摄像头扫描";
+        SimpleDateFormat df = new SimpleDateFormat("MM月dd日");//设置日期格式
+        String tips = account + "(尾号)-" + df.format(new Date()) + "(日期)";
         codeTips.setText(tips);
 
     }
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        hideInput();
         String pwd = txtPassword.getText().toString();
         String userPwd = RunningData.getInstance().getCurrentPwd();
         if (pwd.equals(userPwd)) {
@@ -164,7 +167,6 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
-                        hideInput();
                         finish();
                         overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                     }
@@ -175,9 +177,8 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
 
 
     private void hideInput() {
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(txtPassword.getWindowToken(), 0);
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
     /**

@@ -28,7 +28,7 @@
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="80dp"
                 android:textSize="14sp"
-                android:hint="手机号"
+                android:hint="Air号绑定的手机"
                 android:inputType="phone"
                 android:textAlignment="center"
                 android:theme="@style/MyEditText"

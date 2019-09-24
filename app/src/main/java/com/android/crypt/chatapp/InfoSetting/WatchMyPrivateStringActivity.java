@@ -1,15 +1,8 @@
 package com.android.crypt.chatapp.InfoSetting;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
@@ -17,36 +10,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+
 
 import com.android.crypt.chatapp.BaseActivity;
+import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.baoyz.actionsheet.ActionSheet;
-import com.android.crypt.chatapp.R;
-import com.yzq.zxinglibrary.encode.CodeCreator;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.android.crypt.chatapp.utility.Common.ParameterUtil.imagePath;
 
 
-public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnClickListener, View.OnLongClickListener, ActionSheet.ActionSheetListener {
-    @BindView(R.id.contentIvWithLogo)
-    ImageView contentIvWithLogo;
+public class WatchMyPrivateStringActivity extends BaseActivity implements View.OnClickListener, View.OnLongClickListener, ActionSheet.ActionSheetListener {
+
     @BindView(R.id.pri_key_string)
     EditText priKeyString;
     @BindView(R.id.show_bg)
@@ -57,23 +39,15 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
     Button tvLogin;
     @BindView(R.id.check_bg)
     LinearLayout checkBg;
-    @BindView(R.id.code_tips)
-    TextView codeTips;
-    @BindView(R.id.pri_key_bg)
-    LinearLayout priKeyBg;
 
 
-    private RelativeLayout relative;
-    private Bitmap bitmap;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.watch_my_private_key);
-        ButterKnife.bind(this);
-
+        setContentView(R.layout.watch_my_private_string);
         ButterKnife.bind(this);
         toolbar.setTitle(R.string.title_bar_keys_watch);
         setSupportActionBar(toolbar);
@@ -104,52 +78,27 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        bitmap.recycle();
-        bitmap = null;
     }
+
 
     private void initView() {
         Resources resources = this.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.widthPixels;
-
-        relative = (RelativeLayout) findViewById(R.id.code_bg);
-        ViewGroup.LayoutParams params = relative.getLayoutParams();
-        params.height = height;
-        relative.setLayoutParams(params);
 
         String pri_key = RunningData.getInstance().getMyPrikeyEnWith();
-        String result = "1#" + pri_key;
-
-        bitmap = null;
-        bitmap = CodeCreator.createQRCode(result, width, width, null);
-
-        if (bitmap != null) {
-            contentIvWithLogo.setImageBitmap(bitmap);
-        }
 
         priKeyString.setText(pri_key);
         tvLogin.setOnClickListener(this);
         priKeyString.setOnTouchListener(touchListener);
         priKeyString.setKeyListener(null);
-        priKeyBg.setOnLongClickListener(this);
-
-
-        String account = RunningData.getInstance().getCurrentAccount();
-        if (account.length() <= 4) {
-            account = "xxxx";
-        }else {
-            account = account.substring(account.length() - 4, account.length());
-        }
-        SimpleDateFormat df = new SimpleDateFormat("yy/MM/dd");//设置日期格式
-        String tips = account + " - " + df.format(new Date());
-        codeTips.setText(tips);
-
     }
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
+        hideInput();
         String pwd = txtPassword.getText().toString();
         String userPwd = RunningData.getInstance().getCurrentPwd();
         if (pwd.equals(userPwd)) {
@@ -168,7 +117,6 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
-                        hideInput();
                         finish();
                         overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                     }
@@ -179,10 +127,10 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
 
 
     private void hideInput() {
-        InputMethodManager inputMethodManager =
-                (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(txtPassword.getWindowToken(), 0);
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
     }
+
 
     /**
      * 设置触摸事件，由于EditView与TextView都处于ScollView中，
@@ -204,6 +152,7 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
         }
     };
 
+
     public boolean onLongClick(View v) {
         ActionSheet.createBuilder(this, getSupportFragmentManager())
                 .setCancelButtonTitle("取消")
@@ -217,7 +166,7 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
     @Override
     public void onOtherButtonClick(ActionSheet actionSheet, int index) {
         if (index == 0) {
-            saveImage();
+
         }
     }
 
@@ -225,55 +174,6 @@ public class WatchMyPrivateKeyActivity extends BaseActivity implements View.OnCl
     public void onDismiss(ActionSheet actionSheet, boolean isCancle) {}
 
 
-    private Handler mHandler = new Handler();
-    private void saveImage(){
-        // 获取图片某布局
-        priKeyBg.setDrawingCacheEnabled(true);
-        priKeyBg.buildDrawingCache();
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // 要在运行在子线程中
-                try {
-                    final Bitmap image_map = priKeyBg.getDrawingCache(); // 获取图片
-                    saveToLocal(image_map);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                priKeyBg.destroyDrawingCache(); // 保存过后释放资源
-            }
-        },1000);
-    }
-    private void saveToLocal(Bitmap bmp) throws IOException {
-        // 首先保存图片
-        File appDir = new File(imagePath);
-        if (!appDir.exists()) {
-            appDir.getParentFile().mkdirs();
-            appDir.mkdir();
-        }
-        String fileName = System.currentTimeMillis() + ".jpg";
-        File file = new File(appDir, fileName);
-        try {
-            FileOutputStream fos = new FileOutputStream(file);
-            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-            fos.flush();
-            fos.close();
-            bmp.recycle();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // 其次把文件插入到系统图库
-        try {
-            MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), fileName, null);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        // 最后通知图库更新
-        Uri uri = Uri.fromFile(file);
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-        makeSnake(toolbar, "保存成功", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
-    }
+
 
 }

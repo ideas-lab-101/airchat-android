@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/all_content_bg"
     android:layout_width="match_parent"
     android:clipChildren="false"
     android:orientation="horizontal"
-    android:layout_height="80dp">
+    android:layout_height="wrap_content">
+
     <RelativeLayout
         android:id="@+id/content_bg"
         android:background="@color/clear"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="80dp">
 
         <com.android.crypt.chatapp.widget.RoundImageView
             android:id="@+id/iv_avatar"
@@ -127,11 +129,11 @@
     <LinearLayout
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:id="@+id/delete_msg"
+        android:visibility="gone"
         android:background="@color/sagacity_red" >
-
         <TextView
-            android:id="@+id/delete_msg"
-            android:visibility="gone"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_marginTop="0dp"
@@ -141,10 +143,21 @@
             android:textSize="14sp"
             android:textStyle="normal"
             android:text="删除"/>
-
     </LinearLayout>
 
-
-
+    <TextView
+        android:id="@+id/blank_text"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:layout_marginTop="0dp"
+        android:background="@color/white_bg"
+        android:padding="20dp"
+        android:textStyle="normal"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textAlignment="textStart"
+        android:textColor="@color/black_text"
+        android:text=""/>
 
 </LinearLayout>
+

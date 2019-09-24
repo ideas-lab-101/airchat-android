@@ -12,6 +12,7 @@ import android.widget.EditText;
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.google.gson.Gson;
@@ -86,8 +87,8 @@ public class ChangeMyInfoActivity extends BaseActivity {
             //根据类型判断
             toolbar.setTitle(R.string.title_bar_change_intro);
             setSupportActionBar(toolbar);
-            inputValue.setHint("请输入职务");
-            finish.setText("修改职务");
+            inputValue.setHint("请输入个人简介");
+            finish.setText("修改个人简介");
             subKey = "introduction";
         }
 //        else if (change_kind.equalsIgnoreCase("friend_label")) {
@@ -109,6 +110,9 @@ public class ChangeMyInfoActivity extends BaseActivity {
 
     @OnClick(R.id.finish)
     public void onViewClicked() {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         String textVaule = inputValue.getText().toString();
 
         if (subKey.equals("") || textVaule.equals("")){
@@ -120,7 +124,7 @@ public class ChangeMyInfoActivity extends BaseActivity {
 
         okGoFlag = true;
         createDialog("修改中...");
-        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/updateUserInfo")
+        OkGo.<CodeResponse>post(RunningData.getInstance().server_url() + "user/v2/updateUserInfo")
                 .tag(this)
                 .cacheMode(CacheMode.NO_CACHE)
                 .params("token", token)

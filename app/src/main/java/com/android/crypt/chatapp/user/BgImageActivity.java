@@ -36,12 +36,13 @@ public class BgImageActivity extends TakePhotoActivity {
         Intent intent = getIntent();
         isGlobal = (boolean) intent.getSerializableExtra("is_global");
         bgAccount = (String) intent.getSerializableExtra("account");
-
-
+        
         int width = RunningData.getInstance().getScreenWidth();
         int height = RunningData.getInstance().getScreenHeight();
         Logger.d("width = " + width + " height = " + height);
         startPhoto(getTakePhoto());
+
+        mFile = RunningData.getInstance().getBgImageUrl();
     }
 
     @Override
@@ -64,11 +65,14 @@ public class BgImageActivity extends TakePhotoActivity {
         saveBgImage(imageUrl);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     //****相册
     public void startPhoto(TakePhoto takePhoto) {
         configTakePhotoOption(takePhoto);
-        configCompress(takePhoto);
         takePhoto.onPickMultipleWithCrop(limit, getCropOptions());
     }
 
@@ -76,21 +80,10 @@ public class BgImageActivity extends TakePhotoActivity {
         TakePhotoOptions.Builder builder = new TakePhotoOptions.Builder();
         builder.setWithOwnGallery(true);
         builder.setCorrectImage(true);
+
         takePhoto.setTakePhotoOptions(builder.create());
     }
 
-    private void configCompress(TakePhoto takePhoto) {
-        int maxSize = 1000;
-        int width = RunningData.getInstance().getScreenHeight();
-        int height = RunningData.getInstance().getScreenWidth();
-        boolean showProgressBar =  true;
-        boolean enableRawFile =  false;
-        CompressConfig config;
-        LubanOptions option = new LubanOptions.Builder().setMaxHeight(height).setMaxWidth(width).setMaxSize(maxSize).create();
-        config = CompressConfig.ofLuban(option);
-        config.enableReserveRaw(enableRawFile);
-        takePhoto.onEnableCompress(config, showProgressBar);
-    }
 
     private CropOptions getCropOptions() {
         int height = RunningData.getInstance().getScreenHeight() - 50;
@@ -104,7 +97,6 @@ public class BgImageActivity extends TakePhotoActivity {
 
 
     public void saveBgImage(String imageUrl) {
-        mFile = RunningData.getInstance().getBgImageUrl();
         if (mFile != null){
             String[] surNmaeArray = imageUrl.toString().split("\\.");
             String surNmae = "png";
@@ -142,8 +134,11 @@ public class BgImageActivity extends TakePhotoActivity {
 
             File file = new File(mFile);
             long fileSize = file.length();
+            if (fileSize <= 0){
+                return false;
+            }
             if (!file.exists()){
-                file.mkdir();
+                return false;
             }
             //删除旧的图
             File newFile = new File(newPath$Name);

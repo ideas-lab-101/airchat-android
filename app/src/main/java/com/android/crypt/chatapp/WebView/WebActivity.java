@@ -3,9 +3,11 @@ package com.android.crypt.chatapp.WebView;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -14,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import com.android.crypt.chatapp.BaseActivity;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.DensityUtil;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.orhanobut.logger.Logger;
@@ -30,6 +33,8 @@ public class WebActivity extends BaseActivity implements View.OnClickListener {
     WebView mWebview;
     @BindView(R.id.quit_web)
     ImageButton quitWeb;
+    @BindView(R.id.dismiss)
+    ImageButton dismiss;
     @BindView(R.id.url_input_value)
     EditText urlInputValue;
     @BindView(R.id.start_search)
@@ -56,6 +61,8 @@ public class WebActivity extends BaseActivity implements View.OnClickListener {
 
     private void initView() {
         quitWeb.setOnClickListener(this);
+        dismiss.setOnClickListener(this);
+
         clearText.setOnClickListener(this);
         startSearch.setOnClickListener(this);
         lp = progressLine.getLayoutParams();
@@ -123,16 +130,21 @@ public class WebActivity extends BaseActivity implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         switch (v.getId()) {
             case R.id.quit_web:
                 if (mWebview.canGoBack()) {
                     mWebview.goBack();
-                } else {
-                    finish();
-                    overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+                }else{
+                    makeSnake(toolbar, "已是第一页", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
                 }
                 break;
-
+            case R.id.dismiss:
+                finish();
+                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
+                break;
             case R.id.clear_text:
                 urlInputValue.setText("");
                 break;
@@ -156,6 +168,8 @@ public class WebActivity extends BaseActivity implements View.OnClickListener {
             clearText.setVisibility(View.VISIBLE);
             startSearch.setVisibility(View.VISIBLE);
             urlInputValue.setSelection(urlInputValue.getText().length());
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(0, InputMethodManager.RESULT_SHOWN);
         } else {
             urlInputValue.clearFocus();
             int left = DensityUtil.dip2px(this, 15);
@@ -166,11 +180,15 @@ public class WebActivity extends BaseActivity implements View.OnClickListener {
             urlInputValue.setText(urlInputValue.getText().toString());
             clearText.setVisibility(View.GONE);
             startSearch.setVisibility(View.GONE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         }
 
     }
 
     private void startSearch() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         String urlVaule = urlInputValue.getText().toString();
         if (urlVaule.startsWith("http://") || urlVaule.startsWith("https://")|| urlVaule.startsWith("www.") || urlVaule.startsWith("ftp://")) {
             urlInputValue.setText(urlVaule);
@@ -217,7 +235,9 @@ public class WebActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void finishLoadWeb() {
-        sendSmsTimer.cancel();
+        if (sendSmsTimer != null){
+            sendSmsTimer.cancel();
+        }
         sendSmsTimer = null;
         curWidth = 30;
         lp.width = DensityUtil.dip2px(this, allWidth);

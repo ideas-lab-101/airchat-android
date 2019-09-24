@@ -16,6 +16,7 @@ import android.widget.Scroller;
 import android.widget.TextView;
 
 import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.utility.Common.DensityUtil;
 
 public class XListView extends ListView implements OnScrollListener {
     //
@@ -45,7 +46,7 @@ public class XListView extends ListView implements OnScrollListener {
 
     // total list items, used to detect is at the bottom of listview.
     private int mTotalItemCount;
-
+    private Context mContext;
     // for mScroller, scroll back from header or footer.
     private int mScrollBack;
     private final static int SCROLLBACK_HEADER = 0;
@@ -64,6 +65,7 @@ public class XListView extends ListView implements OnScrollListener {
     public XListView(Context context) {
         super(context);
         initWithContext(context);
+        mContext = context;
     }
 
     public XListView(Context context, AttributeSet attrs) {
@@ -390,4 +392,7 @@ public class XListView extends ListView implements OnScrollListener {
             }
         }
     }
+
+   
+
 }

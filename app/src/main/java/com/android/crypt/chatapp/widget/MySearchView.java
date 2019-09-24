@@ -142,7 +142,7 @@ public class MySearchView extends AppCompatEditText implements View.OnFocusChang
 
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
-        Log.d(TAG, "onFocusChange execute");
+//        Log.d(TAG, "onFocusChange execute");
         // 恢复EditText默认的样式
         if (!pressSearch && TextUtils.isEmpty(getText().toString())) {
             isLeft = hasFocus;

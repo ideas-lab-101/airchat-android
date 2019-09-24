@@ -13,6 +13,7 @@ import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.InfoSetting.Config.ConfigDic;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
+import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
@@ -86,6 +87,9 @@ public class TextSizeSetActivity extends BaseActivity implements SeekBar.OnSeekB
 
     @Override
     public void onClick(View v) {
+        if (!ClickUtils.isFastClick()) {
+            return;
+        }
         Gson gson = new Gson();
         String configDicString = CacheTool.getInstance().getCacheObject(ObjectCacheType.config_dic);
         if (configDicString != "") {

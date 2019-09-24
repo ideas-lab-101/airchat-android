@@ -260,7 +260,8 @@ public class WsChatService extends Service implements WebsocketCallbacks {
                     String Content = String.valueOf(map.get("Content"));
                     String MessageCreator = String.valueOf(map.get("MessageCreator"));
                     String MessageIdClient = String.valueOf(map.get("MessageIdClient"));
-                    ReceiveSpecialInfo speInfo = new ReceiveSpecialInfo(Content, MessageCreator, MessageIdClient, MessageKind);
+                    String MessageReceive = String.valueOf(map.get("MessageReceive"));
+                    ReceiveSpecialInfo speInfo = new ReceiveSpecialInfo(Content, MessageCreator, MessageReceive, MessageIdClient, MessageKind);
                     if (MessageKind == 2) {
                         //有好友申请
                         callbackApplyForFriend(speInfo);
@@ -800,6 +801,11 @@ public class WsChatService extends Service implements WebsocketCallbacks {
         if (this.mesListCallbacks != null) {
             this.mesListCallbacks.someOneDeleteMe(speInfo);
         }
+
+        if (this.mesDetailCallbacks != null) {
+            this.mesDetailCallbacks.someOneDeleteMe(speInfo);
+        }
+
         //1。0 通知消息已经接收
         SendToConfirmSpecialMsgIsGet body = new SendToConfirmSpecialMsgIsGet(RunningData.getInstance().getCurrentAccount(), speInfo.getMessageIdClient());
         specialMsgIsSuccessReceived(body);
@@ -889,7 +895,7 @@ public class WsChatService extends Service implements WebsocketCallbacks {
                 modelInner.avatar_url = model.avatar_url;
                 modelInner.stranger = isContact;
             }else{
-                modelInner.label = "陌生人";
+                modelInner.label = "新朋友";
                 modelInner.stranger = isContact;
             }
             modelInner.isreaded = showReadedTips;

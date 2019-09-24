@@ -28,100 +28,33 @@
                 android:layout_height="match_parent"
                 android:background="@color/white_bg"
                 android:orientation="vertical" >
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <LinearLayout
-                        android:id="@+id/pri_key_save_bg"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/white_bg"
-                        android:orientation="vertical" >
-
-                        <TextView
-                            android:id="@+id/load_tips"
-                            android:layout_width="match_parent"
-                            android:layout_height="20dp"
-                            android:layout_marginEnd="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginTop="20dp"
-                            android:text=" ▾我的私钥"
-                            android:textColor="@color/tips_text_h"
-                            android:textSize="12sp"/>
-
-                        <LinearLayout
-                            android:id="@+id/pri_key_bg"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@color/white_bg"
-                            android:orientation="vertical" >
-                            <RelativeLayout
-                                android:id="@+id/code_bg"
-                                android:layout_width="match_parent"
-                                android:layout_height="200dp"
-                                android:background="@color/light_gray_line">
-                                <ImageView
-                                    android:id="@+id/contentIvWithLogo"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentStart="true"
-                                    android:layout_alignParentTop="true"
-                                    android:layout_gravity="center"
-                                    android:layout_marginTop="0dp"
-                                    android:background="@color/white_bg" />
-                            </RelativeLayout>
-                            <TextView
-                                android:id="@+id/code_tips"
-                                android:layout_width="match_parent"
-                                android:layout_height="20dp"
-                                android:layout_marginEnd="10dp"
-                                android:layout_marginStart="10dp"
-                                android:layout_marginTop="10dp"
-                                android:layout_marginBottom="10dp"
-                                android:text=" 标记(助记):"
-                                android:textColor="@color/black_text"
-                                android:textSize="14sp"/>
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:layout_marginEnd="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_marginBottom="20dp"
-                            android:layout_marginTop="5dp"
-                            android:text=" ▾ 长按保存(建议妥善保存)\n ▾ 新设备登录需要密钥解密消息"
-                            android:textColor="@color/black_text"
-                            android:textSize="12sp"/>
-                    </LinearLayout>
-                </RelativeLayout>
-
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginStart="10dp"
-                    android:layout_marginTop="0dp"
-                    android:text=" ▾私钥字符串, 禁用摄像头时可以复制字符串导入私钥"
-                    android:textColor="@color/tips_text_h"
-                    android:textSize="12sp"/>
+                    android:layout_marginTop="10dp"
+                    android:padding="5dp"
+                    android:text="▾ 这是你的私钥字符串（用于解密消息）\n账号没有私钥时，可以复制它导入"
+                    android:textColor="@color/text_tips_key"
+                    android:textSize="14sp"/>
 
                 <EditText
                     android:id="@+id/pri_key_string"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
+                    android:layout_height="300dp"
                     android:layout_marginEnd="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="20dp"
-
+                    android:padding="5dp"
                     android:textSize="14sp"
-                    android:textAlignment="center"
+                    android:textAlignment="textStart"
                     android:textColor="@color/black_text"
                     android:textIsSelectable="true"
                     android:background="@color/white_bg" />
+
             </LinearLayout>
 
             <LinearLayout
