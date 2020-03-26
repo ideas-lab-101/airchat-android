@@ -282,7 +282,7 @@
                         android:layout_height="fill_parent"
                         android:layout_marginLeft="20dp"
                         android:gravity="center"
-                        android:text="系统版本"
+                        android:text="版本更新"
                         android:textColor="@color/black_text"
                         android:textSize="16sp" />
 

@@ -28,7 +28,7 @@ public class CharIndexView extends View {
     /**
      * text大小
      */
-    private float textSize = 24.f;
+    private float textSize = 20.f;
     /**
      * 字符颜色与索引颜色
      */

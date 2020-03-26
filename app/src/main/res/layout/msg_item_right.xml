@@ -57,6 +57,42 @@
             android:gravity="right"
             android:layout_gravity="right"
             android:orientation="vertical">
+
+            <!--单聊下不显示名字、头像-->
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone"/>
+
+            <!-- 系统提示消息-->
+            <LinearLayout
+                android:id="@+id/server_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:visibility="visible"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/server_message_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:maxWidth="220dp"
+                    android:text="这个是系统消息"
+                    android:textSize="11sp"
+                    android:textColor="@color/tips_text_h"
+                    android:alpha="1.0"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:background="@drawable/edit_text_view"
+                    android:textStyle="normal" />
+            </LinearLayout>
+
+
             <!--文字-->
             <LinearLayout
                 android:id="@+id/im_text_content"
@@ -65,20 +101,40 @@
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:orientation="vertical">
-                <com.android.crypt.chatapp.msgDetail.IMTools.HttpTextView
-                    android:id="@+id/im_text"
+                <RelativeLayout
                     android:layout_width="wrap_content"
-                    android:maxWidth="230dp"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/black_text"
-                    android:textSize="15sp"
-                    android:textAlignment="textStart"
-                    android:textStyle="normal"
-                    android:background="@drawable/msg_text_right_shape"
-                    android:layout_marginEnd="10dp"
-                    android:text=""/>
+                    android:layout_marginEnd="5dp"
+                    android:clipChildren="true"
+                    android:maxWidth="220dp"
+                    android:background="@drawable/msg_text_right_shape" >
+                    <TextView
+                        android:id="@+id/water_mark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@color/clear"
+                        android:textAlignment="textStart"
+                        android:maxWidth="220dp"
+                        android:textColor="@color/super_light_gray"
+                        android:text=""
+                        android:textSize="12sp"
+                        android:textStyle="normal"
+                        />
+                    <com.android.crypt.chatapp.msgDetail.IMTools.HttpTextView
+                        android:id="@+id/im_text"
+                        android:layout_width="wrap_content"
+                        android:maxWidth="220dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black_text_alpha"
+                        android:textSize="15sp"
+                        android:textAlignment="textStart"
+                        android:textStyle="normal"
+                        android:background="@color/clear"
+                        android:text="" />
+                </RelativeLayout>
+
             </LinearLayout>
             <!--  默认表情 -->
             <LinearLayout
@@ -86,13 +142,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:gravity="right"
                 android:orientation="vertical">
 
                 <RelativeLayout
-                    android:layout_width="100dp"
-                    android:layout_height="100dp">
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
                     <com.wang.avi.AVLoadingIndicatorView
                         android:id="@+id/default_image_tips"
                         android:layout_width="20dp"
@@ -105,9 +161,8 @@
                         app:indicatorName="BallSpinFadeLoaderIndicator" />
                     <ImageView
                         android:id="@+id/im_default_image"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_margin="10dp"
+                        android:layout_width="105dp"
+                        android:layout_height="105dp"
                         android:visibility="visible"
                         android:background="@color/clear"
                         android:layout_centerInParent="true"
@@ -123,7 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="vertical">
@@ -145,7 +200,7 @@
                         android:layout_height="120dp"
                         android:layout_margin="8dp"
                         android:background="@color/clear_white"
-                        android:scaleType="fitXY"/>
+                        android:scaleType="centerCrop"/>
                 </RelativeLayout>
             </LinearLayout>
             <!-- 加密照片 -->
@@ -154,33 +209,34 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="vertical">
                 <RelativeLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
+                    <!--<ImageView-->
+                        <!--android:id="@+id/im_en_photo_image"-->
+                        <!--android:layout_width="100dp"-->
+                        <!--android:layout_height="150dp"-->
+                        <!--android:layout_margin="8dp"-->
+                        <!--android:scaleType="fitXY"/>-->
+
+                    <!--<io.alterac.blurkit.BlurLayout-->
+                        <!--android:layout_width="100dp"-->
+                        <!--android:layout_height="150dp"-->
+                        <!--app:blk_blurRadius="12"-->
+                        <!--android:layout_margin="8dp"-->
+                        <!--app:blk_downscaleFactor="0.12"/>-->
+
                     <ImageView
                         android:id="@+id/im_en_photo_image"
                         android:layout_width="100dp"
                         android:layout_height="150dp"
-                        android:layout_margin="8dp"
-                        android:scaleType="fitXY"/>
-
-                    <io.alterac.blurkit.BlurLayout
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        app:blk_blurRadius="12"
-                        android:layout_margin="8dp"
-                        app:blk_downscaleFactor="0.12"/>
-
-                    <ImageView
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
                         android:src="@mipmap/encode_image"
                         android:layout_margin="8dp"
-                        android:background="@color/black_line_light"
+                        android:background="@color/black_image_bg"
                         android:scaleType="centerInside" />
 
                 </RelativeLayout>
@@ -191,7 +247,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="horizontal">
@@ -280,7 +336,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="vertical">
@@ -332,7 +388,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="0dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:layout_gravity="right"
                 android:gravity="right"
                 android:orientation="horizontal">
@@ -380,6 +436,14 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
+        <!--单聊下不显示名字、头像-->
+        <com.android.crypt.chatapp.widget.RoundImageView
+            android:id="@+id/head_icon"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:background="@color/gray_bg" />
         <View
             android:id="@+id/gap_line"
             android:layout_width="5dp"
@@ -387,6 +451,7 @@
             android:layout_gravity="right"
             android:layout_marginRight="10dp"
             android:background="@drawable/msg_right_shape" />
+
         <!--仅仅在debug模式下展示，最后的空白表格cell-->
         <TextView
             android:id="@+id/debug_show"

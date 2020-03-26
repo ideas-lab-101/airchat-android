@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.crypt.chatapp.contact.Model.ContactModel;
+import com.android.crypt.chatapp.contact.cn.CNPinyin;
 import com.android.crypt.chatapp.utility.Common.ClickUtils;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
@@ -26,6 +28,8 @@ import com.android.crypt.chatapp.user.Model.UserInfo;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.widget.RoundImageView;
 
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -108,20 +112,41 @@ public class SearchResultActivity extends BaseActivity implements View.OnClickLi
         }
         switch (v.getId()) {
             case R.id.apply_event:
-                if (this.mMap.login_name.equals(RunningData.getInstance().getCurrentAccount())){
-                    makeSnake(applyText, "不能添加自己为好友", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
-                    return;
-                }
-                applyEvent.setVisibility(View.GONE);
-                applyTextBg.setVisibility(View.VISIBLE);
-                applySend.setVisibility(View.VISIBLE);
-
+                applyEvent();
                 break;
             case R.id.apply_send:
                 startSendApply();
                 break;
 
         }
+    }
+
+    private void applyEvent(){
+        if (this.mMap.login_name.equals(RunningData.getInstance().getCurrentAccount())){
+            makeSnake(applyText, "这个是你自己", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+            return;
+        }
+        boolean isFriend = false;
+        ArrayList<CNPinyin<ContactModel>> mContactContact = RunningData.getInstance().getContactList();
+        if(mContactContact != null && mContactContact.size() > 0){
+            for(int i = 0; i < mContactContact.size() ; i++){
+                ContactModel mMap = mContactContact.get(i).data;
+                if(this.mMap.login_name.equalsIgnoreCase((mMap.account))){
+                    isFriend = true;
+                    break;
+                }
+            }
+        }
+        if(isFriend == true){
+            makeSnake(applyText, "你们已经是好友了", R.mipmap.toast_alarm, Snackbar.LENGTH_LONG);
+            return;
+        }
+
+
+        applyEvent.setVisibility(View.GONE);
+        applyTextBg.setVisibility(View.VISIBLE);
+        applySend.setVisibility(View.VISIBLE);
+
     }
 
 

@@ -103,11 +103,9 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
         ConstraintLayout contact = (ConstraintLayout) inflater.inflate(R.layout.resend_contact_list_layout, null);
         viewList.add(contact);
 
-
         adapter = new ViewPagerAdapter(viewList);
         pageView.setAdapter(adapter);
         pageView.setCurrentItem(0);
-
 
         freshMsgListView(msgV);
         freshContactListView(contact);
@@ -121,7 +119,14 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
         msgHolder.messageList.setEmptyView(msgHolder.emptyView);
 //        msgHolder.messageList.hideHeadViewLayout();
         int heightLlistView = RunningData.getInstance().getAppShowHeight() - RunningData.getInstance().getActionBarHeight() - DensityUtil.dip2px(this, 50);
-        mListMessage = RunningData.getInstance().getMsgList();
+        ArrayList<MessageListModel> mListMessageTemp = RunningData.getInstance().getMsgList();
+        for(int i = 0; i < mListMessageTemp.size(); i++){
+            MessageListModel model = mListMessageTemp.get(i);
+            if(model.isGroupMessage == false){
+                mListMessage.add(model);
+            }
+        }
+
         adapterMsgFavor = new MessageListAdapter(this, mListMessage, heightLlistView, DensityUtil.dip2px(this, 80), false);
         msgHolder.messageList.setAdapter(adapterMsgFavor);
     }
@@ -227,75 +232,105 @@ public class ResendMsgActivity extends BaseActivity implements  AdapterView.OnIt
 
     private void resendMethod(MessageListModel listModel, ContactModel contactModel, boolean list){
         if (kind == 1){
-            String creator = RunningData.getInstance().getCurrentAccount();
-            this.resendBody.setMessageTag(false);
-            this.resendBody.setMessageCreator(creator);
-            this.resendBody.setMessageIdClient(getMessageId());
-            this.resendBody.setMessageIdServer("");
-            this.resendBody.setMessageSendTime(getNowTimeTimestamp());
-            this.resendBody.setIsSendSuccess(false);
-            String pubKey = "";
-            if (list == true){
-                this.resendBody.setMessageReceiver(listModel.account);
-                for (int i = 0; i < mListMessage.size() - 1; i++){
-                    MessageListModel resendModel = mListMessage.get(i);
-                    if (resendModel.account.equals(listModel.account)){
-                        pubKey = resendModel.public_key;
-                        break;
-                    }
-                }
-            }else{
-                this.resendBody.setMessageReceiver(contactModel.account);
-                for (int i = 0; i < mListContact.size() - 1; i++){
-                    ContactModel resendModel = mListContact.get(i).data;
-                    if (resendModel.account.equals(contactModel.account)){
-                        pubKey = resendModel.public_key;
-                        break;
-                    }
-                }
-            }
-            if (pubKey.equals("")){
-                AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                        .setTitle("无法转发")
-                        .setMessage("没有获取到对方通讯公钥")
-                        .setNegativeButton("转发", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        });
-                builder.create().show();
-                return;
-            }
-
-            SendMessageEnBody body_en = new SendMessageEnBody(this.resendBody, pubKey);
-            Intent resendIntent = new Intent();
-            resendIntent.putExtra("body", this.resendBody);
-            resendIntent.putExtra("body_en", body_en);
-            setResult(100, resendIntent);
-            finish();
+            resendMsg(listModel, contactModel, list);
         }else if (kind == 2){
-            String excessInfo = "";
-            if (list == true){
-                String avatar_url = listModel.avatar_url;
-                String account = listModel.account;
-                String friend_id = listModel.friend_id;
-                String label = listModel.label;
-                excessInfo = "avatar_url:" + avatar_url + "&account:" + account + "&friend_id:" + friend_id + "&label:" + label;
-
-            }else{
-                String avatar_url = contactModel.avatar_url;
-                String account = contactModel.account;
-                String friend_id = contactModel.friend_id;
-                String label = contactModel.username;
-                excessInfo = "avatar_url:" + avatar_url + "&account:" + account + "&friend_id:" + friend_id + "&label:" + label;
-            }
-            Intent resendIntent = new Intent();
-            resendIntent.putExtra("excessInfo", excessInfo);
-            setResult(101, resendIntent);
-            finish();
-
+            recomendContact(listModel, contactModel, list);
         }
+    }
+
+    private void resendMsg(MessageListModel listModel, ContactModel contactModel, boolean list){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle("消息禁止转发")
+                .setNegativeButton("转发", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        builder.create().show();
+        return;
+
+//        String creator = RunningData.getInstance().getCurrentAccount();
+//        this.resendBody.setMessageTag(false);
+//        this.resendBody.setMessageCreator(creator);
+//        this.resendBody.setMessageIdClient(getMessageId());
+//        this.resendBody.setMessageIdServer("");
+//        this.resendBody.setMessageSendTime(getNowTimeTimestamp());
+//        this.resendBody.setIsSendSuccess(false);
+//
+//        String pubKey = "";
+//        if (list == true){ // 消息列表
+//            this.resendBody.setMessageReceiver(listModel.account);
+//            this.resendBody.IsGroupMessage = listModel.isGroupMessage;
+//            for (int i = 0; i < mListMessage.size() - 1; i++){
+//                MessageListModel resendModel = mListMessage.get(i);
+//                if (resendModel.account.equals(listModel.account)){
+//                    pubKey = resendModel.public_key;
+//                    break;
+//                }
+//            }
+//        }else{ // 联系人列表
+//            this.resendBody.setMessageReceiver(contactModel.account);
+//            this.resendBody.IsGroupMessage = false;
+//
+//            for (int i = 0; i < mListContact.size() - 1; i++){
+//                ContactModel resendModel = mListContact.get(i).data;
+//                if (resendModel.account.equals(contactModel.account)){
+//                    pubKey = resendModel.public_key;
+//                    break;
+//                }
+//            }
+//        }
+//
+//        if(this.resendBody.IsGroupMessage == false){  // 单聊必须有私钥
+//            if (pubKey.equals("")){
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+//                        .setTitle("无法转发")
+//                        .setMessage("没有获取到对方通讯公钥")
+//                        .setNegativeButton("转发", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                dialogInterface.dismiss();
+//                            }
+//                        });
+//                builder.create().show();
+//                return;
+//            }
+//        }else{
+//            this.resendBody.groupName = listModel.username;
+//
+//        }
+//
+//        SendMessageEnBody body_en = new SendMessageEnBody(this.resendBody, pubKey);
+//        Intent resendIntent = new Intent();
+//        resendIntent.putExtra("body", this.resendBody);
+//        resendIntent.putExtra("body_en", body_en);
+//        setResult(100, resendIntent);
+//        finish();
+
+    }
+
+
+    private void recomendContact(MessageListModel listModel, ContactModel contactModel, boolean list){
+        String excessInfo = "";
+        if (list == true){
+            String avatar_url = listModel.avatar_url;
+            String account = listModel.account;
+            String friend_id = listModel.friend_id;
+            String label = listModel.label;
+            excessInfo = "avatar_url:" + avatar_url + "&account:" + account + "&friend_id:" + friend_id + "&label:" + label;
+
+        }else{
+            String avatar_url = contactModel.avatar_url;
+            String account = contactModel.account;
+            String friend_id = contactModel.friend_id;
+            String label = contactModel.username;
+            excessInfo = "avatar_url:" + avatar_url + "&account:" + account + "&friend_id:" + friend_id + "&label:" + label;
+        }
+        Intent resendIntent = new Intent();
+        resendIntent.putExtra("excessInfo", excessInfo);
+        setResult(101, resendIntent);
+        finish();
     }
 
 

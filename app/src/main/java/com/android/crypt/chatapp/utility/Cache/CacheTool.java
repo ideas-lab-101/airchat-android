@@ -159,16 +159,24 @@ public class CacheTool {
      *
      * **/
     public void insertAImMsg(SendMessageEnBody body){
+        //调整缓存结构
+        if(body.IsGroupMessage){ // 群聊
+            if(body.getMessageTag() == true){ // 我收到的消息
+                String groupId =  body.getMessageReceiver();
+                String receive = RunningData.getInstance().getCurrentAccount();
+                body.setMessageCreator(groupId);
+                body.setMessageReceiver(receive);
+
+            }
+        }
         CacheIMEnBody cacheBody = new CacheIMEnBody();
         cacheBody.SetCacheImBody(null, body);
-
         IMMsgDBManager dbManager = ChatAppApplication.getInstances().getIMCacheManager();
         dbManager.insertData(cacheBody);
     }
 
 
-    public ArrayList<SendMessageBody> queryAll(String creator, String receiver, int curPage){
-
+    public ArrayList<SendMessageBody> queryAll(String creator, String receiver, int curPage, boolean isGroupMessage){
         IMMsgDBManager dbManager = ChatAppApplication.getInstances().getIMCacheManager();
         List<CacheIMEnBody> result =  dbManager.queryOneFriendMsg(creator, receiver,curPage);
 
@@ -177,54 +185,136 @@ public class CacheTool {
             Gson gson = new Gson();
             for (int i = 0; i < result.size(); i++){
                 CacheIMEnBody imbody = result.get(i);
-                String body_en = imbody.getBody_en();
-                CryTool tool  = new CryTool();
-                String bodyString = "";
-                if (imbody.getMessageTag() == false){ //自己的消息
-                    String key = RunningData.getInstance().getMyIMMessageAESKey();
-                    bodyString = tool.aesDeWith(body_en, key);
-                }else{
-                    String key_en = imbody.getKey();
-                    String account = RunningData.getInstance().getCurrentAccount();
-                    String pri_key = RunningData.getInstance().getMyRSAPriKeyWith(account);
-                    String key = tool.rsaDecrypt(key_en, pri_key);
-                    bodyString = tool.aesDeWith(body_en, key);
-                }
-                if (!bodyString.equals("")){
-                    try{
-                        SendMessageBody sendBody =  gson.fromJson(bodyString, SendMessageBody.class);
-//                        Logger.d("bodyString = " + bodyString);
-                        if (sendBody != null){
-                            sendBody.set_has_send_error(imbody.getHas_send_error());
-                            sendBody.setIsSendSuccess(imbody.getIsSendSuccess());
-                            sendBody.setMessageSendTime(imbody.getMessageSendTime());
-                            sendBody.setMessageTag(imbody.getMessageTag());
-                            sendBody.message_other_process_info = imbody.getMessage_other_process_info();
-
-                            resultList.add(sendBody);
-                            continue;
-                        }
-                    }catch (Exception e){
-                        Logger.d("bodyString 转换错误 = " + bodyString + " " + e);
-                    }
+                if (existAlready(imbody.getMessageIdClient(), resultList) == true){
                     continue;
                 }
 
-                SendMessageBody sendBody = new SendMessageBody();
-                sendBody.setMessageCreator(imbody.getMessageCreator());
-                sendBody.setMessageReceiver(imbody.getMessageReceiver());
-                sendBody.setMessageSendTime(imbody.getMessageSendTime());
-                sendBody.setMessageIdClient(imbody.getMessageIdClient());
-                sendBody.setMsgType(1);
-                sendBody.setContent("解密错误，具体查看帮助");
-                sendBody.setIsSendSuccess(false);
-                sendBody.setMessageTag(imbody.getMessageTag());
-                sendBody.set_has_send_error(false);
-                resultList.add(sendBody);
+                SendMessageBody sendBody = freshGroupMessage(imbody.getBody_en(), imbody.getKey(), imbody.getMessageTag(), isGroupMessage, imbody.getMessageTag(), imbody.getIsSendSuccess(), imbody.getHas_send_error());
+                if(sendBody != null){
+                    sendBody.message_other_process_info = imbody.getMessage_other_process_info();
+                    resultList.add(sendBody);
+                }
+//                else{
+//                    sendBody = new SendMessageBody();
+//                    sendBody.setMessageCreator(imbody.getMessageCreator());
+//                    sendBody.setMessageReceiver(imbody.getMessageReceiver());
+//                    sendBody.setMessageSendTime(imbody.getMessageSendTime());
+//                    sendBody.setMessageIdClient(imbody.getMessageIdClient());
+//                    sendBody.setMsgType(1);
+//                    sendBody.setContent("解密错误，具体查看小秘密");
+//                    sendBody.setIsSendSuccess(false);
+//                    sendBody.setMessageTag(imbody.getMessageTag());
+//                    sendBody.set_has_send_error(false);
+//                }
+//                resultList.add(sendBody);
+//
+//                CryTool tool  = new CryTool();
+//                String bodyString = "";
+//                if (imbody.getMessageTag() == false){ //自己的消息
+//                    String key = RunningData.getInstance().getMyIMMessageAESKey();
+//                    bodyString = tool.aesDeWith(body_en, key);
+//                }else{
+//
+//                    String account = RunningData.getInstance().getCurrentAccount();
+//                    String pri_key = RunningData.getInstance().getMyRSAPriKeyWith(account);
+//                    String key = tool.rsaDecrypt(key_en, pri_key);
+//                    bodyString = tool.aesDeWith(body_en, key);
+//                }
+//
+//                if (!bodyString.equals("")){
+//                    try{
+//                        SendMessageBody sendBody =  gson.fromJson(bodyString, SendMessageBody.class);
+//                        if (sendBody != null){
+//                            sendBody.set_has_send_error(imbody.getHas_send_error());
+//                            sendBody.setIsSendSuccess(imbody.getIsSendSuccess());
+//                            sendBody.setMessageSendTime(imbody.getMessageSendTime());
+//                            sendBody.setMessageTag(imbody.getMessageTag());
+//                            sendBody.message_other_process_info = imbody.getMessage_other_process_info();
+//
+//                            resultList.add(sendBody);
+//                            continue;
+//                        }
+//                    }catch (Exception e){
+//                        Logger.d("bodyString 转换错误 = " + bodyString + " " + e);
+//                    }
+//                    continue;
+//                }
+//                SendMessageBody sendBody = new SendMessageBody();
+//                sendBody.setMessageCreator(imbody.getMessageCreator());
+//                sendBody.setMessageReceiver(imbody.getMessageReceiver());
+//                sendBody.setMessageSendTime(imbody.getMessageSendTime());
+//                sendBody.setMessageIdClient(imbody.getMessageIdClient());
+//                sendBody.setMsgType(1);
+//                sendBody.setContent("解密错误，具体查看帮助");
+//                sendBody.setIsSendSuccess(false);
+//                sendBody.setMessageTag(imbody.getMessageTag());
+//                sendBody.set_has_send_error(false);
+//                resultList.add(sendBody);
             }
         }
 
         return resultList;
+    }
+
+    public SendMessageBody freshGroupMessage(String body_en, String key_en, boolean mssageTag, boolean isGroupMessage, boolean messageTag, boolean sendSuccess, boolean haserror){
+        CryTool tool = new CryTool();
+        if(isGroupMessage == true){
+            String bodyString = tool.aesDeWith(body_en, key_en);
+            if (!bodyString.equals("")){
+                Gson gson = new Gson();
+                SendMessageBody sendBody =  gson.fromJson(bodyString, SendMessageBody.class);
+                if (sendBody != null){
+                    //sendBody.setIsSendSuccess(true);
+                    // sendBody.set_has_send_error(false);
+                    sendBody.set_has_send_error(haserror);
+                    sendBody.setIsSendSuccess(sendSuccess);
+                    sendBody.setMessageTag(messageTag);
+                    return sendBody;
+                }
+            }
+        }else{
+            String bodyString = "";
+            if (mssageTag == false){ //自己的消息
+                String key = RunningData.getInstance().getMyIMMessageAESKey();
+                bodyString = tool.aesDeWith(body_en, key);
+            }else{
+                String account = RunningData.getInstance().getCurrentAccount();
+                String pri_key = RunningData.getInstance().getMyRSAPriKeyWith(account);
+                String key = tool.rsaDecrypt(key_en, pri_key);
+                bodyString = tool.aesDeWith(body_en, key);
+            }
+            if (!bodyString.equals("")) {
+                Gson gson = new Gson();
+                SendMessageBody sendBody = gson.fromJson(bodyString, SendMessageBody.class);
+                if (sendBody != null) {
+                    sendBody.set_has_send_error(haserror);
+                    sendBody.setIsSendSuccess(sendSuccess);
+                    sendBody.setMessageTag(mssageTag);
+                    return sendBody;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+
+    //*** 去重
+    private boolean existAlready(String bodyMsgId, ArrayList<SendMessageBody> mListContact) {
+        boolean exist = false;
+        if (mListContact.size()> 0) {
+            for (int i = 0; i < mListContact.size(); i++) {
+                SendMessageBody bodyInnder = mListContact.get(i);
+                if (bodyInnder != null && bodyInnder.getMessageIdClient() != null) {
+                    if (bodyInnder.getMessageIdClient().equals(bodyMsgId)) {
+                        exist = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return exist;
     }
 
     public void sendSuccess(String creator, String msgId, String time) {

@@ -22,8 +22,25 @@
             android:layout_marginBottom="8dp"
             android:src="@mipmap/default_head"
             app:isCircle="false"
+            android:visibility="invisible"
             app:borderRadius="32dp"
             />
+
+        <TextView
+            android:id="@+id/iv_avatar_text"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="G"
+            android:textAlignment="center"
+            android:textSize="32sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:visibility="visible"
+            android:textColor="@color/white_bg"
+            android:background="@drawable/group_msg_shape" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,7 +53,7 @@
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="25dp"
                 android:gravity="left"
                 android:layout_marginLeft="5dp"
                 android:orientation="horizontal">
@@ -44,7 +61,7 @@
                 <TextView
                     android:id="@+id/message_name"
                     android:layout_width="wrap_content"
-                    android:layout_height="25dp"
+                    android:layout_height="20dp"
                     android:layout_weight="3"
                     android:gravity="center|left"
                     android:textColor="@color/black_text"
@@ -72,7 +89,7 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="34dp"
+                android:layout_height="40dp"
                 android:layout_marginLeft="5dp"
                 android:gravity="left"
                 android:orientation="horizontal">
@@ -80,7 +97,7 @@
                 <View
                     android:layout_width="3dp"
                     android:layout_height="25dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="8dp"
                     android:alpha="0.2"
                     android:background="@drawable/msg_left_shape" />
 

@@ -24,16 +24,20 @@ public class SendMessageEnBody implements Cloneable, Serializable {
     * */
 
     //这6个值与 SendMessageBody 对应的值相等，可以直接用SendMessageBody 进行赋值
-    private String MessageCreator;   //消息创建者
-    private String MessageReceiver;  //消息接受者
-    private String MessageIdClient;  //消息的本地id
-    private String MessageSendTime;  //消息发送时间，先取客户端时间，发送成功后服务器会返回服务器时间，替换为服务器时间
-    private  boolean MessageTag;          //用于判断消息是我的还是别人的。自己发传0， 服务器来的消息都是 1
-    private  boolean IsSendSuccess;       //消息发送成功，用于渲染UI
+    public String MessageCreator;   //消息创建者
+    public String MessageReceiver;  //消息接受者
+    public String MessageIdClient;  //消息的本地id
+    public String MessageSendTime;  //消息发送时间，先取客户端时间，发送成功后服务器会返回服务器时间，替换为服务器时间
+    public  boolean MessageTag;          //用于判断消息是我的还是别人的。自己发传0， 服务器来的消息都是 1
+    public  boolean IsSendSuccess;       //消息发送成功，用于渲染UI
 
-    ////////
-    private String Body_en;          //消息加密体  就是 SendMessageBody 序列化加密字符串
-    private String Key;              //消息的加密key，经过public_key加密
+    public String Body_en;          //消息加密体  就是 SendMessageBody 序列化加密字符串
+    public String Key;              //消息的加密key，经过public_key加密
+
+    //群聊新加字段
+    public boolean IsGroupMessage;
+    public String PubKeyHash;
+    public String EncodeVersion;
 
     /*
     *
@@ -57,28 +61,47 @@ public class SendMessageEnBody implements Cloneable, Serializable {
         this.MessageSendTime  = body.getMessageSendTime();
         this.MessageTag      = body.getMessageTag();
         this.IsSendSuccess   = body.getIsSendSuccess();
-
         this.has_send_error = false;
         this.resend_count = 0;
+        this.IsGroupMessage = body.IsGroupMessage;
 
-        //加密方法
-        //1.  获取加密aes密钥
-        String myImKey = RunningData.getInstance().getMyIMMessageAESKey();
-
-        //2.  初始化工具类
+        // keyhash
         CryTool tool = new CryTool();
-        Gson gson = new Gson();
-        String originalString = gson.toJson(body);
+        this.PubKeyHash = tool.shaEncrypt(pub_key);
+        this.EncodeVersion = RunningData.getInstance().getCurEncodeVersion();
 
-        //3. myImKey使用aes加密消息体originalString
-        String im_Body_en = tool.aesEnWith(originalString, myImKey);
-        //4. pub_key使用rsa加密上面的密钥myImKey
-        String im_key = tool.rsaEncrypt(myImKey, pub_key);
+        if(body.IsGroupMessage == true){
+            String myImKey = tool.getARandAesKey();
+            //2.  初始化工具类
+            Gson gson = new Gson();
+            String originalString = gson.toJson(body);
 
-        //5. 传递密文和加密后的密钥
-        this.Body_en  = im_Body_en;
-        this.Key  = im_key;
+            //3. myImKey使用aes加密消息体originalString
+            String im_Body_en = tool.aesEnWith(originalString, myImKey);
+            //4. pub_key使用rsa加密上面的密钥myImKey
+//            String im_key = tool.rsaEncrypt(myImKey, pub_key);
+            //5. 传递密文和加密后的密钥
+            this.Body_en  = im_Body_en;
+            this.Key  = myImKey;
 
+        }else{
+            //加密方法
+            //1.  获取加密aes密钥
+            String myImKey = RunningData.getInstance().getMyIMMessageAESKey();
+
+            //2.  初始化工具类
+            Gson gson = new Gson();
+            String originalString = gson.toJson(body);
+
+            //3. myImKey使用aes加密消息体originalString
+            String im_Body_en = tool.aesEnWith(originalString, myImKey);
+            //4. pub_key使用rsa加密上面的密钥myImKey
+            String im_key = tool.rsaEncrypt(myImKey, pub_key);
+
+            //5. 传递密文和加密后的密钥
+            this.Body_en  = im_Body_en;
+            this.Key  = im_key;
+        }
     }
 
 
@@ -90,7 +113,10 @@ public class SendMessageEnBody implements Cloneable, Serializable {
                              String Body_en,
                              String Key,
                              boolean MessageTag,
-                             boolean IsSendSuccess){
+                             boolean IsSendSuccess,
+                             boolean IsGroupMessage,
+                             String pubKeyHash,
+                             String encodeVersion){
 
         this.MessageCreator  = MessageCreator;
         this.MessageReceiver  = MessageReceiver;
@@ -100,6 +126,11 @@ public class SendMessageEnBody implements Cloneable, Serializable {
         this.Key  = Key;
         this.MessageTag  = MessageTag;
         this.IsSendSuccess  = IsSendSuccess;
+
+        this.IsGroupMessage  = IsGroupMessage;
+        this.PubKeyHash  = pubKeyHash;
+        this.EncodeVersion  = encodeVersion;
+
         this.has_send_error = false;
         this.resend_count = 0;
     }
@@ -194,6 +225,7 @@ public class SendMessageEnBody implements Cloneable, Serializable {
     public void set_resend_count(int resend_count){
         this.resend_count  = resend_count;
     }
+
 
 
     @Override

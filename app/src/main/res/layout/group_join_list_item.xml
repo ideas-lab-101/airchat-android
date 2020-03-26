@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_bg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:background="@color/sagacity_white"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/catalog"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:background="@color/clear_white"
+        android:textStyle="normal"
+        android:textSize="12sp"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:layout_marginLeft="15dp"
+        android:text="我的群"
+        android:textColor="@color/sagacity_dark_gray" />
+
+    <LinearLayout
+        android:id="@+id/ll_contactItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal">
+
+
+        <com.android.crypt.chatapp.widget.RoundImageView
+            android:id="@+id/iv_avatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@mipmap/default_head"
+            app:isCircle="false"
+            android:visibility="invisible"
+            app:borderRadius="32dp"
+            />
+
+        <TextView
+            android:id="@+id/iv_avatar_text"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="G"
+            android:textAlignment="center"
+            android:textSize="32sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:textColor="@color/white_bg"
+            android:background="@drawable/group_msg_shape" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="76dp"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/op_time"
+                android:gravity="center|right"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:textColor="@color/sagacity_dark_gray"
+                android:textSize="12sp"
+                android:textStyle="normal"
+                android:layout_marginRight="10dp"
+                android:textAlignment="textEnd"
+                android:text="caption"/>
+
+            <TextView
+                android:id="@+id/group_name"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:textColor="@color/black_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:text="caption"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -60,7 +60,7 @@ public class ChooseEmojiActivity extends TakePhotoActivity {
     public void startPhoto(TakePhoto takePhoto) {
         configCompress(takePhoto);
         configTakePhotoOption(takePhoto);
-        takePhoto.onPickMultiple(5);
+        takePhoto.onPickMultiple(1);
     }
 
     private void configTakePhotoOption(TakePhoto takePhoto) {
@@ -71,9 +71,9 @@ public class ChooseEmojiActivity extends TakePhotoActivity {
     }
 
     private void configCompress(TakePhoto takePhoto) {
-        int maxSize = 800;
-        int width = 400;
-        int height = 400;
+        int maxSize = 1024 * 512;  // 512 K
+        int width = 300;
+        int height = 300;
         boolean showProgressBar =  true;
         boolean enableRawFile =  false;
         CompressConfig config;

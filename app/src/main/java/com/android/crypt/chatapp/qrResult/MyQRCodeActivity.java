@@ -150,7 +150,7 @@ public class MyQRCodeActivity extends BaseActivity implements View.OnClickListen
         long timeLimit = shareDays * timeGap;
         String tokenValue = "2#" + String.valueOf(time) + "&" + timeLimit + "&" + this.mMap.account ;
         CryTool tool = new CryTool();
-        String codeValue = "http://airchat.ideas-lab.cn/download.html?token=" + tool.aesEnWith(tokenValue, RunningData.getInstance().getInnerAESKey());
+        String codeValue = "http://airchat.ideas-lab.cn/index?token=" + tool.aesEnWith(tokenValue, RunningData.getInstance().getInnerAESKey());
 
 
         Resources resources = this.getResources();
@@ -331,7 +331,7 @@ public class MyQRCodeActivity extends BaseActivity implements View.OnClickListen
         long timeLimit = days * timeGap;
         String tokenValue = "2#" + String.valueOf(time) + "&" + timeLimit + "&" + this.mMap.account ;
         CryTool tool = new CryTool();
-        String codeValue =  "http://airchat.ideas-lab.cn/download.html?token=" + tool.aesEnWith(tokenValue, RunningData.getInstance().getInnerAESKey());
+        String codeValue =  "http://airchat.ideas-lab.cn/index?token=" + tool.aesEnWith(tokenValue, RunningData.getInstance().getInnerAESKey());
 
         Resources resources = this.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();

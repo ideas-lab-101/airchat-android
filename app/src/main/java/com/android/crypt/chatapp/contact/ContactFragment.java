@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.crypt.chatapp.group.MyGroupActivity;
 import com.android.crypt.chatapp.msgList.model.MessageListModel;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
@@ -134,6 +135,7 @@ public class ContactFragment extends BaseFragment implements
             holder = new ViewHolder(headView);
             holder.myApplyAcF.setOnClickListener(this);
             holder.searchAcF.setOnClickListener(this);
+            holder.myGroup.setOnClickListener(this);
         }
 
         return view;
@@ -195,7 +197,7 @@ public class ContactFragment extends BaseFragment implements
     private void showActionSheet(){
         ActionSheet.createBuilder(this.getContext(), this.getFragmentManager())
                 .setCancelButtonTitle("取消")
-                .setOtherButtonTitles("获取联系人")
+                .setOtherButtonTitles("刷新联系人列表")
                 .setCancelableOnTouchOutside(true)
                 .setListener(this).show();
     }
@@ -503,6 +505,12 @@ public class ContactFragment extends BaseFragment implements
                 startActivity(intent);
                 getActivity().overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
                 break;
+
+            case R.id.my_group:
+                intent = new Intent(getActivity(), MyGroupActivity.class);
+                startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
+                break;
             default:
                 break;
         }
@@ -512,6 +520,9 @@ public class ContactFragment extends BaseFragment implements
     static class ViewHolder {
         @BindView(R.id.my_apply_ac_f)
         LinearLayout myApplyAcF;
+        @BindView(R.id.my_group)
+        LinearLayout myGroup;
+
         @BindView(R.id.message_tips)
         TextView messageTips;
 
@@ -602,16 +613,3 @@ public class ContactFragment extends BaseFragment implements
     }
 }
 
-
-//                JSONObject data = mList.getJSONObject(i);//.get(i);
-//                String avatar_url = objToString(data.getString("avatar_url"));
-//                String username = objToString(data.getString("username"));
-//                String account = objToString(data.getString("account"));
-//                String public_key = objToString(data.getString("public_key"));
-//                String introduction = objToString(data.getString("introduction"));
-//                String friend_id = objToString(data.getString("friend_id"));
-//                String label = objToString(data.getString("label"));
-//                if (label == null || label.equals("")) {
-//                    label = username;
-//                }
-//                contactList.add(new ContactModel(avatar_url, username, label, account, introduction, public_key, friend_id));

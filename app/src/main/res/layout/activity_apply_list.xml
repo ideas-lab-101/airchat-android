@@ -57,46 +57,68 @@
             android:id="@+id/bg_choose"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/clear_white"
+            android:background="@color/clear_black"
             android:visibility="gone"
+            android:gravity="center"
             android:orientation="vertical" >
 
-            <com.android.crypt.chatapp.widget.RoundImageView
-                android:id="@+id/iv_avatar"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_marginTop="100dp"
-                android:src="@mipmap/default_head"
-                android:layout_centerHorizontal="true"
-                app:isCircle="false"
-                app:borderRadius="4dp"/>
-
-            <Button
-                android:id="@+id/cancel_apply"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white_bg"
                 android:gravity="center"
-                android:textAlignment="center"
-                android:text="偷偷拒绝"
-                android:background="@drawable/apply_cancel_shape"
-                android:textColor="@color/white_bg"
-                android:layout_marginTop="400dp"
-                android:layout_marginLeft="30dp"
-                android:textSize="17sp" />
+                android:orientation="vertical" >
 
-            <Button
-                android:id="@+id/confirm_apply"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                <com.android.crypt.chatapp.widget.RoundImageView
+                    android:id="@+id/iv_avatar"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_marginTop="20dp"
+                    android:src="@mipmap/default_head"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/light_gray_line"
+                    app:isCircle="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white_bg"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="30dp"
+
                 android:gravity="center"
-                android:textAlignment="center"
-                android:text="添加好友"
-                android:background="@drawable/apply_confirm_shape"
-                android:textColor="@color/white_bg"
-                android:layout_marginTop="400dp"
-                android:layout_marginEnd="30dp"
-                android:layout_alignParentRight="true"
-                android:textSize="17sp" />
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/cancel_apply"
+                    android:layout_width="150dp"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="偷偷拒绝"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/apply_cancel_shape"
+                    android:textColor="@color/white_bg"
+                    android:textSize="13sp" />
+
+                <Button
+                    android:id="@+id/confirm_apply"
+                    android:layout_width="150dp"
+                    android:layout_height="30dp"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:text="添加好友"
+                    android:layout_marginLeft="10dp"
+                    android:background="@drawable/apply_confirm_shape"
+                    android:textColor="@color/white_bg"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+
+
+            </LinearLayout>
+
 
         </RelativeLayout>
 

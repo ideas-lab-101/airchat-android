@@ -26,7 +26,6 @@ import com.baoyz.actionsheet.ActionSheet;
 
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
-import com.wingsofts.dragphotoview.DragPhotoView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +48,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
     private LayoutInflater inflater;
     private PhotoView longPressImage = null;
     private PhotoPagerAdapter adapter;
-    private List<DragPhotoView> viewList = null;
+    private List<MyDragPhotoView> viewList = null;
 
 
     int mOriginLeft;
@@ -80,6 +79,8 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
     public void onCreate(Bundle savedInstanceState) {
         //禁止截屏
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_contain);
         ButterKnife.bind(this);
@@ -97,12 +98,12 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
         try {
             ArrayList<ImageModel> image_url_list = (ArrayList) intent.getSerializableExtra("image_url");
             if (viewList == null) {
-                viewList = new ArrayList<DragPhotoView>();
+                viewList = new ArrayList<MyDragPhotoView>();
             }
             if (image_url_list != null) {
                 for (int i = 0; i < image_url_list.size(); i++) {
                     ConstraintLayout view = (ConstraintLayout) inflater.inflate(R.layout.activity_photo_viewer, null);
-                    DragPhotoView photo = (DragPhotoView) view.findViewById(R.id.big_image_viewer);
+                    MyDragPhotoView photo = (MyDragPhotoView) view.findViewById(R.id.big_image_viewer);
                     viewList.add(photo);
                 }
                 adapter = new PhotoPagerAdapter(image_url_list, this, this);
@@ -132,7 +133,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
 
                             int[] location = new int[2];
 
-                            final DragPhotoView photoView = (DragPhotoView) viewList.get(0);
+                            final MyDragPhotoView photoView = (MyDragPhotoView) viewList.get(0);
                             photoView.getLocationOnScreen(location);
 
                             mTargetHeight = (float) photoView.getHeight();
@@ -163,7 +164,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
                             performEnterAnimation();
 
                             for (int i = 0; i < viewList.size(); i++) {
-                                DragPhotoView photo = (DragPhotoView) viewList.get(0);
+                                MyDragPhotoView photo = (MyDragPhotoView) viewList.get(0);
                                 photo.setMinScale(mScaleX);
                             }
                         }
@@ -185,18 +186,19 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
 
 
     @Override
-    public void addLongTapMethod(DragPhotoView photo, int position) {
+    public void addLongTapMethod(MyDragPhotoView photo, int position) {
         if (photo != null){
-            photo.setOnExitListener(new DragPhotoView.OnExitListener() {
+            photo.setOnExitListener(new MyDragPhotoView.OnExitListener() {
                 @Override
-                public void onExit(DragPhotoView view, float x, float y, float w, float h) {
+                public void onExit(MyDragPhotoView view, float x, float y, float w, float h) {
                     performExitAnimation(view, x, y, w, h);
                 }
             });
-            photo.setOnTapListener(new DragPhotoView.OnTapListener() {
+            photo.setOnTapListener(new MyDragPhotoView.OnTapListener() {
                 @Override
-                public void onTap(DragPhotoView view) {
+                public void onTap(MyDragPhotoView view) {
                     finish();
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     overridePendingTransition(0, 0);
                 }
             });
@@ -247,6 +249,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
         switch (v.getId()){
             case R.id.quit_photo_viewer:
                 finish();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 overridePendingTransition(0, 0);
                 break;
             case R.id.three_dot:
@@ -294,7 +297,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
 
 
 
-    private void performExitAnimation(final DragPhotoView view, float x, float y, float w, float h) {
+    private void performExitAnimation(final MyDragPhotoView view, float x, float y, float w, float h) {
         view.finishAnimationCallBack();
         float viewX = mTargetWidth / 2 + x - mTargetWidth * mScaleX / 2;
         float viewY = mTargetHeight / 2 + y - mTargetHeight * mScaleY / 2;
@@ -334,6 +337,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
             public void onAnimationEnd(Animator animator) {
                 animator.removeAllListeners();
                 finish();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                 overridePendingTransition(0, 0);
             }
 
@@ -352,7 +356,7 @@ public class PhotoViewerActivity extends BaseActivity implements ActionSheet.Act
     }
 
     private void performEnterAnimation() {
-        final DragPhotoView photoView = (DragPhotoView) viewList.get(0);
+        final MyDragPhotoView photoView = (MyDragPhotoView) viewList.get(0);
 //        final DragPhotoView photoView = mPhotoViews[0];
         ValueAnimator translateXAnimator = ValueAnimator.ofFloat(photoView.getX(), 0);
         translateXAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

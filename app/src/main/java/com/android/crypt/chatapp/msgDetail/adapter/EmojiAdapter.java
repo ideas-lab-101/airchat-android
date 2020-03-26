@@ -10,12 +10,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.android.crypt.chatapp.utility.Common.RunningData;
+import com.android.crypt.chatapp.msgDetail.model.CollectEmoji;
 import com.bumptech.glide.Glide;
 import com.android.crypt.chatapp.R;
 import com.wang.avi.AVLoadingIndicatorView;
-
-import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -28,11 +26,11 @@ import butterknife.ButterKnife;
 
 public class EmojiAdapter extends BaseAdapter {
     private Context context;
-    private ArrayList<String> mListAll;
+    private ArrayList<CollectEmoji> mListAll;
     private LayoutInflater layoutInflater;
     private  ViewHolder viewHolder;
     private int emoji_kind;
-    public EmojiAdapter(Context context, ArrayList<String> mListAll, int kind) {
+    public EmojiAdapter(Context context, ArrayList<CollectEmoji> mListAll, int kind) {
         this.context = context;
         this.mListAll = mListAll;
         this.emoji_kind = kind;
@@ -68,7 +66,7 @@ public class EmojiAdapter extends BaseAdapter {
         }
         if (this.emoji_kind == 0){
             viewHolder.image.setBackground(new ColorDrawable(0xffffffff));
-            String image = RunningData.getInstance().echoEmojiPicUrl() + mListAll.get(position);
+            String image = mListAll.get(position).emojiBaseUrl + mListAll.get(position).emojiUrl;
             Glide.with(context).load(image).into(viewHolder.image);
         }else if(this.emoji_kind == 1){
             if (position == 0){
@@ -77,10 +75,12 @@ public class EmojiAdapter extends BaseAdapter {
                 viewHolder.image.setImageBitmap(bitmap);
             }else{
                 viewHolder.image.setBackground(new ColorDrawable(0xfffafafa));
-                String co_image_url = mListAll.get(position);
-                File file = new File(co_image_url);
-                //加载图片
-                Glide.with(context).load(file).into(viewHolder.image);
+//                String co_image_url = mListAll.get(position);
+//                File file = new File(co_image_url);
+//                //加载图片
+//                Glide.with(context).load(file).into(viewHolder.image);
+                String image = mListAll.get(position).emojiBaseUrl + mListAll.get(position).emojiUrl;
+                Glide.with(context).load(image).into(viewHolder.image);
             }
         }
         return convertView;

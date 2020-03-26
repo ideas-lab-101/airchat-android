@@ -18,6 +18,7 @@ public class ContactModel implements CN, Serializable {
     public String friend_id = "";
 
     public boolean isBlank = false;
+    public boolean isGroupMessage = false;
 
     public ContactModel(){
 
@@ -29,7 +30,8 @@ public class ContactModel implements CN, Serializable {
                         String account,
                         String introduction,
                         String public_key,
-                        String friend_id){
+                        String friend_id,
+                        boolean isGroupMessage){
         this.avatar_url = avatar_url;
         this.username = username;
         this.label = label;
@@ -37,6 +39,7 @@ public class ContactModel implements CN, Serializable {
         this.introduction = introduction;
         this.public_key = public_key;
         this.friend_id = friend_id;
+        this.isGroupMessage = isGroupMessage;
     }
 
 

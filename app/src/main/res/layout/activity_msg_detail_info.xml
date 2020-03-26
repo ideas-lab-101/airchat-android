@@ -7,13 +7,31 @@
     android:fitsSystemWindows="true">
 
 
+    <TextView
+        android:id="@+id/iv_avatar_text"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="G"
+        android:textAlignment="center"
+        android:textSize="40sp"
+        android:gravity="center"
+        android:textStyle="normal"
+        android:visibility="gone"
+        android:textColor="@color/white_bg"
+        android:background="@drawable/btn_apply_shape" />
+
+
     <com.android.crypt.chatapp.widget.RoundImageView
         android:id="@+id/iv_avatar"
         android:layout_width="140dp"
         android:layout_height="140dp"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="100dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/cts_user_d_avatar"
         app:borderRadius="10dp"
@@ -86,7 +104,7 @@
     </LinearLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/friend_card"
+        android:id="@+id/info_detail"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="60dp"
@@ -123,7 +141,7 @@
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/change_name"
+        android:id="@+id/info_setting"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="0dp"
@@ -186,6 +204,22 @@
             android:textSize="12sp" />
 
     </LinearLayout>
+
+
+    <com.android.crypt.chatapp.widget.swipexlistview.XListView
+        android:id="@+id/group_shot_list"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/clear"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/once_msg"
+        app:layout_constraintTop_toBottomOf="@+id/user_name"/>
+
+
 
 
 </android.support.constraint.ConstraintLayout>

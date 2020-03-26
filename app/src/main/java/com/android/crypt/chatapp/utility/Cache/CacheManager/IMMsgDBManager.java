@@ -134,12 +134,18 @@ public class IMMsgDBManager {
                 .orderDesc(CacheIMEnBodyDao.Properties.Id)
                 .list();
 
-        CacheIMEnBody bodyNew = list.get(0);
-        bodyNew.setMessageSendTime(time);
-        bodyNew.setIsSendSuccess(true);
-        bodyNew.setHas_send_error(false);
 
-        cacheDao.update(bodyNew);
+        if (list != null){
+            for (int i = 0; i < list.size(); i++){
+                CacheIMEnBody bodyNew = list.get(i);
+                bodyNew.setMessageSendTime(time);
+                bodyNew.setIsSendSuccess(true);
+                bodyNew.setHas_send_error(false);
+                cacheDao.update(bodyNew);
+            }
+        }
+
+
     }
 
     public void uploadTranslateMethod(String creator, String msgId, String result) {
@@ -152,10 +158,14 @@ public class IMMsgDBManager {
                 .orderDesc(CacheIMEnBodyDao.Properties.Id)
                 .list();
 
-        CacheIMEnBody bodyNew = list.get(0);
-        bodyNew.setMessage_other_process_info(result);
-        Gson gson = new Gson();
-        cacheDao.update(bodyNew);
+        if (list != null){
+            for (int i = 0; i < list.size(); i++){
+                CacheIMEnBody bodyNew = list.get(i);
+                bodyNew.setMessage_other_process_info(result);
+                Gson gson = new Gson();
+                cacheDao.update(bodyNew);
+            }
+        }
     }
 
     public void msgSendFailed(String creator, String msgId, String time) {
@@ -167,12 +177,15 @@ public class IMMsgDBManager {
                 .orderDesc(CacheIMEnBodyDao.Properties.Id)
                 .list();
 
-        CacheIMEnBody bodyNew = list.get(0);
-        bodyNew.setMessageSendTime(time);
-        bodyNew.setIsSendSuccess(false);
-        bodyNew.setHas_send_error(true);
-
-        cacheDao.update(bodyNew);
+        if (list != null){
+            for (int i = 0; i < list.size(); i++){
+                CacheIMEnBody bodyNew = list.get(i);
+                bodyNew.setMessageSendTime(time);
+                bodyNew.setIsSendSuccess(false);
+                bodyNew.setHas_send_error(true);
+                cacheDao.update(bodyNew);
+            }
+        }
     }
 
     /**

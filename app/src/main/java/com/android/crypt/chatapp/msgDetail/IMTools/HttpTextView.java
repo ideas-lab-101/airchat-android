@@ -1,6 +1,10 @@
 package com.android.crypt.chatapp.msgDetail.IMTools;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -17,6 +21,19 @@ import java.util.regex.Pattern;
  * 识别url的textView
  */
 public class HttpTextView extends AppCompatTextView {
+//    @Override
+//    protected void onDraw(Canvas canvas) {
+//        super.onDraw(canvas);
+//        Paint paint = new Paint();
+//        paint.setColor(Color.BLUE);
+//        paint.setTextSize(20); //
+//        canvas.drawText("!@#$%^&*()!@#$%^&*()!@#$%^&*()!@#$%^&*()", 0, 20, paint);
+//        canvas.drawText("!@#$%^&*()!@#$%^&*()!@#$%^&*()!@#$%^&*()", 0, 40, paint);
+//        canvas.drawText("!@#$%^&*()!@#$%^&*()!@#$%^&*()!@#$%^&*()", 0, 60, paint);
+//        canvas.drawText("!@#$%^&*()!@#$%^&*()!@#$%^&*()!@#$%^&*()", 0, 80, paint);
+//
+//    }
+
     //测试文字
     public String testText =
         "1.测试测试测试google.cn测试曹娥U去我如\n" + "2.侧首IU包宿123124 baidu.com报道锁人副I我去额555\n"

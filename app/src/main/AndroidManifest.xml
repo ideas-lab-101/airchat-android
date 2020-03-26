@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.android.crypt.chatapp"
-    android:versionCode="1"
-    android:versionName="1.6">
+    android:versionCode="2"
+    android:versionName="0.1">
 
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -39,22 +39,42 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_icon"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_icon"
         android:supportsRtl="true"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
+
+        <!--&lt;!&ndash;应用内升级&ndash;&gt;-->
+        <!--<provider-->
+            <!--android:name="android.support.v4.content.FileProvider"-->
+            <!--android:authorities="${applicationId}.FileProvider"-->
+            <!--android:exported="false"-->
+            <!--android:grantUriPermissions="true"-->
+            <!--xmlns:tools="http://schemas.android.com/tools"-->
+            <!--tools:replace="android:authorities">-->
+            <!--<meta-data-->
+                <!--android:name="android.support.FILE_PROVIDER_PATHS"-->
+                <!--android:resource="@xml/upgrade_file_path"-->
+                <!--tools:replace="android:resource" />-->
+        <!--</provider>-->
 
         <!-- 高德地图 -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="699e69338b36b8517fefa0f159c14540" />
 
-        <service
-            android:name="cn.jpush.android.service.PushService"
-            android:process=":multiprocess"
-            tools:node="replace" />
+        <!--<service-->
+            <!--android:name="cn.jpush.android.service.PushService"-->
+            <!--android:process=":multiprocess"-->
+            <!--tools:node="replace" />-->
+
         <service
             android:name=".utility.Websocket.WsChatService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".utility.upgrade.UpdateService"
             android:enabled="true"
             android:exported="true" />
 
@@ -70,13 +90,12 @@
             </intent-filter>
         </receiver>
 
-        <!--ModPush 日志-->
+        <!-- ModPush 日志 -->
         <meta-data
             android:name="com.mob.mobpush.debugLevel"
             android:value="4" />
-        <!--ModPush 上架华为需要，此外不需要-->
-        <receiver
-            android:name="com.mob.pushsdk.plugins.huawei.PushHaiWeiRevicer">
+        <!-- ModPush 上架华为需要，此外不需要 -->
+        <receiver android:name="com.mob.pushsdk.plugins.huawei.PushHaiWeiRevicer">
             <intent-filter>
                 <action android:name="com.huawei.android.push.intent.REGISTRATION" />
                 <action android:name="com.huawei.android.push.intent.RECEIVE" />
@@ -92,26 +111,28 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".MainActivity"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NotTranslucent" >
-            <!--ModPush 推送打开页面-->
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NotTranslucent">
+
+            <!-- ModPush 推送打开页面 -->
             <intent-filter>
-                <action android:name="${applicationId}.default.MAIN"/>
+                <action android:name="${applicationId}.default.MAIN" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".guide.LoginActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".guide.LogOrRegActivity"
             android:screenOrientation="portrait"
@@ -123,8 +144,8 @@
         <activity
             android:name=".guide.RefindPwordActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".guide.RegTipsActivity"
             android:screenOrientation="portrait"
@@ -268,7 +289,22 @@
             android:name=".qrResult.ZBarScanActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".guide.AppIntroActivity"
+        <activity
+            android:name=".guide.AppIntroActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".group.GroupMemActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".group.GroupInfoActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".group.GroupChangeLabelActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".group.MyGroupActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>

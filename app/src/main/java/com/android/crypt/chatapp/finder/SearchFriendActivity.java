@@ -67,8 +67,7 @@ public class SearchFriendActivity extends BaseActivity implements View.OnClickLi
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
-                overridePendingTransition(R.anim.in_from_left,
-                        R.anim.out_to_right);
+                overridePendingTransition(R.anim.in_from_left, R.anim.out_to_right);
                 break;
             default:
                 break;

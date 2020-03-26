@@ -45,6 +45,9 @@
 
     <!--文字相关-->
     <color name="black_text">#FF0F0F0F</color>
+    <color name="black_text_alpha">#F50F0F0F</color>
+    <color name="super_light_gray">#FFF2F2F2</color>
+
     <color name="blue_text">#FF1F3A80</color>
     <color name="tips_text_h">#850F0F0F</color>
     <color name="tips_text_l">#330F0F0F</color>
@@ -52,15 +55,20 @@
 
     <color name="black_line">#220F0F0F</color>
     <color name="black_line_light">#100F0F0F</color>
+    <color name="black_image_bg">#FA0F0F0F</color>
 
     <color name="blue_bg">#FF1b8fe9</color>
     <color name="blue_bg_light">#4C1b8fe9</color>
     <color name="blue_text_Tips">#AA1b8fe9</color>
     <color name="text_tips_key">#FF7c859c</color>
 
-    <color name="blue_bg_dark">#C08533be</color>
+    <color name="blue_bg_dark">#ff1dabf1</color>
+    <color name="my_apply_dark">#ffcaad0d</color>
+    <color name="my_apply_group">#ff1dabf1</color>
+
+
     <color name="light_gray_bg">#fffafafa</color>
-    <color name="msg_text_bg">#fAfafafa</color>
+    <color name="msg_text_bg">#fffcfcfc</color>
 
     <color name="white_bg">#FFFFFFFF</color>
     <color name="clear_white">#AAFFFFFF</color>

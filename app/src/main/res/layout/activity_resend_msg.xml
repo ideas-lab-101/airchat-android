@@ -13,14 +13,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
-        android:background="@color/blue_bg_dark"
+        android:background="@color/white_bg"
         android:scrollbars="none" >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/clear"
             android:orientation="horizontal" >
-
         </LinearLayout>
     </android.support.v4.view.ViewPager>
     

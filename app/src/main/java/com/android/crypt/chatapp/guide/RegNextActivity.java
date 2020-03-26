@@ -220,7 +220,7 @@ public class RegNextActivity extends BaseActivity implements View.OnClickListene
 
     private void doSthAfterReg(String ac_number){
         CacheTool.getInstance().cacheObjectWithKey(ObjectCacheType.pri_key, mpri_key, ac_number);
-
+        RunningData.getInstance().setCurRegNumber(ac_number);
         Intent resultMethod = new Intent();
         resultMethod.putExtra("ac_id", ac_number);
         setResult(100, resultMethod);

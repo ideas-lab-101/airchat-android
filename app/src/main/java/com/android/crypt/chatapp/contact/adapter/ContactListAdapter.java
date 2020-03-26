@@ -85,7 +85,7 @@ public class ContactListAdapter extends BaseAdapter {
                 viewHolder.emptyView.setVisibility(View.VISIBLE);
                 if (mListAll.size() == 1){
                     if (showTips){
-                        viewHolder.emptyView.setText("你可以同步通讯录好友，或者在在设置页，通过二维码/搜索账号添加好友。\n\n\n\n");
+                        viewHolder.emptyView.setText("你可以在设置页，通过二维码/搜索账号添加好友。\n\n\n\n");
                     }
                 }else{
                     viewHolder.emptyView.setText("");

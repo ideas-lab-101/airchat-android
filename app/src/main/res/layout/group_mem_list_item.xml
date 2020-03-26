@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_bg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:background="@color/sagacity_white"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/ll_contactItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:orientation="horizontal">
+
+        <com.android.crypt.chatapp.widget.RoundImageView
+            android:id="@+id/iv_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="10dp"
+            android:src="@mipmap/default_head"
+            app:isCircle="true" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:gravity="center|left"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/op_time"
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:textColor="@color/sagacity_dark_gray"
+                android:textSize="8sp"
+                android:textStyle="normal"
+                android:gravity="center"
+                android:textAlignment="textEnd"
+                android:text="caption"/>
+
+            <TextView
+                android:id="@+id/group_name"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/black_text"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:text="caption"/>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

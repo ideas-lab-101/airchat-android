@@ -9,17 +9,15 @@ import android.widget.TextView;
 
 
 import com.android.crypt.chatapp.PhotoViewer.Model.ImageModel;
+import com.android.crypt.chatapp.PhotoViewer.MyDragPhotoView;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.msgDetail.IMTools.DownLoadImage;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.wingsofts.dragphotoview.DragPhotoView;
 
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by White on 2019/6/3.
@@ -35,7 +33,7 @@ public class PhotoPagerAdapter extends PagerAdapter{
 
     public AddLongTapCallback callbacks;
     public interface AddLongTapCallback{
-        void addLongTapMethod(DragPhotoView photo, int position);
+        void addLongTapMethod(MyDragPhotoView photo, int position);
     }
 
 
@@ -87,7 +85,7 @@ public class PhotoPagerAdapter extends PagerAdapter{
         String image_url = imageUrlList.get(position).image_url;
 
         TextView textView = (TextView)view.findViewById(R.id.text_se_tips);
-        DragPhotoView photo = (DragPhotoView)view.findViewById(R.id.big_image_viewer);
+        MyDragPhotoView photo = (MyDragPhotoView)view.findViewById(R.id.big_image_viewer);
 
         if (deKey == null || deKey.equals("")) {
             RequestOptions requestOptions = new RequestOptions().fitCenter().placeholder(R.mipmap.default_image);

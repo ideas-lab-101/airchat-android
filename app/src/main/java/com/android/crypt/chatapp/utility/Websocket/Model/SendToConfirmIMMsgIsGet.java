@@ -12,9 +12,13 @@ package com.android.crypt.chatapp.utility.Websocket.Model;
 public class SendToConfirmIMMsgIsGet {
     private String MessageReceiver;
     private String MessageIdClient;
+    private boolean IsGroupMessage;
 
-    public SendToConfirmIMMsgIsGet(String MessageReceiver, String MessageIdClient){
+
+
+    public SendToConfirmIMMsgIsGet(String MessageReceiver, String MessageIdClient, boolean IsGroupMessage){
         this.MessageReceiver = MessageReceiver;
         this.MessageIdClient = MessageIdClient;
+        this.IsGroupMessage = IsGroupMessage;
     }
 }

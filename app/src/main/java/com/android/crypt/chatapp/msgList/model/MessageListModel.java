@@ -9,6 +9,7 @@ public class MessageListModel {
     public String MessageSendTime = "";
 
     public String avatar_url = "";
+
     public String username = "";
     public String label = "";
     public String account = "";
@@ -20,5 +21,7 @@ public class MessageListModel {
     public boolean isreaded = false;
     public boolean isblank = false;
 
+
+    public boolean isGroupMessage = false;
 
 }

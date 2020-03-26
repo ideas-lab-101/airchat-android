@@ -42,13 +42,19 @@
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+
+    <TextView
+        android:id="@+id/catalog"
+        android:layout_width="50dp"
+        android:layout_height="15dp"
         android:layout_marginTop="5dp"
+        android:background="@color/clear_white"
+        android:textStyle="bold"
+        android:textSize="12sp"
+        android:textAlignment="center"
         android:gravity="center"
-        android:background="@color/black_line_light"
-        android:orientation="horizontal"/>
+        android:text="#"
+        android:textColor="@color/black_text" />
 
 
     <LinearLayout
@@ -57,19 +63,17 @@
         android:layout_height="60dp"
         android:gravity="center"
         android:orientation="horizontal">
-
         <com.android.crypt.chatapp.widget.RoundImageView
             android:id="@+id/iv_avatar"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginLeft="20dp"
+            android:layout_marginLeft="40dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/btn_apply_shape"
+            android:background="@drawable/my_apply_shape"
             android:src="@mipmap/friend_apply"
             app:isCircle="false"
             app:borderRadius="4dp"
             />
-
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -77,7 +81,6 @@
             android:layout_marginLeft="12dp"
             android:gravity="center|left"
             android:orientation="vertical">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
@@ -87,11 +90,7 @@
                 android:textStyle="bold"
                 android:layout_marginTop="0dp"
                 android:text="好友申请"/>
-
         </LinearLayout>
-
-
-
         <TextView
             android:id="@+id/message_tips"
             android:layout_width="80dp"
@@ -105,9 +104,45 @@
             android:textStyle="bold"
             android:visibility="gone"
             android:text="新的申请"/>
-
-
     </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/my_group"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <com.android.crypt.chatapp.widget.RoundImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/my_group_shape"
+            android:src="@mipmap/create_group"
+            app:isCircle="false"
+            app:borderRadius="4dp"
+            />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="12dp"
+            android:gravity="center|left"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:gravity="center|left"
+                android:textColor="@color/black_text"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="0dp"
+                android:text="我的群聊"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
 
 
 

@@ -1,8 +1,8 @@
 package com.android.crypt.chatapp.msgDetail.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +17,11 @@ import com.android.crypt.chatapp.msgDetail.IMTools.HttpTextView;
 import com.android.crypt.chatapp.utility.Common.DensityUtil;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.utility.Common.TimeStrings;
-import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.Websocket.Model.SendMessageBody;
+import com.android.crypt.chatapp.widget.RoundImageView;
 import com.android.crypt.chatapp.widget.swipexlistview.RListView;
-import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.android.crypt.chatapp.R;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -53,7 +51,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
     private ViewHolder viewHolder;
     private long lastTime = 0;  //用来计算显示不显示时间
     private SendMessageBody curBody;
-
+    private boolean isGroupMessage;
 
     private ItemContentClickListener innerListener = null;
     public void setItemContentClickListener(ItemContentClickListener listener) {
@@ -64,12 +62,14 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         void innerItemClick(final int position);
         void longPressListener(final int position);
         void urlClickMethod(final String text);
+        void headIconClick(final int position);
     }
 
 
-    public MessageDetailAdapter(Context context, ArrayList<SendMessageBody> mListAll) {
+    public MessageDetailAdapter(Context context, ArrayList<SendMessageBody> mListAll, boolean isGroupMessage) {
         this.context = context;
         this.mListAll = mListAll;
+        this.isGroupMessage = isGroupMessage;
     }
 
 
@@ -109,19 +109,21 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         View rightView = null;
         viewHolder = null;
 
-        int currentType = getItemViewType(position);
-        if (currentType == 1) {
+        SendMessageBody mMap = mListAll.get(position);
+        this.curBody = mMap;
+        //int currentType = getItemViewType(position);
+        if (mMap.getMessageTag() == true) {
             if (convertView == null) {
-                leftView = LayoutInflater.from(context).inflate(R.layout.msg_item_left, null);
+                leftView = LayoutInflater.from(context).inflate(R.layout.msg_group_item_left, null);
                 viewHolder = new ViewHolder(leftView);
                 leftView.setTag(viewHolder);
                 convertView = leftView;
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
-        } else if (currentType == 0) {
+        } else if (mMap.getMessageTag() == false) {
             if (convertView == null) {
-                rightView = LayoutInflater.from(context).inflate(R.layout.msg_item_right, null);
+                rightView = LayoutInflater.from(context).inflate(R.layout.msg_group_item_right, null);
                 viewHolder = new ViewHolder(rightView);
                 rightView.setTag(viewHolder);
                 convertView = rightView;
@@ -129,13 +131,9 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 viewHolder = (ViewHolder) convertView.getTag();
             }
         }
-        SendMessageBody mMap = mListAll.get(position);
-        this.curBody = mMap;
         freshViewContent(mMap, position);
         return convertView;
     }
-
-
 
     private void freshViewContent(SendMessageBody mMap, final int position) {
         // 1    *//文字
@@ -146,8 +144,8 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         // 6    *//位置
         // 7    *//推荐联系人
         // 8    *//加密图片
-
         addListener(position);
+        boolean freshFlag = true;
         switch (mMap.getMsgType()) {
             case 1:
                 freshTextView(mMap, position);
@@ -156,13 +154,13 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 freshDefaultImageView(mMap, position);
                 break;
             case 3:
-                freshPhotoView(mMap, position, true);
+                freshPhotoView(mMap, position, true, false);
                 break;
             case 4:
                 freshVoiceImageView(mMap, position);
                 break;
             case 5:
-                freshPhotoView(mMap, position, false);
+                freshPhotoView(mMap, position, false, false);
                 break;
             case 6:
                 freshPositionImageView(mMap, position);
@@ -173,16 +171,82 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             case 8:
                 freshEncodeImageView(mMap, position);
                 break;
+            case 9:
+                freshPhotoView(mMap, position, false, true);
+                break;
             case -1:
+                freshFlag = false;
                 freshBlankView();
                 break;
             default:
+                freshFlag = false;
                 freshTipsView(mMap, position);
                 break;
         }
+
+        if(mMap.getMsgType() > 0){
+            //显示时间
+            if (showTimeTextView(position) == true){
+                //time
+                viewHolder.imTime.setVisibility(View.VISIBLE);
+                viewHolder.imTimeBg.setVisibility(View.VISIBLE);
+                if (mMap.getMessageSendTime().length() <= 13){
+                    long time = Long.parseLong(mMap.getMessageSendTime());
+                    viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
+                }else{
+                    viewHolder.imTime.setText("");
+                }
+                changeGaoline(false);
+            }else{
+                viewHolder.imTime.setVisibility(View.GONE);
+                viewHolder.imTimeBg.setVisibility(View.GONE);
+                changeGaoline(true);
+            }
+        }
+        if(freshFlag == true){
+            if(this.isGroupMessage == true){
+                viewHolder.gapLine.setVisibility(View.GONE);
+                viewHolder.headIcon.setVisibility(View.VISIBLE);
+                viewHolder.userName.setVisibility(View.VISIBLE);
+                viewHolder.headBgView.setVisibility(View.VISIBLE);
+                if (mMap.getMessageSecretType() == 1){
+                    viewHolder.headIconSecert.setVisibility(View.VISIBLE);
+                }else{
+                    viewHolder.headIconSecert.setVisibility(View.INVISIBLE);
+                }
+                loadGroupHeadAndName(mMap);
+            }else{
+                viewHolder.gapLine.setVisibility(View.VISIBLE);
+                viewHolder.headIcon.setVisibility(View.GONE);
+                viewHolder.headIconSecert.setVisibility(View.GONE);
+                viewHolder.userName.setVisibility(View.GONE);
+                viewHolder.headBgView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void loadGroupHeadAndName(SendMessageBody mMap){
+        String username = mMap.groupLabel;
+        if(username == null || username .equalsIgnoreCase("")){
+            username =   mMap.UserName;
+        }
+        String headImage = RunningData.getInstance().echoMainPicUrl() + mMap.AvatarUrl + "?imageView2/1/w/120/h/120";
+        RequestOptions requestOptions = new RequestOptions().fitCenter().skipMemoryCache(true);
+        Glide.with(context).load(headImage).apply(requestOptions).into(viewHolder.headIcon);
+        viewHolder.userName.setText(username);
     }
 
     private void addListener(final int position){
+        viewHolder.headIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (innerListener != null) {
+                    innerListener.headIconClick(position);
+                }
+            }
+        });
+
+
         viewHolder.imDefaultImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -238,6 +302,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 }
             }
         });
+
 
         viewHolder.allConBg.setOnLongClickListener(new View.OnLongClickListener(){
             @Override
@@ -336,6 +401,10 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
 
         viewHolder.imTime.setVisibility(View.GONE);
         viewHolder.imTimeBg.setVisibility(View.GONE);
+        viewHolder.headIcon.setVisibility(View.GONE);
+        viewHolder.headIconSecert.setVisibility(View.GONE);
+        viewHolder.userName.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //****最后有一行空白行空白表格
         viewHolder.debugShow.setVisibility(View.VISIBLE);
@@ -348,49 +417,22 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
 
 
     private void freshTipsView(SendMessageBody mMap,int position){
-        viewHolder.imTextContent.setVisibility(View.VISIBLE);
+        viewHolder.imTextContent.setVisibility(View.GONE);
         viewHolder.imDefaultImageBg.setVisibility(View.GONE);
         viewHolder.imPhotoImageBg.setVisibility(View.GONE);
         viewHolder.imVoiceContent.setVisibility(View.GONE);
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
-
-        //*** 不是blank的都要显示
-        viewHolder.bottomBg.setVisibility(View.VISIBLE);
-        viewHolder.gapLine.setVisibility(View.VISIBLE);
-
-        if (mMap.getMessageSecretType() == 1){
-            viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_secret_shape));
-        }else{
-            if (mMap.getMessageTag() == false){
-                viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_right_shape));
-            }else{
-                viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
-            }
-        }
-
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
-
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
-        }
+        viewHolder.headIcon.setVisibility(View.GONE);
+        viewHolder.headIconSecert.setVisibility(View.GONE);
+        viewHolder.headBgView.setVisibility(View.GONE);
+        viewHolder.userName.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
+        viewHolder.bottomBg.setVisibility(View.GONE);
+        viewHolder.gapLine.setVisibility(View.GONE);
         viewHolder.allConBg.setAlpha(1);
-        viewHolder.imText.setText("当前版本不支持此消息");
-        viewHolder.imText.setTextColor(0xffAC1F25);
-        viewHolder.imText.setTextSize(TypedValue.COMPLEX_UNIT_SP, RunningData.getInstance().getCurTextSize());
+        viewHolder.serverMessageDetail.setText(mMap.getContent());
     }
 
 
@@ -403,6 +445,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -416,25 +459,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             }else{
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
-        }
-
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
-
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
         }
 
         if (mMap.getIsSendSuccess() == false){
@@ -454,21 +478,92 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 textSize = 35;
             }
         }
+
+
         viewHolder.imText.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
-        ViewGroup.LayoutParams lp;
-        lp = viewHolder.imText.getLayoutParams();
-        lp.width = WRAP_CONTENT;
-        lp.height = WRAP_CONTENT;
-        viewHolder.imText.setLayoutParams(lp);
+        ViewGroup.LayoutParams imText_lp = viewHolder.imText.getLayoutParams();
+        imText_lp.width = WRAP_CONTENT;
+        imText_lp.height = WRAP_CONTENT;
+        viewHolder.imText.setLayoutParams(imText_lp);
 
-        try{ //防止emoji崩溃
-//            viewHolder.imText.setText(mMap.getContent());
+
+        // 添加水印
+        Paint paint = new Paint();
+        paint.setTextSize((float)(textSize));
+        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+        //1. 高度
+        int fontHeight = (int)(fontMetrics.bottom - fontMetrics.top );
+        //2。 宽度
+        int fontWidth =  (int)paint.measureText(mMap.getContent());
+        int height_reminder =  (fontWidth % 220) == 0 ? 0 : 1;
+
+        int getWidth = fontWidth > 220 ? 220 : fontWidth;
+        int getHeight = (fontWidth / 220 + height_reminder) * fontHeight;
+
+        int im_width =  DensityUtil.dip2px(context, getWidth);
+        int im_height = DensityUtil.dip2px(context, getHeight);
+
+        ViewGroup.LayoutParams water_mark_lp = viewHolder.waterMark.getLayoutParams();
+        water_mark_lp.width = im_width;
+        water_mark_lp.height = im_height;
+        viewHolder.waterMark.setLayoutParams(water_mark_lp);
+
+        String airNumber = getAirNumber();
+        StringBuilder airNumberChange = new StringBuilder();
+        airNumberChange.append(airNumber);
+        int total = (im_width / 14 + 1) * (im_height / 14 + 1) / (airNumber.length()) + 1;
+        if (total > 0){
+            for (int i = 0; i < total; i++){
+                airNumberChange.append(airNumber);
+            }
+        }
+
+        try{
+            //防止emoji崩溃
             viewHolder.imText.setUrlText(mMap.getContent(), this);
-
+            viewHolder.waterMark.setText(airNumberChange.toString());
         }catch (Exception e){
             viewHolder.imText.setText("内容含有无法解析的字符");
             Logger.d("文字渲染错误");
         }
+
+        Logger.d("airNumberChange = " + airNumberChange.toString());
+    }
+
+    private String getAirNumber(){
+        String airNumber =  RunningData.getInstance().getMyAirNumber();
+        StringBuilder airNumberChange = new StringBuilder();
+        int length = (int)airNumber.length();
+        if (airNumber != null){
+            for (int i = 0; i < length; i++){
+                char c = airNumber.charAt(i);
+                if (c == '1'){
+                    airNumberChange.append("!");
+                }else if(c == '2'){
+                    airNumberChange.append("@");
+                }else if(c == '3'){
+                    airNumberChange.append("#");
+                }else if(c == '4'){
+                    airNumberChange.append("$");
+                }else if(c == '5'){
+                    airNumberChange.append("%");
+                }else if(c == '6'){
+                    airNumberChange.append("^");
+                }else if(c == '7'){
+                    airNumberChange.append("&");
+                }else if(c == '8'){
+                    airNumberChange.append("*");
+                }else if(c == '9'){
+                    airNumberChange.append("(");
+                }else if(c == '0'){
+                    airNumberChange.append(")");
+                }
+                if (i == length - 1) {
+                    airNumberChange.append("~ ");
+                }
+            }
+        }
+        return airNumberChange.toString();
     }
 
     private void freshDefaultImageView(SendMessageBody mMap, final int position){
@@ -479,6 +574,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -492,23 +588,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             }else{
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
-        }
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-
-            changeGaoline(true);
         }
 
         //  发送状态
@@ -526,7 +605,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
 
     }
 
-    private void freshPhotoView(final SendMessageBody mMap, final int position, boolean isPhoto){
+    private void freshPhotoView(final SendMessageBody mMap, final int position, boolean isPhoto, boolean isNewCollectEmoji){
         viewHolder.imTextContent.setVisibility(View.GONE);
         viewHolder.imDefaultImageBg.setVisibility(View.GONE);
         viewHolder.imPhotoImageBg.setVisibility(View.VISIBLE);
@@ -534,6 +613,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -547,23 +627,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             }else{
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
-        }
-
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
         }
 
         //  发送状态
@@ -586,8 +649,14 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             if (widthImage != 0){
                 scale = (double)heightImage / (double)widthImage;
             }
-            String image = RunningData.getInstance().echoIMPicUrl() + mMap.getFileUrl() + "?imageslim";
+            if (scale > 1.5){
+                scale = 1.5;
+                viewHolder.imPhotoImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            }else{
+                viewHolder.imPhotoImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            }
             if (isPhoto){
+                String image = RunningData.getInstance().echoIMPicUrl() + mMap.getFileUrl() + "?imageslim";
                 int imageWidth = RunningData.getInstance().getScreenWidth() / 2;
                 int imageHeight = (int)(imageWidth * scale);
                 ViewGroup.LayoutParams lp;
@@ -599,18 +668,22 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 if (widthImage > 300){
                     image = RunningData.getInstance().echoIMPicUrl() + mMap.getFileUrl() + "?imageView2/2/w/300";
                 }
-//                Logger.d("照片 = " + widthImage);
+
+                viewHolder.imPhotoImage.setImageDrawable(null);
+                Glide.with(context).load(image).into(viewHolder.imPhotoImage);
+
             }else{
-                //表情包的image大小做一些调整
-                int imageMinWidth = RunningData.getInstance().getScreenWidth() / 5;
-                int imageMaxWidth = RunningData.getInstance().getScreenWidth() / 4;
+                String imageEmoji;
+                int imageMinWidth = RunningData.getInstance().getScreenWidth() / 4;
+                int imageMaxWidth = RunningData.getInstance().getScreenWidth() / 3;
                 if (widthImage > imageMinWidth){
-                    imageMinWidth =  imageMinWidth * (widthImage / 100);
+                    float k = (imageMaxWidth - imageMinWidth) / (800 - imageMinWidth);
+                    imageMinWidth = (int)(k * (widthImage - imageMinWidth) + imageMinWidth);
+//                    imageMinWidth =  imageMinWidth * (widthImage / 100);
                     if (imageMinWidth > imageMaxWidth){
                         imageMinWidth = imageMaxWidth;
                     }
                 }
-
                 ViewGroup.LayoutParams lp;
                 lp = viewHolder.imPhotoImage.getLayoutParams();
                 lp.width = imageMinWidth;
@@ -618,14 +691,17 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 viewHolder.imPhotoImage.setLayoutParams(lp);
                 viewHolder.imPhotoImage.setBackground(new ColorDrawable(0x00ffffff));
 
-                if (widthImage > 200){
-                    image = RunningData.getInstance().echoIMPicUrl() + mMap.getFileUrl() + "?imageView2/2/w/200";
-                }
-            }
+                if(isNewCollectEmoji == false){
+                    imageEmoji = RunningData.getInstance().echoIMPicUrl() + mMap.getFileUrl();
 
-            viewHolder.imPhotoImage.setImageDrawable(null);
-            Glide.with(context).load(image).into(viewHolder.imPhotoImage);
-            showCacheImage(mMap.image_value);
+                }else{
+                    imageEmoji =  mMap.getFileUrl();
+
+                }
+
+                viewHolder.imPhotoImage.setImageDrawable(null);
+                Glide.with(context).load(imageEmoji).into(viewHolder.imPhotoImage);
+            }
 
         }catch (Exception e){
             Logger.d("info_arr3 解析错误");
@@ -642,6 +718,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.VISIBLE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -656,43 +733,31 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
         }
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
-        }
+
         if (mMap.getIsSendSuccess() == false){
             viewHolder.allConBg.setAlpha((float)0.5);
         }else{
             viewHolder.allConBg.setAlpha(1);
         }
-        try{
-            String deKey = mMap.getExcessInfo();
-            String allurl= mMap.getFileUrl();
 
-            //本地路径 斜线替换成下划线  / to -
-            String[] fileNames = allurl.replace("/", "_").split("imModelImages_");
-            final String fileName = fileNames[fileNames.length - 1];
-            final String imagePath =  RunningData.getInstance().getEncodeImageUrl();
-            final String fileLocal = imagePath + fileName;
-            if (fileIsExists(fileLocal)){
-                showImage(viewHolder.imEnPhotoImage, fileLocal, deKey);
-                return;
-            }
-        }catch (Exception e){
-            Logger.d("info_arr encode 解析错误");
-        }
+
+        //不显示
+//        try{
+//            String deKey = mMap.getExcessInfo();
+//            String allurl= mMap.getFileUrl();
+//
+//            //本地路径 斜线替换成下划线  / to -
+//            String[] fileNames = allurl.replace("/", "_").split("imModelImages_");
+//            final String fileName = fileNames[fileNames.length - 1];
+//            final String imagePath =  RunningData.getInstance().getEncodeImageUrl();
+//            final String fileLocal = imagePath + fileName;
+//            if (fileIsExists(fileLocal)){
+//                showImage(viewHolder.imEnPhotoImage, fileLocal, deKey);
+//                return;
+//            }
+//        }catch (Exception e){
+//            Logger.d("info_arr encode 解析错误");
+//        }
     }
 
 
@@ -704,6 +769,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.VISIBLE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -718,23 +784,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
         }
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
 
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
-        }
         if (mMap.getIsSendSuccess() == false){
             viewHolder.allConBg.setAlpha((float)0.5);
         }else{
@@ -751,10 +801,10 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
             String headIcom = info_arr[0].substring(11);
 //            Logger.d("info_arr[0].substring(11) = " + info_arr[0].substring(11));
             if (headIcom != null && !headIcom.equalsIgnoreCase("")) {
-                String headIcon = RunningData.getInstance().echoMainPicUrl() + info_arr[0].substring(11) + "?imageView2/1/w/150/h/150";
+                String headIconString = RunningData.getInstance().echoMainPicUrl() + info_arr[0].substring(11) + "?imageView2/1/w/150/h/150";
                 RequestOptions requestOptions = new RequestOptions().placeholder(R.mipmap.default_head);
                 Glide.with(context)
-                        .load(headIcon)
+                        .load(headIconString)
                         .apply(requestOptions)
                         .into(viewHolder.imFriendHead);
             }else{
@@ -776,6 +826,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.VISIBLE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -790,23 +841,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
         }
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
 
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
-        }
         if (mMap.getIsSendSuccess() == false){
             viewHolder.allConBg.setAlpha((float)0.5);
         }else{
@@ -834,6 +869,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         viewHolder.imPositionContent.setVisibility(View.GONE);
         viewHolder.imFriendContent.setVisibility(View.GONE);
         viewHolder.imEncodeImage.setVisibility(View.GONE);
+        viewHolder.serverMessageDetail.setVisibility(View.GONE);
 
         //*** 不是blank的都要显示
         viewHolder.bottomBg.setVisibility(View.VISIBLE);
@@ -851,23 +887,7 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 viewHolder.gapLine.setBackground(context.getResources().getDrawable(R.drawable.msg_left_shape));
             }
         }
-        if (showTimeTextView(position) == true){
-            //time
-            viewHolder.imTime.setVisibility(View.VISIBLE);
-            viewHolder.imTimeBg.setVisibility(View.VISIBLE);
-            if (mMap.getMessageSendTime().length() <= 13){
-                long time = Long.parseLong(mMap.getMessageSendTime());
-                viewHolder.imTime.setText(TimeStrings.getNewChatTime(time));
-            }else{
-                viewHolder.imTime.setText("");
-            }
-            changeGaoline(false);
 
-        }else{
-            viewHolder.imTime.setVisibility(View.GONE);
-            viewHolder.imTimeBg.setVisibility(View.GONE);
-            changeGaoline(true);
-        }
         if (mMap.getIsSendSuccess() == false){
             viewHolder.allConBg.setAlpha((float)0.5);
         }else{
@@ -967,10 +987,19 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         TextView debugShow;
         @BindView(R.id.gap_line)
         View gapLine;
+        @BindView(R.id.user_name)
+        TextView userName;
+        @BindView(R.id.head_icon)
+        RoundImageView headIcon;
+        @BindView(R.id.head_icon_secert)
+        RoundImageView headIconSecert;
+
         @BindView(R.id.im_time)
         TextView imTime;
         @BindView(R.id.im_text)
         HttpTextView imText;
+        @BindView(R.id.water_mark)
+        TextView waterMark;
         @BindView(R.id.im_text_content)
         LinearLayout imTextContent;
         @BindView(R.id.im_default_image_bg)
@@ -979,6 +1008,12 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         ImageView imDefaultImage;
         @BindView(R.id.im_friend_head)
         ImageView imFriendHead;
+
+        @BindView(R.id.head_bg_view)
+        RelativeLayout headBgView;
+
+        @BindView(R.id.server_message_detail)
+        TextView serverMessageDetail;
         @BindView(R.id.im_photo_image_bg)
         LinearLayout imPhotoImageBg;
         @BindView(R.id.im_photo_image)
@@ -1011,11 +1046,13 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         LinearLayout bottomBg;
         @BindView(R.id.im_time_bg)
         LinearLayout imTimeBg;
+        @BindView(R.id.im_en_photo_image)
+        ImageView imEnPhotoImage;
+
 
         @BindView(R.id.im_encode_image)
         LinearLayout imEncodeImage;
-        @BindView(R.id.im_en_photo_image)
-        ImageView imEnPhotoImage;
+
 
         ViewHolder(View view) {
             ButterKnife.bind(this, view);
@@ -1024,6 +1061,9 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
 
     private boolean showTimeTextView(int position){
         SendMessageBody mMap = mListAll.get(position);
+        if(mMap == null){
+            return false;
+        }
         long curtime = Long.parseLong(mMap.getMessageSendTime());
 
         if (position == 0 || position == mListAll.size() - 2){
@@ -1104,14 +1144,15 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
                 @Override
                 public void run() {
                     try{
-                        byte[] data = getContent(imagePath);
-                        if (data != null){
-                            CryTool tool = new CryTool();
-                            byte[] date_de = tool.aesImageDeWith(data, deKey);
-                            if (date_de != null){
-
-                            }
-                        }
+                        //不显示
+//                        byte[] data = getContent(imagePath);
+//                        if (data != null){
+//                            CryTool tool = new CryTool();
+//                            byte[] date_de = tool.aesImageDeWith(data, deKey);
+//                            if (date_de != null){
+//
+//                            }
+//                        }
                     }catch (Exception e){
                     }
                 }
@@ -1157,36 +1198,6 @@ public class MessageDetailAdapter extends BaseAdapter implements HttpTextView.UR
         return true;
     }
 
-    private void showCacheImage(final String image_value){
-        try{
-            Timer check = new Timer();
-            check.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (viewHolder != null){
-                        if (viewHolder.imPhotoImage != null) {
-                            if (viewHolder.imPhotoImage.getDrawable() == null){
-                                //***先加载本地图片
-                                if (image_value != null){
-                                    final File file = new File(image_value);
-                                    if (file.exists()){
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Glide.with(context).load(image_value).into(viewHolder.imPhotoImage);
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            },1000);
-        }catch (Exception e){}
-
-    }
 
     @Override
     public void urlItemClick(String text) {

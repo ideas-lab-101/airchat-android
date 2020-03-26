@@ -11,12 +11,17 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 
+import com.android.crypt.chatapp.R;
+import com.android.crypt.chatapp.group.model.GroupChatMsg;
 import com.android.crypt.chatapp.msgList.model.MessageListModel;
+import com.android.crypt.chatapp.user.Model.UserInfo;
 import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
 import com.android.crypt.chatapp.utility.Cache.CacheTool;
 import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.android.crypt.chatapp.utility.okgo.utils.Convert;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
@@ -35,6 +40,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -54,16 +61,20 @@ public class RunningData {
     private String echoMainPicUrl = null;
     private String echoIMPicUrl = null;
     private String echoEmojiPicUrl = null;
+    private String echoCollectEmojiPicUrl = null;
     private String cur_token = null;
     private String cur_account = null;
     private String cur_pwd = null;
     private String curPushVoice = null;
     private String mobPushRegistrationId = "";
     private String pushAlias = "";
+    private String curRegAirNumber = "";
+    private String getAirNumber = "";
 
     private int curTextSize = 0;
     private boolean isDebug;
     private int appShowHeight = 0;
+    private Map<String, GroupChatMsg> groupRunning;
 
     private static RunningData mInstance;
     public static RunningData getInstance() {
@@ -75,6 +86,18 @@ public class RunningData {
             }
         }
         return mInstance;
+    }
+
+    public String getCurEncodeVersion(){
+        return "0";
+    }
+
+    public void setCurRegNumber(String value){
+        curRegAirNumber = value;
+    }
+
+    public String getCurRegNumber(){
+        return curRegAirNumber;
     }
 
     public String getMobPushRegistrationId(){
@@ -103,8 +126,26 @@ public class RunningData {
         this.curTextSize = 0;
         this.cur_account = "";
         this.cur_pwd = "";
-
+        this.getAirNumber = "";
         CacheManager.getInstance().remove("contact-getFriendList");
+    }
+
+    public String getMyAirNumber(){
+        if (getAirNumber == null || getAirNumber.equals("")){
+            Gson gson = new Gson();
+            String userInfoString = CacheTool.getInstance().getCacheObject(ObjectCacheType.user_info);
+            if (userInfoString != "") {
+                try {
+                    UserInfo userInfo = gson.fromJson(userInfoString, UserInfo.class);
+                    if (userInfo != null){
+                        getAirNumber = userInfo.snnumber + "";
+                        Logger.d("snnumber = " + userInfo.snnumber + " user_id = " + userInfo.user_id);
+                    }
+
+                }catch (Exception e){}
+            }
+        }
+        return getAirNumber;
     }
 
 
@@ -131,7 +172,7 @@ public class RunningData {
     }
 
     // ws 正式url
-    public String wsReleaseUrl(){ return "ws://118.24.158.102:8089/sub"; }
+    public String wsReleaseUrl(){ return "ws://118.24.158.102:8089/sub"; } //118.24.158.102
 
     public int heartBeatDelay(){
         return 30000;
@@ -165,6 +206,13 @@ public class RunningData {
             echoIMPicUrl = PropertiesFactoryHelper.getInstance().getConfig("qiniu.echoIMPicUrl");
         }
         return echoIMPicUrl;
+    }
+
+    public String echoCollectionEmojiPicUrl(){
+        if (echoCollectEmojiPicUrl == null || echoCollectEmojiPicUrl.equals("") ){
+            echoCollectEmojiPicUrl = PropertiesFactoryHelper.getInstance().getConfig("qiniu.echoCollectEmojiPicUrl");
+        }
+        return echoCollectEmojiPicUrl;
     }
 
     public String echoEmojiPicUrl(){
@@ -316,7 +364,7 @@ public class RunningData {
                 if (cacheModelsList != null && cacheModelsList.size() >= 0){
                     for (int i = 0; i < cacheModelsList.size(); i++){
                         ContactCacheModel cacheModel = cacheModelsList.get(i);
-                        ContactModel data = new ContactModel(cacheModel.avatar_url, cacheModel.username, cacheModel.label, cacheModel.account, cacheModel.introduction, cacheModel.public_key, cacheModel.friend_id);
+                        ContactModel data = new ContactModel(cacheModel.avatar_url, cacheModel.username, cacheModel.label, cacheModel.account, cacheModel.introduction, cacheModel.public_key, cacheModel.friend_id, false);
                         CNPinyin<ContactModel> pinyin = new CNPinyin(data);
 
                         pinyin.firstChar = cacheModel.firstChar;
@@ -375,7 +423,13 @@ public class RunningData {
             ArrayList<MessageListModel> cacheList = gson.fromJson(cacheString, new TypeToken<ArrayList<MessageListModel>>() {
             }.getType());
             if (cacheList != null && cacheList.size() >= 0){
-                msgList.addAll(cacheList);
+                int total_number = cacheList.size();
+                if (total_number > 80){
+                    total_number = 80;
+                }
+                for (int i = 0; i < total_number; i++){
+                    msgList.add(cacheList.get(i));
+                }
             }
             if (msgList.size() == 0 || msgList.get(msgList.size() - 1).isblank == false){
                 MessageListModel blankModel = new MessageListModel();
@@ -392,6 +446,15 @@ public class RunningData {
             msgList = null;
         }
     }
+
+    public void cacheMsgListData() {
+        if(msgList != null){
+            Gson gson = new Gson();
+            String contactsString = gson.toJson(msgList);
+            CacheTool.getInstance().cacheObject(ObjectCacheType.message_list, contactsString);
+        }
+    }
+
 
 
 
@@ -551,6 +614,51 @@ public class RunningData {
 
     public void setCurPushVoice(String value){
         this.curPushVoice = value;
+    }
+
+    //****当前聊天的群的消息
+    public GroupChatMsg getGroupChatMsg(String groupId){
+        String key = "group" + groupId;
+
+        if(groupRunning == null) {
+            Gson gson = new Gson();
+            String groupChatMsgCacheString = CacheTool.getInstance().getCacheObject(ObjectCacheType.group_chat_data);
+            if (groupChatMsgCacheString != "") {
+                try {
+                    groupRunning = gson.fromJson(groupChatMsgCacheString, new TypeToken<Map<String, GroupChatMsg>>() {
+                    }.getType());
+                    if (groupRunning != null) {
+                        GroupChatMsg cur_model = groupRunning.get(key);
+                        if(cur_model != null){
+                            return cur_model;
+                        }
+                    }else{
+                        groupRunning = new HashMap<>();
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }else{
+            GroupChatMsg cur_model = groupRunning.get(key);
+            if(cur_model != null){
+                return cur_model;
+            }
+        }
+        return null;
+    }
+
+    public void cacheGroupChatMsg(String groupId, GroupChatMsg data){
+        String key = "group" + groupId;
+        if(groupRunning == null){
+            groupRunning = new HashMap<>();
+        }
+
+        groupRunning.put(key, data);
+        Gson gson = new Gson();
+        String groupChatMsgString = gson.toJson(groupRunning);
+        if(groupChatMsgString != null){
+            CacheTool.getInstance().cacheObject(ObjectCacheType.group_chat_data, groupChatMsgString);
+        }
     }
 
 }

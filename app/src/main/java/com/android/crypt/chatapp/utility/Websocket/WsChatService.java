@@ -286,10 +286,15 @@ public class WsChatService extends Service implements WebsocketCallbacks {
                 String MessageSendTime = String.valueOf(map.get("MessageSendTime"));
                 String Body_en = String.valueOf(map.get("Body_en"));
                 String Key = String.valueOf(map.get("Key"));
+                String PubKeyHash = String.valueOf(map.get("PubKeyHash"));
+                String EncodeVersion = String.valueOf(map.get("EncodeVersion"));
+
+
                 boolean MessageTag = (getIntWithString(String.valueOf(map.get("MessageTag"))) == 0)?false:true;
                 boolean IsSendSuccess = (getIntWithString(String.valueOf(map.get("IsSendSuccess"))) == 0)?false:true;
+                boolean IsGroupMessage = (getIntWithString(String.valueOf(map.get("IsGroupMessage"))) == 0)?false:true;
 
-                SendMessageEnBody enBody = new SendMessageEnBody(MessageCreator, MessageReceiver, MessageIdClient, MessageSendTime, Body_en, Key, MessageTag, IsSendSuccess);
+                SendMessageEnBody enBody = new SendMessageEnBody(MessageCreator, MessageReceiver, MessageIdClient, MessageSendTime, Body_en, Key, MessageTag, IsSendSuccess, IsGroupMessage, PubKeyHash, EncodeVersion);
                 callbackComeANewIMMessage(enBody);
 
             }
@@ -403,7 +408,6 @@ public class WsChatService extends Service implements WebsocketCallbacks {
     //服务器是保存IM消息推送状态的，必须告诉服务器消息已被接收，否则会不停给客户端推送
     public void sendImMessageBody(SendMessageEnBody body){
         unifiedSendMethod(body, 4);
-
         //1.0  加入缓冲池
         addMsgToResendPool(body);
 //        Logger.d("改变前body creator = " + body.getMessageCreator() + " receiver = " + body.getMessageReceiver());
@@ -665,6 +669,7 @@ public class WsChatService extends Service implements WebsocketCallbacks {
      *
      * ****/
     private void callbackChatDisconnected() {
+        dyOfflineMsgGapTimer = 3000;
         //默认是连接是断开的
         if (this.mesListCallbacks != null) {
             this.mesListCallbacks.chatDisconnected(); //连接断开回掉
@@ -760,15 +765,12 @@ public class WsChatService extends Service implements WebsocketCallbacks {
     }
 
     private void callbackComeANewIMMessage(SendMessageEnBody enBody){
-//        if (this.mesListCallbacks != null) {
-//            this.mesListCallbacks.comeANewIMMessage(enBody);
-//        }
         if (this.mesDetailCallbacks != null) {
             this.mesDetailCallbacks.comeANewIMMessage(enBody);
         }
 
         //1。0  通知消息已经接收
-        SendToConfirmIMMsgIsGet body = new SendToConfirmIMMsgIsGet(RunningData.getInstance().getCurrentAccount(), enBody.getMessageIdClient());
+        SendToConfirmIMMsgIsGet body = new SendToConfirmIMMsgIsGet(RunningData.getInstance().getCurrentAccount(), enBody.getMessageIdClient(), enBody.IsGroupMessage);
         imMessageIsSuccessReceived(body);
 
         //2.0  在service里cache到来的数据
@@ -813,6 +815,99 @@ public class WsChatService extends Service implements WebsocketCallbacks {
 
     private CryTool tool = new CryTool();
     public void freshMsgList(SendMessageEnBody imbody, boolean showReadedTips){
+        if(imbody.IsGroupMessage == true){
+            freshGroupMsg(imbody, showReadedTips);
+        }else{
+            freshSingleMsg(imbody, showReadedTips);
+        }
+    }
+
+    private void freshGroupMsg(SendMessageEnBody imbody, boolean showReadedTips){
+        String body_en = imbody.getBody_en();
+        String bodyString = "";
+
+        String key = imbody.getKey();
+        bodyString = tool.aesDeWith(body_en, key);
+        if (!bodyString.equals("")){
+            Gson gson = new Gson();
+            SendMessageBody sendBody =  gson.fromJson(bodyString, SendMessageBody.class);
+            if (sendBody != null){
+                searchGroupAndfresh(sendBody.GroupAvatarUrl,
+                        sendBody.groupName,
+                        sendBody.groupLabel,
+                        sendBody.UserName,
+                        sendBody.getMessageReceiver(),
+                        sendBody.getContent(),sendBody.getMessageSendTime(), showReadedTips);
+
+                return;
+            }
+        }
+
+        searchGroupAndfresh("",
+                "无法查看",
+                "",
+                "",
+                imbody.getMessageReceiver(),
+                "解密错误，具体查看帮助",imbody.getMessageSendTime(), showReadedTips);
+    }
+
+    private void searchGroupAndfresh(String headIcon, String groupName, String groupLabel, String UserName, String msgC, String content, String msgT, boolean showReadedTips){
+        boolean isExist = false;
+        int resultIndex = 0;
+        ArrayList<MessageListModel> mListContact = RunningData.getInstance().getMsgList();
+        for (int i = 0; i < mListContact.size(); i++){
+            MessageListModel modelInner = mListContact.get(i);
+            if (modelInner.account.equals(msgC)){  //当前列表有
+                resultIndex = i;
+                isExist = true;
+                break;
+            }
+        }
+        if (isExist == true) {
+            MessageListModel modelInner = mListContact.get(resultIndex);
+            String timeOlder = modelInner.MessageSendTime;
+            if (getSendTime(msgT) >= getSendTime(timeOlder)){
+                if(groupLabel == null || groupLabel.equalsIgnoreCase("")){
+                    modelInner.Content = UserName + ":" + content;
+                }else{
+                    modelInner.Content = groupLabel + ":" + content;
+                }
+                modelInner.isGroupMessage = true;
+                modelInner.avatar_url = headIcon;
+                modelInner.username = groupName;
+                modelInner.label = groupName;
+                modelInner.MessageSendTime = msgT;
+                modelInner.isreaded = showReadedTips;
+                mListContact.remove(resultIndex);
+                mListContact.add(0, modelInner);
+            }
+        }else{
+            MessageListModel modelInner = new MessageListModel();
+            modelInner.account = msgC;
+
+
+            if(groupLabel == null || groupLabel.equalsIgnoreCase("")){
+                modelInner.Content = UserName + ":" + content;
+            }else{
+                modelInner.Content = groupLabel + ":" + content;
+            }
+            modelInner.isGroupMessage = true;
+            modelInner.avatar_url = headIcon;
+            modelInner.username = groupName;
+            modelInner.label = groupName;
+            modelInner.MessageSendTime = msgT;
+            modelInner.isreaded = showReadedTips;
+            mListContact.add(0, modelInner);
+        }
+
+        if (this.mesListCallbacks != null) {
+            this.mesListCallbacks.freshMsgListView();
+        }
+    }
+
+
+
+    private void freshSingleMsg(SendMessageEnBody imbody, boolean showReadedTips){
         String body_en = imbody.getBody_en();
         String bodyString = "";
         if (imbody.getMessageTag() == false){ //自己的消息
@@ -829,7 +924,7 @@ public class WsChatService extends Service implements WebsocketCallbacks {
             Gson gson = new Gson();
             SendMessageBody sendBody =  gson.fromJson(bodyString, SendMessageBody.class);
             if (sendBody != null){
-                searchAndfresh(imbody.getMessageCreator(),
+                searchSingleAndfresh(imbody.getMessageCreator(),
                         sendBody.getContent(),
                         sendBody.getMessageSendTime(),
                         showReadedTips);
@@ -837,14 +932,13 @@ public class WsChatService extends Service implements WebsocketCallbacks {
             }
         }
 
-        searchAndfresh(imbody.getMessageCreator(),
-                "解密错误，具体查看帮助",
+        searchSingleAndfresh(imbody.getMessageCreator(),
+                "解密错误，具体查看小秘密",
                 imbody.getMessageSendTime(),
                 showReadedTips);
-
     }
 
-    private void searchAndfresh(String msgC, String content, String msgT, boolean showReadedTips){
+    private void searchSingleAndfresh(String msgC, String content, String msgT, boolean showReadedTips){
         boolean isExist = false;
         int resultIndex = 0;
         ArrayList<MessageListModel> mListContact = RunningData.getInstance().getMsgList();
@@ -879,7 +973,6 @@ public class WsChatService extends Service implements WebsocketCallbacks {
 
             for (int j = 0; j < innerContact.size(); j++){
                 ContactModel model = innerContact.get(j).data;
-//                Logger.d("联系人 = " + model.account);
                 if (model.account.equals(msgC)){
                     isContact = true;
                     contactIndex = j;
@@ -906,6 +999,9 @@ public class WsChatService extends Service implements WebsocketCallbacks {
             this.mesListCallbacks.freshMsgListView();
         }
     }
+
+
+
 
     private Long getSendTime(String time){
         Long idValue = Long.valueOf(0);

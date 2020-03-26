@@ -203,6 +203,13 @@ public class CryTool {
         return sha512.substring(10,26);
     }
 
+    public String getARandAesKey(){
+        long time = System.currentTimeMillis();
+        String timeTimestamp = String.valueOf(time);
+        String sha512 = shaEncrypt(timeTimestamp);
+        return sha512.substring(10,26);
+    }
+
 
     public String shaEncrypt(String data) {
         MessageDigest messageDigest;

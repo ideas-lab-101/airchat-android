@@ -26,19 +26,40 @@ import java.io.Serializable;
  */
 
 public class SendMessageBody implements Serializable {
-    private String Content;
-    private String MessageCreator;
-    private String MessageReceiver;
-    private String MessageIdClient;
-    private String MessageIdServer;
-    private int MsgType;
-    private String FileUrl;
-    private String ExcessInfo;
-    private String MessageSendTime;
-    private boolean IsSendSuccess;
-    private boolean MessageTag;
-    private int MessageSecretType;
+    public String Content;
+    public String MessageCreator;
+    public String MessageReceiver;
+    public String MessageIdClient;
+    public String MessageIdServer;
+    public int MsgType;
+    public String FileUrl;
+    public String ExcessInfo;
+    public String MessageSendTime;
+    public boolean IsSendSuccess;
+    public boolean MessageTag;
 
+
+    //**** 群聊字段
+    public boolean IsGroupMessage;
+    public String AvatarUrl;  //发言人头像
+    public String UserName;   //发言人姓名
+    public String groupLabel;  //发言人备注
+    public String groupName;    //群名字
+    public String GroupAvatarUrl; //群头像
+
+//    public String avatar_url;
+//    public String  group_avatar_url;
+//    public String introduction;
+//    public String label;
+//    public String username;
+//    public String groupName;
+//    public String groupLabel;
+
+
+
+
+/////////
+    private int MessageSecretType;
     public  boolean has_send_error = false;
     public  String image_value = "";
     public String message_other_process_info = ""; //其他的消息，比如语音转文字的结果

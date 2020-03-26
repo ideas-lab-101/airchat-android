@@ -217,7 +217,7 @@ public class ChatAppApplication extends MultiDexApplication implements Protected
 	private void initLog() {
 //		boolean isDebug = RunningData.getInstance().IsApkInDebug();
 //		if (isDebug == true){
-            //***打印日志
+//            ***打印日志
 //			Logger.addLogAdapter(new AndroidLogAdapter());
 //		}
 		//***崩溃日志

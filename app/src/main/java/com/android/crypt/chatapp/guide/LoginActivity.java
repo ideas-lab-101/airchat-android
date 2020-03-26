@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +45,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class LoginActivity extends BaseActivity  {
+public class LoginActivity extends BaseActivity {
 
 
     @BindView(R.id.txt_account)
@@ -59,9 +60,10 @@ public class LoginActivity extends BaseActivity  {
     Toolbar toolbar;
 
 
-
     @BindView(R.id.tv_findPwd)
     Button tvFindPwd;
+    @BindView(R.id.big_title)
+    TextView bigTitle;
 
 
     private String accountStr = "", pwdStr = "";
@@ -82,6 +84,11 @@ public class LoginActivity extends BaseActivity  {
         directLogin = getIntent().getIntExtra("directLogin", 0);
         if (directLogin == 1) {
             accountLogin();
+        }
+        String curRegNumber = RunningData.getInstance().getCurRegNumber();
+        if (curRegNumber != null && !curRegNumber.equals("")){
+            bigTitle.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            bigTitle.setText("新注册Air号: " + curRegNumber);
         }
     }
 

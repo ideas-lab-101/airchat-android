@@ -15,5 +15,9 @@ public enum ObjectCacheType {
     user_info,
     friend_list,      //好友列表
     message_list,
-    config_dic
+    config_dic,
+    group_members,
+    group_chat_data,
+    collect_emoji,
+    my_groups,
 }

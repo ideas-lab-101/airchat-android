@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/clear_white"
+    android:background="@color/clear"
     android:id="@+id/all_bg_view"
     android:fitsSystemWindows="true">
 

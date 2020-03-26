@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white_bg"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_item_with_line"/>
+    <com.baoyz.widget.PullRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/fresh_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white_bg"
+        android:scrollbars="vertical"
+        app:refreshColor="@color/clear"
+        app:refreshType="smartisan"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@color/clear"
+            android:fillViewport="true"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <LinearLayout
+                android:id="@+id/llContent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:text="群名称"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/tips_text_l"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/clear" />
+
+                <TextView
+                    android:id="@+id/group_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black_text"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:textStyle="bold"
+                    android:background="@color/clear" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/black_line_light" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:text="群介绍"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/tips_text_l"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/clear" />
+
+                <TextView
+                    android:id="@+id/group_intro"
+                    android:layout_width="match_parent"
+                    android:layout_height="35dp"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:gravity="center"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/black_text"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:textStyle="bold"
+                    android:background="@color/clear" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/black_line_light" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:text="是否开启截图通知:已开启\n开启后\niOS用户群内截图或录屏，将在群内公开用户资料\n安卓用户无法截屏群消息"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:textAlignment="textStart"
+                    android:textColor="@color/tips_text_l"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:background="@color/clear" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:layout_marginTop="40dp"
+                    android:background="@color/black_line_light" />
+
+
+
+
+                <LinearLayout
+                    android:id="@+id/invite"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:background="@color/sagacity_white" >
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:text="邀请好友入群"
+                            android:textColor="@color/sagacity_dark_gray"
+                            android:textSize="16sp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center" >
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="12dp"
+                                android:src="@drawable/mm_submenu"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/not_disturb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sagacity_white" >
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:text="消息免打扰"
+                            android:textColor="@color/sagacity_dark_gray"
+                            android:textSize="16sp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center" >
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="12dp"
+                                android:src="@drawable/mm_submenu"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/change_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sagacity_white" >
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:text="修改备注"
+                            android:textColor="@color/black_text"
+                            android:textSize="16sp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center" >
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="12dp"
+                                android:src="@drawable/mm_submenu"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/report_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:background="@color/sagacity_white" >
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:text="举报群聊"
+                            android:textColor="@color/black_text"
+                            android:textSize="16sp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center" >
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="12dp"
+                                android:src="@drawable/mm_submenu"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/delete_group_msg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sagacity_white" >
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:text="删除群聊消息"
+                            android:textColor="@color/black_text"
+                            android:textSize="16sp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center" >
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="12dp"
+                                android:src="@drawable/mm_submenu"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/quit_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/sagacity_white" >
+
+                    <RelativeLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="50dp"
+                        android:gravity="center_vertical" >
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_marginLeft="20dp"
+                            android:gravity="center"
+                            android:text="退出群聊"
+                            android:textColor="@color/sagacity_dark_gray"
+                            android:textSize="16sp" />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:layout_alignParentRight="true"
+                            android:gravity="center" >
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="12dp"
+                                android:src="@drawable/mm_submenu"/>
+                        </LinearLayout>
+                    </RelativeLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </ScrollView>
+    </com.baoyz.widget.PullRefreshLayout>
+
+</android.support.design.widget.CoordinatorLayout>

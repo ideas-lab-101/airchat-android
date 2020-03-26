@@ -135,13 +135,36 @@ public class MessageListAdapter extends BaseAdapter {
                 viewHolder.messageTime.setText("");
             }
 
-            //头像
-            String headImage = RunningData.getInstance().echoMainPicUrl() + model.avatar_url + "?imageView2/1/w/200/h/200";
-            RequestOptions requestOptions = new RequestOptions().fitCenter().skipMemoryCache(true).placeholder(R.mipmap.default_head);
-            Glide.with(context)
-                    .load(headImage)
-                    .apply(requestOptions)
-                    .into(viewHolder.ivAvatar);
+            if(model.isGroupMessage == true){
+                String grouoAvatar = model.avatar_url;
+                if(grouoAvatar == null || grouoAvatar.equalsIgnoreCase("")){//没有群头像
+                    viewHolder.ivAvatarText.setVisibility(View.VISIBLE);
+                    viewHolder.ivAvatar.setVisibility(View.INVISIBLE);
+                    String textValue = substring(username, 0 ,1);
+                    if(!textValue.equalsIgnoreCase("")){
+                        viewHolder.ivAvatarText.setText(textValue);
+                    }
+                }else{
+                    viewHolder.ivAvatarText.setVisibility(View.INVISIBLE);
+                    viewHolder.ivAvatar.setVisibility(View.VISIBLE);
+                    //头像
+                    String headImage = RunningData.getInstance().echoMainPicUrl() + model.avatar_url + "?imageView2/1/w/200/h/200";
+                    RequestOptions requestOptions = new RequestOptions().fitCenter().skipMemoryCache(true);
+                    Glide.with(context).load(headImage).apply(requestOptions).into(viewHolder.ivAvatar);
+
+                }
+            }else{
+                viewHolder.ivAvatarText.setVisibility(View.INVISIBLE);
+                viewHolder.ivAvatar.setVisibility(View.VISIBLE);
+                //头像
+                String headImage = RunningData.getInstance().echoMainPicUrl() + model.avatar_url + "?imageView2/1/w/200/h/200";
+                RequestOptions requestOptions = new RequestOptions().fitCenter().skipMemoryCache(true).placeholder(R.mipmap.default_head);
+                Glide.with(context)
+                        .load(headImage)
+                        .apply(requestOptions)
+                        .into(viewHolder.ivAvatar);
+            }
+
             viewHolder.deleteMsg.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -150,9 +173,25 @@ public class MessageListAdapter extends BaseAdapter {
                     }
                 }
             });
+        }
 
+        convertView.setAlpha((float) 1.0);
+        if (position > 75) {
+            float alphaValue = (float)(1 - (position - 75) * 0.2);
+            convertView.setAlpha(alphaValue);
         }
         return convertView;
+    }
+
+    public String substring(String source, int start, int end) {
+        String result = "";
+        try {
+            result = source.substring(source.offsetByCodePoints(0, start),
+                    source.offsetByCodePoints(0, end));
+        } catch (Exception e) {
+            result = "";
+        }
+        return result;
     }
 
 
@@ -184,7 +223,8 @@ public class MessageListAdapter extends BaseAdapter {
         @BindView(R.id.blank_text)
         TextView blankText;
 
-
+        @BindView(R.id.iv_avatar_text)
+        TextView ivAvatarText;
 
         ViewHolder(View view) {
             ButterKnife.bind(this, view);

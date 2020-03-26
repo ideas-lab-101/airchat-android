@@ -157,7 +157,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
 
 
     private void myQrCodeAc(){
-        ContactModel mMap = new ContactModel(userInfo.avatar_url, userInfo.username, "", userInfo.login_name, userInfo.introduction, "", "");
+        ContactModel mMap = new ContactModel(userInfo.avatar_url, userInfo.username, "", userInfo.login_name, userInfo.introduction, "", "", false);
         Intent intent  = new Intent(this, MyQRCodeActivity.class);
         intent.putExtra("friendInfo", mMap);
         intent.putExtra("isMine", true);
@@ -172,7 +172,7 @@ public class InfoDataActivity extends BaseActivity implements ActionSheet.Action
     private void choosePhoto(){
         ActionSheet.createBuilder(this, getSupportFragmentManager())
                 .setCancelButtonTitle("取消")
-                .setOtherButtonTitles("从相册种选择")
+                .setOtherButtonTitles("从相册中选择")
                 .setCancelableOnTouchOutside(true)
                 .setListener(this).show();
     }

@@ -1,7 +1,7 @@
 <resources>
 
     <string name="title_bar_main">首页</string>
-    <string name="title_bar_help">帮助</string>
+    <string name="title_bar_help">小秘密</string>
 
 
     <string name="title_bar_userInfo">个人信息</string>
@@ -22,8 +22,20 @@
     <string name="title_bar_keys_watch">我的密钥</string>
     <string name="title_bar_keys_re_cal">密钥生成</string>
     <string name="title_bar_push_voice">推送声音</string>
+    <string name="title_bar_groups_mem">群成员</string>
+    <string name="title_bar_groups_join">我的群</string>
+    <string name="title_bar_groups_info">群资料-设置</string>
+    <string name="title_bar_groups_label">修改群备注</string>
 
-    <string name="title_bar_resend_msg">转发给联系人</string>
+    <string name="update_app_model_prepare">准备下载</string>
+    <string name="update_app_model_progress">下载进度</string>
+    <string name="update_app_model_success">下载成功</string>
+
+    <string name="update_app_model_error">下载出错</string>
+
+
+
+    <string name="title_bar_resend_msg">消息列表 - 联系人</string>
     <string name="title_bar_text_size">聊天消息大小</string>
     <string name="title_bar_position">位置</string>
     <string name="title_bar_emoji">动画表情</string>
@@ -38,8 +50,6 @@
     <string name="errcode_deny">分享拒绝</string>
     <string name="errcode_unsupported">不支持分享类型</string>
     <string name="errcode_unknown">未知错误</string>
-
-
 
     <string name="title_bar_contact">通讯录</string>
     <string name="title_bar_contact_select">选择联系人</string>
@@ -61,11 +71,12 @@
     <string name="tab_contact">联系人</string>
     <string name="tab_user">设置</string>
 
-
-    <string name="crypt_error_tips">解密错误，具体查看帮助</string>
+    <string name="crypt_error_tips">解密错误，具体查看小秘密</string>
 
     <string name="title_province">省份选择</string>
     <string name="title_city">城市选择</string>
+
+
 
 
 

@@ -287,7 +287,7 @@ public class UserFragment extends BaseFragment{
             try {
                 UserInfo userInfo = gson.fromJson(userInfoString, UserInfo.class);
 
-                ContactModel mMap = new ContactModel(userInfo.avatar_url, userInfo.username, "", userInfo.login_name, userInfo.introduction, "", "");
+                ContactModel mMap = new ContactModel(userInfo.avatar_url, userInfo.username, "", userInfo.login_name, userInfo.introduction, "", "", false);
                 Intent intent  = new Intent(getActivity(), MyQRCodeActivity.class);
                 intent.putExtra("friendInfo", mMap);
                 intent.putExtra("isMine", true);

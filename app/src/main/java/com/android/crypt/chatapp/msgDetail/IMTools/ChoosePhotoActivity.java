@@ -33,7 +33,7 @@ public class ChoosePhotoActivity extends TakePhotoActivity {
             if (isEmcode == true){
                 limit = 1;
             }else {
-                limit = 6;
+                limit = 3;
             }
         }catch (Exception e){}
         startPhoto(getTakePhoto());
@@ -71,6 +71,7 @@ public class ChoosePhotoActivity extends TakePhotoActivity {
 
     //****相册
     public void startPhoto(TakePhoto takePhoto) {
+        configCompress(takePhoto);
         configTakePhotoOption(takePhoto);
         takePhoto.onPickMultiple(limit);
     }
@@ -79,14 +80,13 @@ public class ChoosePhotoActivity extends TakePhotoActivity {
         TakePhotoOptions.Builder builder = new TakePhotoOptions.Builder();
         builder.setWithOwnGallery(true);
         builder.setCorrectImage(true);
-
         takePhoto.setTakePhotoOptions(builder.create());
     }
 
     private void configCompress(TakePhoto takePhoto) {
-        int maxSize = 1200;
-        int width = 1000;
-        int height = 1000;
+        int maxSize = 1024 * 512; // 512 k
+        int width = 500;
+        int height = 500;
         boolean showProgressBar =  true;
         boolean enableRawFile =  false;
         CompressConfig config;

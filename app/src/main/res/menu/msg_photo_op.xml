@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item  android:id="@+id/transend"  android:title="转发给联系人" android:icon="@mipmap/default_head"></item>
+    <!--<item  android:id="@+id/transend"  android:title="转发给联系人" android:icon="@mipmap/default_head"></item>-->
     <item  android:id="@+id/addEmoji"  android:title="+添加表情"></item>
     <item  android:id="@+id/delete"  android:title="-删除消息"></item>
 </menu>

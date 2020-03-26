@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import com.android.crypt.chatapp.R;
 
@@ -37,7 +38,7 @@ public class NotifyUtils {
             NotificationChannel notificationChannel = new NotificationChannel(CALENDAR_ID, name,
                     NotificationManager.IMPORTANCE_HIGH);
             // 设置渠道描述
-            notificationChannel.setDescription("测试通知组");
+            notificationChannel.setDescription("airchat");
             // 是否绕过请勿打扰模式
             notificationChannel.canBypassDnd();
             // 设置绕过请勿打扰模式
@@ -74,7 +75,7 @@ public class NotifyUtils {
             intent.putExtra("i", 1);
             pendingIntent = PendingIntent.getActivity(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                notification = new Notification.Builder(context)
+                notification = new NotificationCompat.Builder(context, "airchat")
                         .setContentIntent(pendingIntent)//跳转的activity
                         .setContentTitle(title)
                         .setAutoCancel(true)//标题和点击消失
@@ -83,9 +84,10 @@ public class NotifyUtils {
                         .setSmallIcon(R.mipmap.ic_icon)//图标
                         .setPriority(Notification.PRIORITY_MAX) //设置该通知优先级
                         .setFullScreenIntent(pendingIntent, true)
+                        .setGroupSummary(true)
                         .build();
             }else if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M){
-                notification = new Notification.Builder(context)
+                notification = new NotificationCompat.Builder(context, "airchat")
                         .setContentIntent(pendingIntent)//跳转的activity
                         .setContentTitle(title)
                         .setAutoCancel(true)//标题和点击消失
@@ -93,15 +95,17 @@ public class NotifyUtils {
                         .setSmallIcon(R.mipmap.ic_icon)//图标
                         .setPriority(Notification.PRIORITY_MAX) //设置该通知优先级
                         .setFullScreenIntent(pendingIntent, true)
+                        .setGroupSummary(true)
                         .build();
             } else {
-                notification = new Notification.Builder(context)
+                notification = new NotificationCompat.Builder(context, "airchat")
                         .setContentIntent(pendingIntent)
                         .setContentTitle(title).setAutoCancel(true)
                         .setContentText(msg)
                         .setSmallIcon(R.mipmap.ic_icon)
                         .setPriority(Notification.PRIORITY_MAX) //设置该通知优先级
                         .setFullScreenIntent(pendingIntent, true)
+                        .setGroupSummary(true)
                         .getNotification();
             }
             manager.notify(111, notification);

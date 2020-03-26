@@ -24,9 +24,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import com.android.crypt.chatapp.msgDetail.model.CollectEmoji;
+import com.android.crypt.chatapp.utility.Cache.CacheClass.ObjectCacheType;
+import com.android.crypt.chatapp.utility.Cache.CacheTool;
 import com.android.crypt.chatapp.utility.Common.RunningData;
 import com.android.crypt.chatapp.widget.swipexlistview.RListView;
-import com.android.crypt.chatapp.widget.swipexlistview.XListView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -35,6 +37,8 @@ import com.bumptech.glide.request.transition.Transition;
 import com.android.crypt.chatapp.R;
 import com.android.crypt.chatapp.msgDetail.Interface.ChatUiCallback;
 import com.android.crypt.chatapp.msgDetail.adapter.EmojiAdapter;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -81,7 +85,7 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener, SoftKeyBoa
 
     public static final int EVERY_PAGE_SIZE = 21;
 
-    private ArrayList<String> listItems;
+    private ArrayList<CollectEmoji> listItems;
     public  ChatUiHelper bindEmojiData(int btnIndex){
         emoji_kind = 0;
         if (btnIndex == 0){
@@ -103,127 +107,133 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener, SoftKeyBoa
         return this;
     }
 
-    private ArrayList<String> getDefault(){
-        ArrayList<String> emojiBeanList = new ArrayList<String>(){{
-            add("qxDefaultEmoji/qxFace_1.png");
-            add("qxDefaultEmoji/qxFace_2.png");
-            add("qxDefaultEmoji/qxFace_3.png");
-            add("qxDefaultEmoji/qxFace_4.png");
-            add("qxDefaultEmoji/qxFace_5.png");
-            add("qxDefaultEmoji/qxFace_6.png");
-            add("qxDefaultEmoji/qxFace_7.png");
-            add("qxDefaultEmoji/qxFace_8.png");
-            add("qxDefaultEmoji/qxFace_9.png");
-            add("qxDefaultEmoji/qxFace_10.png");
-            add("qxDefaultEmoji/qxFace_11.png");
-            add("qxDefaultEmoji/qxFace_12.png");
-            add("qxDefaultEmoji/qxFace_13.png");
-            add("qxDefaultEmoji/qxFace_14.png");
-            add("qxDefaultEmoji/qxFace_15.png");
-            add("qxDefaultEmoji/qxFace_16.png");
-            add("qxDefaultEmoji/qxFace_17.png");
-            add("qxDefaultEmoji/qxFace_18.png");
-            add("qxDefaultEmoji/qxFace_19.png");
-            add("qxDefaultEmoji/qxFace_20.png");
-            add("qxDefaultEmoji/qxFace_21.png");
-            add("qxDefaultEmoji/qxFace_22.png");
-            add("qxDefaultEmoji/qxFace_23.png");
-            add("qxDefaultEmoji/qxFace_24.png");
-            add("qxDefaultEmoji/qxFace_25.png");
-            add("qxDefaultEmoji/qxFace_26.png");
-            add("qxDefaultEmoji/qxFace_27.png");
-            add("qxDefaultEmoji/qxFace_28.png");
-            add("qxDefaultEmoji/qxFace_29.png");
-            add("qxDefaultEmoji/qxFace_30.png");
-            add("qxDefaultEmoji/qxFace_31.png");
-            add("qxDefaultEmoji/qxFace_32.png");
-            add("qxDefaultEmoji/qxFace_33.png");
-            add("qxDefaultEmoji/qxFace_34.png");
-            add("qxDefaultEmoji/qxFace_35.png");
-            add("qxDefaultEmoji/qxFace_36.png");
-            add("qxDefaultEmoji/qxFace_37.png");
-            add("qxDefaultEmoji/qxFace_38.png");
-            add("qxDefaultEmoji/qxFace_39.png");
-            add("qxDefaultEmoji/qxFace_40.png");}};
+    private ArrayList<CollectEmoji> getDefault(){
+        ArrayList<CollectEmoji> emojiBeanList = new ArrayList<CollectEmoji>();
+        for(int i = 1; i <= 40; i++){
+            CollectEmoji mode = new CollectEmoji();
+            mode.emojiBaseUrl =  RunningData.getInstance().echoEmojiPicUrl();
+            mode.emojiName =  "[表情]";
+            mode.emojiUrl = "qxDefaultEmoji/qxFace_" + i + ".png";
+            emojiBeanList.add(mode);
+        }
+//        {{
+//            add("qxDefaultEmoji/qxFace_1.png");
+//            add("qxDefaultEmoji/qxFace_2.png");
+//            add("qxDefaultEmoji/qxFace_3.png");
+//            add("qxDefaultEmoji/qxFace_4.png");
+//            add("qxDefaultEmoji/qxFace_5.png");
+//            add("qxDefaultEmoji/qxFace_6.png");
+//            add("qxDefaultEmoji/qxFace_7.png");
+//            add("qxDefaultEmoji/qxFace_8.png");
+//            add("qxDefaultEmoji/qxFace_9.png");
+//            add("qxDefaultEmoji/qxFace_10.png");
+//            add("qxDefaultEmoji/qxFace_11.png");
+//            add("qxDefaultEmoji/qxFace_12.png");
+//            add("qxDefaultEmoji/qxFace_13.png");
+//            add("qxDefaultEmoji/qxFace_14.png");
+//            add("qxDefaultEmoji/qxFace_15.png");
+//            add("qxDefaultEmoji/qxFace_16.png");
+//            add("qxDefaultEmoji/qxFace_17.png");
+//            add("qxDefaultEmoji/qxFace_18.png");
+//            add("qxDefaultEmoji/qxFace_19.png");
+//            add("qxDefaultEmoji/qxFace_20.png");
+//            add("qxDefaultEmoji/qxFace_21.png");
+//            add("qxDefaultEmoji/qxFace_22.png");
+//            add("qxDefaultEmoji/qxFace_23.png");
+//            add("qxDefaultEmoji/qxFace_24.png");
+//            add("qxDefaultEmoji/qxFace_25.png");
+//            add("qxDefaultEmoji/qxFace_26.png");
+//            add("qxDefaultEmoji/qxFace_27.png");
+//            add("qxDefaultEmoji/qxFace_28.png");
+//            add("qxDefaultEmoji/qxFace_29.png");
+//            add("qxDefaultEmoji/qxFace_30.png");
+//            add("qxDefaultEmoji/qxFace_31.png");
+//            add("qxDefaultEmoji/qxFace_32.png");
+//            add("qxDefaultEmoji/qxFace_33.png");
+//            add("qxDefaultEmoji/qxFace_34.png");
+//            add("qxDefaultEmoji/qxFace_35.png");
+//            add("qxDefaultEmoji/qxFace_36.png");
+//            add("qxDefaultEmoji/qxFace_37.png");
+//            add("qxDefaultEmoji/qxFace_38.png");
+//            add("qxDefaultEmoji/qxFace_39.png");
+//            add("qxDefaultEmoji/qxFace_40.png");}};
         return emojiBeanList;
     }
 
-    private ArrayList<String> getDog(){
-        ArrayList<String> emojiBeanList = new ArrayList<String>(){{
-            add("qxDefaultEmoji/qxDog_1.png");
-            add("qxDefaultEmoji/qxDog_2.png");
-            add("qxDefaultEmoji/qxDog_3.png");
-            add("qxDefaultEmoji/qxDog_4.png");
-            add("qxDefaultEmoji/qxDog_5.png");
-            add("qxDefaultEmoji/qxDog_6.png");
-            add("qxDefaultEmoji/qxDog_7.png");
-            add("qxDefaultEmoji/qxDog_8.png");
-            add("qxDefaultEmoji/qxDog_9.png");
-            add("qxDefaultEmoji/qxDog_10.png");
-            add("qxDefaultEmoji/qxDog_11.png");
-            add("qxDefaultEmoji/qxDog_12.png");
-            add("qxDefaultEmoji/qxDog_13.png");
-            add("qxDefaultEmoji/qxDog_14.png");
-            add("qxDefaultEmoji/qxDog_15.png");
-            add("qxDefaultEmoji/qxDog_16.png");
-        }};
+    private ArrayList<CollectEmoji> getDog(){
+        ArrayList<CollectEmoji> emojiBeanList = new ArrayList<CollectEmoji>();
+        for(int i = 1; i <= 16; i++){
+            CollectEmoji mode = new CollectEmoji();
+            mode.emojiBaseUrl =  RunningData.getInstance().echoEmojiPicUrl();
+            mode.emojiName =  "[表情]";
+            mode.emojiUrl = "qxDefaultEmoji/qxDog_" + i + ".png";
+            emojiBeanList.add(mode);
+        }
+//        ArrayList<String> emojiBeanList = new ArrayList<String>(){{
+//            add("qxDefaultEmoji/qxDog_1.png");
+//            add("qxDefaultEmoji/qxDog_2.png");
+//            add("qxDefaultEmoji/qxDog_3.png");
+//            add("qxDefaultEmoji/qxDog_4.png");
+//            add("qxDefaultEmoji/qxDog_5.png");
+//            add("qxDefaultEmoji/qxDog_6.png");
+//            add("qxDefaultEmoji/qxDog_7.png");
+//            add("qxDefaultEmoji/qxDog_8.png");
+//            add("qxDefaultEmoji/qxDog_9.png");
+//            add("qxDefaultEmoji/qxDog_10.png");
+//            add("qxDefaultEmoji/qxDog_11.png");
+//            add("qxDefaultEmoji/qxDog_12.png");
+//            add("qxDefaultEmoji/qxDog_13.png");
+//            add("qxDefaultEmoji/qxDog_14.png");
+//            add("qxDefaultEmoji/qxDog_15.png");
+//            add("qxDefaultEmoji/qxDog_16.png");
+//        }};
         return emojiBeanList;
     }
 
-    private ArrayList<String> getCat(){
-        ArrayList<String> emojiBeanList = new ArrayList<String>(){{
-            add("qxDefaultEmoji/qxCat_1.png");
-            add("qxDefaultEmoji/qxCat_2.png");
-            add("qxDefaultEmoji/qxCat_3.png");
-            add("qxDefaultEmoji/qxCat_4.png");
-            add("qxDefaultEmoji/qxCat_5.png");
-            add("qxDefaultEmoji/qxCat_6.png");
-            add("qxDefaultEmoji/qxCat_7.png");
-            add("qxDefaultEmoji/qxCat_8.png");
-            add("qxDefaultEmoji/qxCat_9.png");
-            add("qxDefaultEmoji/qxCat_10.png");
-            add("qxDefaultEmoji/qxCat_11.png");
-            add("qxDefaultEmoji/qxCat_12.png");
-            add("qxDefaultEmoji/qxCat_13.png");
-            add("qxDefaultEmoji/qxCat_14.png");
-            add("qxDefaultEmoji/qxCat_15.png");
-            add("qxDefaultEmoji/qxCat_16.png");
-        }};
+    private ArrayList<CollectEmoji> getCat(){
+        ArrayList<CollectEmoji> emojiBeanList = new ArrayList<CollectEmoji>();
+        for(int i = 1; i <= 16; i++){
+            CollectEmoji mode = new CollectEmoji();
+            mode.emojiBaseUrl =  RunningData.getInstance().echoEmojiPicUrl();
+            mode.emojiName =  "[表情]";
+            mode.emojiUrl = "qxDefaultEmoji/qxCat_" + i + ".png";
+            emojiBeanList.add(mode);
+        }
+//        ArrayList<String> emojiBeanList = new ArrayList<String>(){{
+//            add("qxDefaultEmoji/qxCat_1.png");
+//            add("qxDefaultEmoji/qxCat_2.png");
+//            add("qxDefaultEmoji/qxCat_3.png");
+//            add("qxDefaultEmoji/qxCat_4.png");
+//            add("qxDefaultEmoji/qxCat_5.png");
+//            add("qxDefaultEmoji/qxCat_6.png");
+//            add("qxDefaultEmoji/qxCat_7.png");
+//            add("qxDefaultEmoji/qxCat_8.png");
+//            add("qxDefaultEmoji/qxCat_9.png");
+//            add("qxDefaultEmoji/qxCat_10.png");
+//            add("qxDefaultEmoji/qxCat_11.png");
+//            add("qxDefaultEmoji/qxCat_12.png");
+//            add("qxDefaultEmoji/qxCat_13.png");
+//            add("qxDefaultEmoji/qxCat_14.png");
+//            add("qxDefaultEmoji/qxCat_15.png");
+//            add("qxDefaultEmoji/qxCat_16.png");
+//        }};
         return emojiBeanList;
     }
 
-    private ArrayList<String> getCollectEmeoji(){
-        ArrayList<String> emojiBeanList = new ArrayList<String>();
-        emojiBeanList.add("");
+    private ArrayList<CollectEmoji> getCollectEmeoji(){
+        ArrayList<CollectEmoji> emojiBeanList = new ArrayList<CollectEmoji>();
+        emojiBeanList.add(new CollectEmoji());
 
-        try{
-            String speBgImage = RunningData.getInstance().getCollectImage();
-            //查找特定的图
-            File fileRoot = new File(speBgImage);
-            if (fileRoot.exists()){
-                File[] files = fileRoot.listFiles();
-                for (int i = 0; i < files.length; i++){
-                    File file = files[i];
-                    String imageName = file.getName();
-                    long outTime = string2int(imageName.split("\\.")[0]);
-                    if (emojiBeanList.size() <= 1){
-                        emojiBeanList.add(speBgImage + imageName);
-                    }else{
-                        int insert_index = emojiBeanList.size() - 1;
-                        for(int j = 1; j < emojiBeanList.size(); j++){
-                            String[] names = emojiBeanList.get(j).split("\\/");
-                            String name = names[names.length - 1];
-                            long innerTime = string2int(name.split("\\.")[0]);
-                            if (outTime >= innerTime){
-                                insert_index = j;
-                                break;
-                            }
-                        }
-                        emojiBeanList.add(insert_index, speBgImage + imageName);
-                    }
-                }
+        Gson gson = new Gson();
+        String cacheString = CacheTool.getInstance().getCacheObject(ObjectCacheType.collect_emoji);
+        if (cacheString != null && cacheString != "") {
+            ArrayList<CollectEmoji> cacheModel = gson.fromJson(cacheString, new TypeToken<ArrayList<CollectEmoji>>() {
+            }.getType());
+            if(cacheModel != null && cacheModel.size() > 0){
+                emojiBeanList.addAll(cacheModel);
             }
-        }catch (Exception e){}
+        }
+
 
         return emojiBeanList;
     }
@@ -297,7 +307,7 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener, SoftKeyBoa
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (emoji_kind == 0){
             if (position < listItems.size()){
-                String imageString = listItems.get(position);
+                CollectEmoji imageString = listItems.get(position);
                 if (callback != null){
                     callback.sendDefaultEmoji(imageString);
                 }
@@ -308,7 +318,7 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener, SoftKeyBoa
                     callback.addCollectEmji();
                 }
             }else{
-                String imageString = listItems.get(position);
+                CollectEmoji imageString = listItems.get(position);
                 if (callback != null){
                     callback.sendCollectEmji(imageString);
                 }
@@ -595,33 +605,24 @@ public class ChatUiHelper implements AdapterView.OnItemClickListener, SoftKeyBoa
         }
     }
 
-    public void addEmoji(String imageUrl){
-        try{
-            String baseUrl = RunningData.getInstance().echoIMPicUrl();
-            Glide.with(mActivity).downloadOnly().load(baseUrl + imageUrl).into(new SimpleTarget<File>() {
-                        @Override
-                        public void onResourceReady(@NonNull File file, @Nullable Transition<? super File> transition) {
-                            String filePath = file.getPath();
-                            BitmapFactory.Options options = new BitmapFactory.Options();
-                            options.inJustDecodeBounds = true;
-                            BitmapFactory.decodeFile(filePath, options);
-
-                            //outMimeType是以--”image/png”、”image/jpeg”、”image/gif”…….这样的方式返回的
-                            String mimeType = options.outMimeType;
-                            String surfix = mimeType.split("\\/")[1];
-
-                            String mFile = RunningData.getInstance().getCollectImage();
-                            long time = System.currentTimeMillis() + 1;
-                            String savefile = mFile + time  + "." + surfix;
-                            file.renameTo(new File(savefile));
-
-                            bindEmojiData(3);
-                        }
-                    });
+    public void addEmoji(CollectEmoji imageUrl){
+        ArrayList<CollectEmoji> show_EmojiList = new ArrayList<CollectEmoji>();
+        Gson gson = new Gson();
+        String cacheString = CacheTool.getInstance().getCacheObject(ObjectCacheType.collect_emoji);
+        if (cacheString != null && cacheString != "") {
+            ArrayList<CollectEmoji> cacheModel = gson.fromJson(cacheString, new TypeToken<ArrayList<CollectEmoji>>() {
+            }.getType());
+            if(cacheModel != null && cacheModel.size() > 0){
+                show_EmojiList.addAll(cacheModel);
+            }
 
 
-        }catch (Exception e){}
+        }
 
+        show_EmojiList.add(imageUrl);
+        String cacheNewString = gson.toJson(show_EmojiList);
+        CacheTool.getInstance().cacheObject(ObjectCacheType.collect_emoji, cacheNewString);
+        bindEmojiData(3);
     }
 
     @Override

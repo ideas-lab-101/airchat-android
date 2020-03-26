@@ -1,12 +1,17 @@
 package com.android.crypt.chatapp.InfoSetting;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,7 +22,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.android.crypt.chatapp.BaseActivity;
 import com.android.crypt.chatapp.guide.LogOrRegActivity;
 import com.android.crypt.chatapp.user.BgImageActivity;
@@ -30,6 +34,7 @@ import com.android.crypt.chatapp.utility.Crypt.CryTool;
 import com.android.crypt.chatapp.utility.okgo.callback.JsonCallback;
 import com.android.crypt.chatapp.utility.okgo.model.CodeResponse;
 import com.android.crypt.chatapp.utility.okgo.utils.Convert;
+import com.android.crypt.chatapp.utility.upgrade.UpdateService;
 import com.baoyz.actionsheet.ActionSheet;
 import com.android.crypt.chatapp.ChatAppApplication;
 import com.android.crypt.chatapp.R;
@@ -168,9 +173,9 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
                 break;
             case R.id.ll_version_check:
                 if (!version_url.equalsIgnoreCase("")){
-                    Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(version_url));
-                    it.setClassName("com.android.browser", "com.android.browser.BrowserActivity");
-                    startActivity(it);
+                    upGradeMethod(version_url);
+                }else{
+                    makeSnake(btnExit, "当前是最新版本", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
                 }
                 break;
             case R.id.share_app:
@@ -186,6 +191,7 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                tvCacheSize.setText("0.0byte");
                                 //执行删除缓存目录的操作
                                 GlideCacheUtils.getInstance().clearImageAllCache(SettingActivity.this);
                             }
@@ -457,6 +463,106 @@ public class SettingActivity extends BaseActivity implements ActionSheet.ActionS
                 });
     }
 
+    private void upGradeMethod(String version_url){
+        Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(version_url));
+        startActivity(it);
+        return;
+//        if (!checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) && !checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+//            ActivityCompat.requestPermissions(SettingActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+//            Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(version_url));
+//            startActivity(it);
+//            return;
+//        }else{
+//            UpdateService.Builder.create(version_url).setStoreDir("sdcard/Android/package/update").setDownloadSuccessNotificationFlag(Notification.DEFAULT_ALL).setDownloadErrorNotificationFlag(Notification.DEFAULT_ALL).build(this);
+//            makeSnake(btnExit, "正在后台下载", R.mipmap.toast_alarm, Snackbar.LENGTH_SHORT);
+//
+//        }
+    }
+
+//    private void requestAppVersion() {
+//        RequestParams params = new RequestParams();
+//        addRequestHeader(params);
+//        ChatAppApplication.getContext().httpRequest.xPostjson(mContext, params, Constant.BASE_HTTP + ContantUrl.getVersionUpDate, new RequestResultJsonCallBack() {
+//            @Override
+//            public void onSucess(String result) {
+//                Logger.e(TAG, "requestAppVersion-------" + result);
+//                NewBaseBean info = Constant.getPerson(result, NewBaseBean.class);
+//                if (info.getCode() == Constant.RETURN_SUCCESS__STATE_CODE) {
+//                    UpdataAppBean bean = Constant.getPerson(result, UpdataAppBean.class);
+//                    List<UpdataAppBean.DataBean.ListBean> list = bean.getData().getList();
+//                    if (list != null && list.size() > 0) {
+//                        listBean = list.get(0);
+//                        String name = listBean.getName();
+//                        if (!name.equals(ContantUrl.SERVER_VERSION_NAME)) {
+//                            final String url = listBean.getUrl();
+//                            String text = mContext.getResources().getString(R.string.check_upgrade);
+//                            UpgradeDialog upgrade = new UpgradeDialog(MainActivity.this, text, new UpgradeDialog.OnClickconfirmListener() {
+//                                @Override
+//                                public void confirm() {
+//                                    if (!checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) && !checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+//                                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_PERMISSION_MAIN);
+//                                        return;
+//                                    }
+//
+//                                    UpdateService.Builder.create(url).setStoreDir(ContantUrl.AppFile).setDownloadSuccessNotificationFlag(Notification.DEFAULT_ALL).setDownloadErrorNotificationFlag(Notification.DEFAULT_ALL).build(mContext);
+//                                    Toast.makeText(mContext, "正在后台下载", Toast.LENGTH_LONG).show();
+//                                    //通过浏览器去下载APK
+//                                    //                                    InstallUtils.installAPKWithBrower(mContext, url);
+//
+//                                }
+//                            });
+//                            upgrade.show();
+//                            upgrade.setDetail(listBean.getDescription());
+//
+//                        }
+//                    }
+//                } else {
+//                    Logger.e(TAG, info.getMessage());
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onFailure(int errorCode, String errorMsg) {
+//                showErrorLogger(TAG, errorCode, errorMsg);
+//            }
+//        });
+//    }
+//
+//    public boolean checkPermission(@NonNull String permission) {
+//        return ActivityCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        if (requestCode == 0) {//权限走的是这里
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                UpdateService.Builder.create(version_url).setStoreDir("sdcard/Android/package/update").setDownloadSuccessNotificationFlag(Notification.DEFAULT_ALL).setDownloadErrorNotificationFlag(Notification.DEFAULT_ALL).build(this);
+//                Toast.makeText(this, "正在后台下载", Toast.LENGTH_LONG).show();
+//                删除apk文件(获取权限之后)
+//                FileUtils.deleteFile(new File(ContantUrl.absolutePath + File.separator + ContantUrl.AppFile + "/GangGang_release-1.0.apk"));
+//            } else {
+//                AlertDialog.Builder builder = new AlertDialog.Builder(this)
+//                        .setTitle("你没有开启安装权限")
+//                        .setMessage("是否去下载页面下载？")
+//                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//                                Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(version_url));
+//                                startActivity(it);
+//                            }
+//                        })
+//                        .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                            }
+//                        });
+//                builder.create().show();
+//            }
+//        }
+//    }
 
 
 }

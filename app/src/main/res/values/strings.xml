@@ -171,4 +171,5 @@
     <string name="title_activity_change_push_voice">ChangePushVoiceActivity</string>
     <string name="title_activity_search_local">SearchLocalActivity</string>
     <string name="title_activity_log_or_reg">LogOrRegActivity</string>
+    <string name="title_activity_group_mem">GroupMemActivity</string>
 </resources>
